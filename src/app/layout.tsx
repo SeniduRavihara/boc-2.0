@@ -36,10 +36,10 @@ export const metadata: Metadata = {
     siteName: "Beauty of Cloud 2.0",
     images: [
       {
-        url: "/email-and-header/boc.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Beauty of Cloud 2.0 Logo",
+        alt: "Beauty of Cloud 2.0 Social Preview",
       },
     ],
     locale: "en_US",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Beauty of Cloud 2.0",
     description: "Sri Lanka's first student-led inter-university cloud ideathon.",
-    images: ["/email-and-header/boc.png"],
+    images: ["/og-image.png"],
   },
 };
 
