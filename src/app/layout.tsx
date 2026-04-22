@@ -25,9 +25,32 @@ const uncut = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.beautyofcloud.com"),
   title: "Beauty of Cloud 2.0 | Sri Lanka's Inter-University Cloud Ideathon",
   description:
     "Beauty of Cloud 2.0 is Sri Lanka's first student-led inter-university cloud ideathon — second edition. Register as a delegate, explore sessions, and compete.",
+  openGraph: {
+    title: "Beauty of Cloud 2.0 | Cloud Ideathon",
+    description: "Sri Lanka's first student-led inter-university cloud ideathon. Join the second edition now.",
+    url: "https://www.beautyofcloud.com",
+    siteName: "Beauty of Cloud 2.0",
+    images: [
+      {
+        url: "/email-and-header/boc.png",
+        width: 1200,
+        height: 630,
+        alt: "Beauty of Cloud 2.0 Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Beauty of Cloud 2.0",
+    description: "Sri Lanka's first student-led inter-university cloud ideathon.",
+    images: ["/email-and-header/boc.png"],
+  },
 };
 
 export default function RootLayout({
