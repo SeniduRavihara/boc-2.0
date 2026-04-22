@@ -1,21 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import localFont from "next/font/local";
+import { GeistSans } from "geist/font/sans";
+import { JetBrains_Mono } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
+import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const reglo = localFont({
+  src: "../../public/Reglo-Bold.otf",
+  variable: "--font-reglo",
+  display: "swap",
+});
+
+const uncut = localFont({
+  src: "../../public/UncutSans-Variable.ttf",
+  variable: "--font-uncut",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Beauty of Cloud 2.0",
-  description: "Sri Lanka's premier inter-university cloud ideathon.",
+  title: "Beauty of Cloud 2.0 | Sri Lanka's Inter-University Cloud Ideathon",
+  description:
+    "Beauty of Cloud 2.0 is Sri Lanka's first student-led inter-university cloud ideathon — second edition. Register as a delegate, explore sessions, and compete.",
 };
 
 export default function RootLayout({
@@ -26,12 +38,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${GeistSans.variable} ${jetbrainsMono.variable} ${reglo.variable} ${uncut.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <SmoothScroll>
-          {children}
-        </SmoothScroll>
+      <body className="bg-background text-foreground selection:bg-accent selection:text-white">
+        <div className="grain"></div>
+        <div id="cursor-portal">
+          <CustomCursor />
+        </div>
+        <AuthProvider>
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
+        </AuthProvider>
       </body>
     </html>
   );

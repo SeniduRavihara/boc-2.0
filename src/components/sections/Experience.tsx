@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useRef } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 
-gsap.registerPlugin(ScrollTrigger);
+/**
+ * Experience — Horizontal Scroll Section
+ * Pins the section while cards scroll horizontally left.
+ * Framer Motion port of the hyper-scroll sample's card-track effect.
+ */
 
 const CARDS = [
   {
@@ -122,79 +124,55 @@ const Card: React.FC<{ card: typeof CARDS[0]; index: number }> = ({ card, index 
 const marqueeItems = ['BEAUTY OF CLOUD', '☁', 'BOC 2.0', '⚡', 'IDEATHON 2025', '☁', 'SRI LANKA', '⚡'];
 const MarqueeStrip: React.FC<{ dir?: 'left' | 'right' }> = ({ dir = 'left' }) => (
   <div className="overflow-hidden border-y border-white/5">
-    <div className="relative py-4">
-      <div 
-        className={`flex gap-12 text-[10px] font-mono tracking-[0.4em] uppercase text-white/15 whitespace-nowrap w-fit animate-marquee-${dir}`}
-      >
-        {[...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems].map((t, i) => (
-          <span key={i} className={t === '☁' || t === '⚡' ? 'text-blue-500/30' : ''}>{t}</span>
-        ))}
-      </div>
-    </div>
+    <motion.div
+      className="inline-flex gap-12 py-4 text-[10px] font-mono tracking-[0.4em] uppercase text-white/15 whitespace-nowrap"
+      animate={{ x: dir === 'left' ? ['0%', '-50%'] : ['-50%', '0%'] }}
+      transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+    >
+      {[...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems].map((t, i) => (
+        <span key={i} className={t === '☁' || t === '⚡' ? 'text-blue-500/30' : ''}>{t}</span>
+      ))}
+    </motion.div>
   </div>
 );
 
 export const Experience: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const horizontalRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    const totalWidth = horizontalRef.current!.scrollWidth;
-    const viewportWidth = window.innerWidth;
-    const scrollDistance = totalWidth - viewportWidth + (viewportWidth * 0.1); // Add some padding
+  // Total scroll distance = (cards - 1) * card width + gaps
+  const cardW = 400; // approx card width + gap
+  const totalScroll = cardW * (CARDS.length - 1);
 
-    // Horizontal Scroll Timeline
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: `+=${totalWidth}`,
-        pin: true,
-        scrub: 1,
-        invalidateOnRefresh: true,
-      }
-    });
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
 
-    tl.to(horizontalRef.current, {
-      x: -scrollDistance,
-      ease: 'none',
-    });
+  // Maps scroll 0→1 to horizontal translation 0 → -totalScroll
+  const x = useTransform(scrollYProgress, [0, 1], [0, -totalScroll]);
 
-    // Parallax effects
-    gsap.to(headingRef.current, {
-      x: -120,
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      }
-    });
-
-    gsap.to(counterRef.current, {
-      x: 80,
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom top',
-        scrub: true,
-      }
-    });
-  }, { scope: sectionRef });
+  // Heading parallax (scroll-linked)
+  const headingX = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const counterX = useTransform(scrollYProgress, [0, 1], [0, 80]);
 
   return (
-    <section id="experience" ref={sectionRef} className="bg-[#020617] relative">
+    <section id="experience" className="bg-[#020617] relative">
+
       <MarqueeStrip dir="left" />
 
       {/* Pinned horizontal scroll container */}
-      <div ref={containerRef} className="relative h-screen">
+      {/* Height = 100vh * (number of cards + 1) to give scroll room */}
+      <div
+        ref={containerRef}
+        className="relative"
+        style={{ height: `${(CARDS.length + 1) * 100}vh` }}
+      >
+        {/* Sticky viewport — everything inside here is pinned */}
         <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
+
           {/* Section heading overlay */}
           <div className="relative z-10 px-8 md:px-16 pt-12 pb-8 flex items-end justify-between">
-            <div ref={headingRef}>
+            <motion.div style={{ x: headingX }}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                 <span className="text-blue-500 font-mono text-[10px] tracking-[0.5em] uppercase">History</span>
@@ -203,17 +181,17 @@ export const Experience: React.FC = () => {
                 Cloud<br />
                 <span className="text-white/20">Journey.</span>
               </h2>
-            </div>
-            <div ref={counterRef} className="font-mono text-[10px] text-white/20 text-right">
+            </motion.div>
+            <motion.div style={{ x: counterX }} className="font-mono text-[10px] text-white/20 text-right">
               <div>Scroll to explore</div>
               <div className="text-blue-500/40 mt-1">→</div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Horizontal track */}
           <div className="flex-1 flex items-center overflow-visible">
-            <div
-              ref={horizontalRef}
+            <motion.div
+              style={{ x }}
               className="flex gap-6 pl-8 md:pl-16 pr-32"
             >
               {CARDS.map((card, i) => (
@@ -232,22 +210,24 @@ export const Experience: React.FC = () => {
                   Register now for Sri Lanka&apos;s biggest cloud ideathon.
                 </p>
                 <Link href="/register/compitition">
-                  <button
-                    className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-widest text-xs rounded-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(59,130,246,0.4)]"
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-widest text-xs rounded-xl transition-colors shadow-[0_0_30px_rgba(59,130,246,0.4)]"
                   >
                     Register Now
-                  </button>
+                  </motion.button>
                 </Link>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Progress bar */}
           <div className="px-8 md:px-16 pb-10">
             <div className="h-[1px] bg-white/5 relative">
-              <div
-                className="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-300"
-                id="experience-progress"
+              <motion.div
+                className="absolute top-0 left-0 h-full bg-blue-500"
+                style={{ width: useTransform(scrollYProgress, [0, 1], ['0%', '100%']) }}
               />
             </div>
             <div className="flex justify-between mt-3">

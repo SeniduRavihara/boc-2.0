@@ -1,11 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { motion, useInView } from 'framer-motion';
 
 // Terminal lines to type out - Linux cloud terminal style
 const TERMINAL_LINES = [
@@ -56,6 +52,7 @@ const TypedLine: React.FC<{ line: TerminalLine; onDone: () => void; instant?: bo
   const [displayed, setDisplayed] = useState('');
   const [cmdDisplayed, setCmdDisplayed] = useState('');
   
+  // Use value for 'key' type, otherwise use text
   const fullText = line.type === 'key' ? (line.value || '') : (line.text || '');
   const fullCmd = line.cmd || '';
 
@@ -67,12 +64,15 @@ const TypedLine: React.FC<{ line: TerminalLine; onDone: () => void; instant?: bo
       return;
     }
 
+    // Direct display for non-prompt types or if specified
     if (line.type !== 'prompt') {
       setDisplayed(fullText);
+      // Small delay before moving to next line to make it readable but "instant"
       const timer = setTimeout(onDone, 50);
       return () => clearTimeout(timer);
     }
 
+    // For prompts: Show prompt text instantly, then type the command
     setDisplayed(fullText);
     
     if (fullCmd) {
@@ -133,61 +133,17 @@ const TypedLine: React.FC<{ line: TerminalLine; onDone: () => void; instant?: bo
 };
 
 export const About: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const leftRef = useRef<HTMLDivElement>(null);
-  const rightRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null);
-  
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [currentLine, setCurrentLine] = useState(-1);
   const [started, setStarted] = useState(false);
 
-  useGSAP(() => {
-    // Label animation
-    gsap.fromTo(labelRef.current, 
-      { opacity: 0, y: 20 },
-      { 
-        opacity: 1, y: 0,
-        scrollTrigger: {
-          trigger: labelRef.current,
-          start: 'top 90%',
-          once: true
-        }
-      }
-    );
-
-    // Left content animation
-    gsap.fromTo(leftRef.current,
-      { opacity: 0, x: -40 },
-      {
-        opacity: 1, x: 0,
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: leftRef.current,
-          start: 'top 85%',
-          once: true
-        }
-      }
-    );
-
-    // Right content (terminal) animation
-    gsap.fromTo(rightRef.current,
-      { opacity: 0, x: 40 },
-      {
-        opacity: 1, x: 0,
-        duration: 0.8,
-        delay: 0.2,
-        scrollTrigger: {
-          trigger: rightRef.current,
-          start: 'top 85%',
-          once: true,
-          onEnter: () => {
-            setStarted(true);
-            setCurrentLine(0);
-          }
-        }
-      }
-    );
-  }, { scope: containerRef });
+  useEffect(() => {
+    if (isInView && !started) {
+      setStarted(true);
+      setCurrentLine(0);
+    }
+  }, [isInView]);
 
   const handleLineDone = () => {
     setCurrentLine(prev => {
@@ -197,7 +153,8 @@ export const About: React.FC = () => {
   };
 
   return (
-    <section id="about" ref={containerRef} className="py-32 px-6 bg-[#020617] relative overflow-hidden">
+    <section id="about" className="py-32 px-6 bg-[#020617] relative overflow-hidden">
+
       {/* Subtle grid background */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -208,17 +165,30 @@ export const About: React.FC = () => {
       />
 
       <div className="container mx-auto max-w-6xl relative z-10">
+
         {/* Section Label */}
-        <div ref={labelRef} className="mb-16 flex items-center gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 flex items-center gap-4"
+        >
           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
           <span className="text-blue-500 font-mono text-xs tracking-[0.5em] uppercase">
             About Beauty of Cloud
           </span>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+
           {/* Left — Heading */}
-          <div ref={leftRef} className="lg:sticky lg:top-32">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="lg:sticky lg:top-32"
+          >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-[0.9] mb-8">
               About <br />
               <span className="text-blue-500 font-mono">Beauty of</span><br />
@@ -243,18 +213,26 @@ export const About: React.FC = () => {
               ))}
             </div>
 
-            <a
+            <motion.a
               href="/delegate-booklet.pdf"
               target="_blank"
-              className="mt-10 inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-8 py-4 rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:shadow-[0_0_50px_rgba(59,130,246,0.5)] transition-all hover:scale-105 active:scale-95"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="mt-10 inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-8 py-4 rounded-xl shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:shadow-[0_0_50px_rgba(59,130,246,0.5)] transition-all"
             >
               <span className="text-blue-200 font-mono">$</span>
               Delegate Booklet
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
 
           {/* Right — Terminal Window */}
-          <div ref={rightRef}>
+          <motion.div
+            ref={ref}
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             {/* Terminal chrome */}
             <div className="rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(59,130,246,0.12)]">
               {/* Title bar */}
@@ -269,7 +247,7 @@ export const About: React.FC = () => {
               </div>
 
               {/* Terminal body */}
-              <div className="bg-[#060f1e] p-6 font-mono text-sm min-h-[520px] overflow-hidden relative">
+              <div className="bg-[#060f1e] p-6 font-mono text-sm min-h-[520px] overflow-hidden">
                 {/* Scan-line overlay */}
                 <div
                   className="absolute inset-0 pointer-events-none opacity-[0.03]"
@@ -311,7 +289,8 @@ export const About: React.FC = () => {
                 <span className="text-green-400/50 font-mono text-[10px]">connected</span>
               </div>
             </div>
-          </div>
+          </motion.div>
+
         </div>
       </div>
     </section>

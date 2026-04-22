@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -10,7 +11,12 @@ interface SmoothScrollProps {
 }
 
 export function SmoothScroll({ children }: SmoothScrollProps) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
+
   useEffect(() => {
+    if (isAdmin) return;
+
     // Register GSAP plugins
     gsap.registerPlugin(ScrollTrigger);
 
