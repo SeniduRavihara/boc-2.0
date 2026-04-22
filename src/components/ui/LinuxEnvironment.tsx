@@ -871,7 +871,14 @@ const CalendarPopover = ({ show, time }: { show: boolean, time: Date }) => {
 };
 
 // — Main Component —
-export const LinuxEnvironment: React.FC = () => {
+export const LinuxEnvironment = React.forwardRef<HTMLDivElement, { onPortalClick?: () => void, children?: React.ReactNode }>((props, ref) => {
+  const portalIconRef = useRef<HTMLDivElement>(null);
+
+  // Expose the portal icon ref to the parent via the main ref if needed, 
+  // but better to just use a custom prop for the portal ref.
+  // Actually, I'll use useImperativeHandle to expose specifically the portalIconRef.
+  React.useImperativeHandle(ref, () => portalIconRef.current as HTMLDivElement);
+
   const [time, setTime] = useState(new Date());
   const [showQuickSettings, setShowQuickSettings] = useState(false);
   const [showAppDrawer, setShowAppDrawer] = useState(false);
@@ -1025,7 +1032,7 @@ export const LinuxEnvironment: React.FC = () => {
       )}
 
       {/* — GNOME Top Bar — */}
-      <div className="absolute top-0 left-0 right-0 h-9 md:h-7 bg-black/50 hover:bg-black/80 transition-colors backdrop-blur-xl flex items-center justify-between px-2 md:px-4 z-[110] text-white">
+      <div id="os-top-bar" className="absolute top-0 left-0 right-0 h-9 md:h-7 bg-black/50 hover:bg-black/80 transition-colors backdrop-blur-xl flex items-center justify-between px-2 md:px-4 z-[110] text-white">
         {/* Left: Activities */}
         <div 
           className={`flex items-center gap-2 text-[12px] md:text-[13px] font-medium cursor-pointer ${showAppDrawer ? 'bg-white/20' : 'hover:bg-white/10'} px-2 md:px-3 py-1 rounded-full transition-colors`}
@@ -1078,7 +1085,7 @@ export const LinuxEnvironment: React.FC = () => {
       {showAppDrawer && <AppDrawer show={showAppDrawer} onClose={() => setShowAppDrawer(false)} onOpenApp={openApp} />}
 
       {/* — Windows Area — */}
-      <div ref={desktopRef} className="absolute top-9 md:top-7 left-0 right-0 bottom-0 pointer-events-none z-[80]">
+      <div ref={desktopRef} id="os-windows" className="absolute top-9 md:top-7 left-0 right-0 bottom-0 pointer-events-none z-[80]">
         {apps.map(app => (
           <Window 
             key={app.id} 
@@ -1095,13 +1102,12 @@ export const LinuxEnvironment: React.FC = () => {
       </div>
 
       {/* — GNOME Dock — */}
-      <div className={`absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-[120] px-2 py-1.5 bg-[#1e1e1e]/80 backdrop-blur-3xl border border-white/10 rounded-[24px] flex items-center gap-1 md:gap-2 shadow-2xl transition-all duration-300 opacity-100 scale-100`}>
+      <div id="os-dock" className={`absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-[120] px-2 py-1.5 bg-[#1e1e1e]/80 backdrop-blur-3xl border border-white/10 rounded-[24px] flex items-center gap-1 md:gap-2 shadow-2xl transition-all duration-300 opacity-100 scale-100 dock-container`}>
+        
+        {/* Left Apps */}
         {[
           { id: 'browser', icon: "/linux-icons/apps/48/internet-web-browser.svg", label: 'Browser' },
           { id: 'files', icon: "/linux-icons/apps/48/system-file-manager.svg", label: 'Files' },
-          { id: 'editor', icon: "/linux-icons/apps/48/text-editor.svg", label: 'Code' },
-          { id: 'terminal', icon: "/linux-icons/apps/48/utilities-terminal.svg", label: 'Terminal' },
-          { id: 'viewer', icon: "/linux-icons/apps/48/internet-web-browser.svg", label: 'About' },
         ].map((item, i) => {
           const appState = apps.find(a => a.id === item.id);
           const isRunning = appState?.isOpen;
@@ -1111,12 +1117,39 @@ export const LinuxEnvironment: React.FC = () => {
             <div 
               key={i} 
               onClick={() => openApp(item.id as AppId)}
-              className="relative group flex flex-col items-center"
+              className="relative group flex flex-col items-center dock-app"
             >
               <div className={`w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all cursor-pointer ${isFocused ? 'bg-white/15 shadow-inner' : 'hover:bg-white/10'}`}>
                 <img src={item.icon} alt={item.label} className="w-7 h-7 md:w-8 md:h-8 object-contain drop-shadow-md" />
               </div>
-              {/* Running indicator */}
+              {isRunning && (
+                <div className="absolute -bottom-0.5 w-1.5 h-1.5 rounded-full bg-white/80" />
+              )}
+            </div>
+          )
+        })}
+
+        {/* The actual expanding portal orb passed from page.tsx */}
+        {props.children}
+
+        {/* Right Apps */}
+        {[
+          { id: 'editor', icon: "/linux-icons/apps/48/text-editor.svg", label: 'Code' },
+          { id: 'terminal', icon: "/linux-icons/apps/48/utilities-terminal.svg", label: 'Terminal' },
+        ].map((item, i) => {
+          const appState = apps.find(a => a.id === item.id);
+          const isRunning = appState?.isOpen;
+          const isFocused = isRunning && !appState?.isMinimised && appState?.zIndex === Math.max(...apps.map(a => a.zIndex));
+
+          return (
+            <div 
+              key={i} 
+              onClick={() => openApp(item.id as AppId)}
+              className="relative group flex flex-col items-center dock-app"
+            >
+              <div className={`w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all cursor-pointer ${isFocused ? 'bg-white/15 shadow-inner' : 'hover:bg-white/10'}`}>
+                <img src={item.icon} alt={item.label} className="w-7 h-7 md:w-8 md:h-8 object-contain drop-shadow-md" />
+              </div>
               {isRunning && (
                 <div className="absolute -bottom-0.5 w-1.5 h-1.5 rounded-full bg-white/80" />
               )}
@@ -1138,4 +1171,6 @@ export const LinuxEnvironment: React.FC = () => {
 
     </div>
   );
-};
+});
+
+LinuxEnvironment.displayName = 'LinuxEnvironment';
