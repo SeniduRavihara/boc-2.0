@@ -87,7 +87,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto font-outfit">
             {/* Status Overlay */}
             <AnimatePresence>
                 {status && (
@@ -165,14 +165,16 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     fill 
                     className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                {/* Cinematic Blue Filter Overlay */}
+                <div className="absolute inset-0 bg-blue-950/40 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
                 <div className="absolute bottom-4 md:bottom-8 left-6 md:left-10 right-6 md:right-10">
                     <div className="flex items-center gap-3 mb-2">
-                        <span className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-300 backdrop-blur-md">
+                        <span className="inline-flex rounded-full border border-blue-400/50 bg-blue-600/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.4)]">
                             Cloud Excellence
                         </span>
                         <div className="h-1 w-1 rounded-full bg-white/20" />
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Protocol V2.0</span>
+                        <span className="text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">Protocol V2.0</span>
                     </div>
                     <h2 className="text-lg md:text-3xl font-black text-white tracking-tight uppercase leading-tight">Getting into the cloud with AWS</h2>
                 </div>
@@ -212,8 +214,8 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                               Fill this form out to register yourselves. Learn and get hands on experience in cloud base projects.
                           </p>
                        </div>
-                       <div className="px-5 py-2 bg-blue-500/10 border border-blue-500/20 rounded-2xl backdrop-blur-md">
-                          <span className="text-xs font-black text-blue-400 uppercase tracking-[0.2em]">Session: {sessionId}</span>
+                       <div className="px-6 py-3 bg-blue-500/20 border border-blue-400/40 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(59,130,246,0.3)] group transition-all hover:scale-105">
+                          <span className="text-xs font-black text-blue-400 uppercase tracking-[0.3em] drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">Session: {sessionId}</span>
                        </div>
                     </div>
                     <div className="flex items-center gap-2 text-red-500/80 text-[10px] font-black uppercase tracking-widest">
@@ -227,7 +229,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     
                     {/* Identity Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">01. Identity Matrix</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">01. Identity Matrix</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -263,7 +265,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* Academic Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">02. Academic Background</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">02. Academic Background</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -299,7 +301,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* Connectivity Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">03. Connectivity</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">03. Connectivity</h3>
                         <div className="grid grid-cols-1 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -320,7 +322,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* IEEE Membership Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">04. IEEE Membership</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">04. IEEE Membership</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -367,7 +369,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* Logistics & Cloud Readiness */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">05. Logistics & Readiness</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">05. Logistics & Readiness</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">

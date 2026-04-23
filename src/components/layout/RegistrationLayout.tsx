@@ -85,7 +85,7 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
               src="/email-and-header/boc.png" 
               alt="Beauty of Cloud 2.0" 
               fill
-              sizes="(max-width: 768px) 64px, 96px"
+              unoptimized
               className="object-contain drop-shadow-[0_0_30px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform duration-500"
               priority
             />
@@ -114,13 +114,14 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
 
             {/* Segment 1: University */}
             <div className="flex flex-col items-center text-center px-4 group">
-               <div className="relative w-32 h-20 mb-4 flex items-center justify-center transition-all">
+               <div className="relative w-56 h-24 mb-4 flex items-center justify-center transition-all">
                   <Image 
                     src="/email-and-header/ieee.png" 
                     alt="IEEE Student Branch USJ" 
-                    width={140} 
-                    height={70} 
-                    className="object-contain opacity-50 group-hover:opacity-100 transition-all duration-500 scale-[1.75]"
+                    width={240} 
+                    height={120} 
+                    unoptimized
+                    className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,99,235,0.3)]"
                   />
                </div>
                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-relaxed group-hover:text-white transition-colors">
@@ -130,13 +131,14 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
 
             {/* Segment 2: Society */}
             <div className="flex flex-col items-center text-center px-4 group">
-               <div className="relative w-32 h-20 mb-4 flex items-center justify-center transition-all">
+               <div className="relative w-40 h-24 mb-4 flex items-center justify-center transition-all">
                   <Image 
                     src="/email-and-header/IEEE-CS.png" 
                     alt="IEEE Computer Society USJ" 
                     width={240} 
-                    height={170} 
-                    className="object-contain opacity-50 group-hover:opacity-100 transition-all duration-500"
+                    height={120} 
+                    unoptimized
+                    className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(255,191,0,0.2)]"
                   />
                </div>
                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-relaxed group-hover:text-white transition-colors">
@@ -146,13 +148,14 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
 
             {/* Segment 3: BOC */}
             <div className="flex flex-col items-center text-center px-4 group">
-               <div className="relative w-32 h-20 mb-4 flex items-center justify-center transition-all">
+               <div className="relative w-36 h-20 mb-4 flex items-center justify-center transition-all">
                   <Image 
                     src="/email-and-header/boc.png" 
                     alt="BOC 2.0" 
-                    width={140} 
-                    height={70} 
-                    className="object-contain opacity-50 group-hover:opacity-100 transition-all duration-500" 
+                    width={240} 
+                    height={120} 
+                    unoptimized
+                    className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,99,235,0.3)]" 
                   />
                </div>
                <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-relaxed group-hover:text-white transition-colors">
@@ -185,9 +188,9 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex h-12 w-12 items-center justify-center rounded-full bg-white/5 border border-white/10 transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${color} hover:border-transparent hover:text-white text-slate-400`}
+                className={`flex h-12 w-12 items-center justify-center rounded-full bg-white/5 border border-white/10 transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${color} hover:border-transparent hover:text-white text-slate-400 hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] shadow-[0_4px_12px_rgba(0,0,0,0.5)]`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
               </Link>
             ))}
           </div>

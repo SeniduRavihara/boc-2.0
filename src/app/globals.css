@@ -19,6 +19,7 @@
   --color-accent: var(--accent);
   --font-reglo: var(--font-reglo), serif;
   --font-uncut: var(--font-uncut), sans-serif;
+  --font-outfit: var(--font-outfit), sans-serif;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-jetbrains-mono);
 }
@@ -26,7 +27,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-uncut), var(--font-geist-sans), sans-serif;
+  font-family: var(--font-outfit), var(--font-uncut), var(--font-geist-sans), sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
