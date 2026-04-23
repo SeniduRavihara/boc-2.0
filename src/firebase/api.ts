@@ -25,6 +25,8 @@ const SUBMISSIONS_COLLECTION = "quiz_submissions";
 const REGISTRATIONS_COLLECTION = "registrations";
 const USERS_COLLECTION = "users";
 const CONTACT_MESSAGES_COLLECTION = "contact_messages";
+const MAILBOX_COLLECTION = "mailbox_messages";
+const SYSTEM_LOGS_COLLECTION = "system_logs";
 
 // Helper: ensures Firestore is initialized before any API call.
 // These functions are only called from client components — Firebase will always
@@ -288,6 +290,59 @@ export const subscribeToLeaderboard = (
 };
 
 // --- Contact Messages ---
+// --- Mailbox ---
+
+export type MailFolder = 'inbox' | 'sent' | 'archive' | 'trash';
+
+export interface MailMessage {
+  id: string;
+  resend_id: string;
+  direction: 'incoming' | 'outgoing';
+  from_email: string;
+  to_email: string;
+  subject: string;
+  content_text: string;
+  content_html: string;
+  folder: MailFolder;
+  is_read: boolean;
+  metadata?: any;
+  createdAt: any;
+}
+
+export const fetchMailboxMessages = async (folder: MailFolder = 'inbox'): Promise<MailMessage[]> => {
+  const firestore = requireDb();
+  const mailboxRef = collection(firestore, MAILBOX_COLLECTION);
+  const q = query(mailboxRef, where("folder", "==", folder), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as MailMessage));
+};
+
+export const updateMailMessageStatus = async (id: string, updates: Partial<MailMessage>) => {
+  const firestore = requireDb();
+  const messageRef = doc(firestore, MAILBOX_COLLECTION, id);
+  return await updateDoc(messageRef, updates);
+};
+
+export const addMailMessage = async (message: Omit<MailMessage, "id" | "createdAt">) => {
+  const firestore = requireDb();
+  const mailboxRef = collection(firestore, MAILBOX_COLLECTION);
+  return await addDoc(mailboxRef, {
+    ...message,
+    createdAt: serverTimestamp()
+  });
+};
+
+export const addSystemLog = async (log: any) => {
+  const firestore = requireDb();
+  const logsRef = collection(firestore, SYSTEM_LOGS_COLLECTION);
+  return await addDoc(logsRef, {
+    ...log,
+    createdAt: serverTimestamp()
+  });
+};
 
 export const addContactMessage = async (message: Omit<ContactMessage, "id" | "createdAt">) => {
   const firestore = requireDb();

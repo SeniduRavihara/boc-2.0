@@ -164,14 +164,27 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
           {/* Social Icons Row */}
           <div className="flex justify-center gap-4 mb-10">
             {[
-              { icon: FacebookIcon, color: 'hover:bg-[#1877F2]' },
-              { icon: LinkedinIcon, color: 'hover:bg-[#0A66C2]' },
-              { icon: InstagramIcon, color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]' },
-              { icon: YoutubeIcon, color: 'hover:bg-[#FF0000]' }
-            ].map(({ icon: Icon, color }, i) => (
+              { 
+                icon: FacebookIcon, 
+                color: 'hover:bg-[#1877F2]',
+                href: 'https://www.facebook.com/share/1EkWmtzhkP/?mibextid=wwXIfr'
+              },
+              { 
+                icon: LinkedinIcon, 
+                color: 'hover:bg-[#0A66C2]',
+                href: 'https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/'
+              },
+              { 
+                icon: InstagramIcon, 
+                color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]',
+                href: 'https://www.instagram.com/ieee_usj_cs?igsh=aWNheXQyMmxreGto'
+              }
+            ].map(({ icon: Icon, color, href }, i) => (
               <Link 
                 key={i}
-                href="#"
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`flex h-12 w-12 items-center justify-center rounded-full bg-white/5 border border-white/10 transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${color} hover:border-transparent hover:text-white text-slate-400`}
               >
                 <Icon className="w-5 h-5" />

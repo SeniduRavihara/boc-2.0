@@ -17,8 +17,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
         organization: "",
         faculty: "",
         phone: "",
-        linkedin: "",
-        attendFirstSession: "",
         hasAwsAccount: "",
         thoughts: "",
         isIeeeMember: "",
@@ -67,8 +65,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 organization: "",
                 faculty: "",
                 phone: "",
-                linkedin: "",
-                attendFirstSession: "",
                 hasAwsAccount: "",
                 thoughts: "",
                 isIeeeMember: "",
@@ -111,7 +107,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
             <GlassCard className="relative rounded-[3rem] border-white/10 bg-[#09090b]/80 shadow-2xl backdrop-blur-3xl p-6 md:p-16">
                 
-                {/* Session Intel Block */}
+                {/* Session Intel Block (Hidden for now)
                 <div className="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 border-b border-white/5 pb-12">
                     <div className="space-y-1">
                         <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Speaker</span>
@@ -130,6 +126,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                         <p className="text-sm font-bold text-white">Zoom</p>
                     </div>
                 </div>
+                */}
                 
                 {/* Header */}
                 <div className="mb-16 border-b border-white/5 pb-12">
@@ -230,7 +227,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     {/* Connectivity Segment */}
                     <div className="space-y-8">
                         <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">03. Connectivity</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="grid grid-cols-1 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
                                     WhatsApp Number <span className="text-red-500">*</span>
@@ -242,20 +239,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                     onChange={handleChange}
                                     placeholder="+94 7X XXX XXXX"
                                     required
-                                    className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white outline-none focus:border-blue-500/50 focus:bg-white/[0.05] transition-all placeholder:text-slate-600"
-                                />
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="block text-sm font-bold text-slate-200 ml-1">
-                                    LinkedIn Profile URL
-                                </label>
-                                <input
-                                    type="url"
-                                    name="linkedin"
-                                    value={form.linkedin}
-                                    onChange={handleChange}
-                                    placeholder="https://linkedin.com/in/username"
                                     className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white outline-none focus:border-blue-500/50 focus:bg-white/[0.05] transition-all placeholder:text-slate-600"
                                 />
                             </div>
@@ -313,23 +296,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     <div className="space-y-8">
                         <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">05. Logistics & Readiness</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            <div className="space-y-3">
-                                <label className="block text-sm font-bold text-slate-200 ml-1">
-                                    Attend to 1st session? <span className="text-red-500">*</span>
-                                </label>
-                                <select
-                                    name="attendFirstSession"
-                                    value={form.attendFirstSession}
-                                    onChange={handleChange}
-                                    required
-                                    className="w-full bg-[#0c0c0e] border border-white/5 rounded-2xl px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
-                                >
-                                    <option value="" disabled className="text-slate-600">Select an option</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </select>
-                            </div>
-
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
                                     Do you have an AWS account? <span className="text-red-500">*</span>

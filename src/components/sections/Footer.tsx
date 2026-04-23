@@ -7,6 +7,29 @@ import Link from "next/link";
 import { addContactMessage } from "@/firebase/api";
 import AdminLoginModal from "@/components/ui/AdminLoginModal";
 
+// Custom SVG icons for compatibility with legacy Lucide version
+const FacebookIcon = (props: any) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const LinkedinIcon = (props: any) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect x="2" y="9" width="4" height="12" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const InstagramIcon = (props: any) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
 export const Footer: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -203,16 +226,50 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-white/20 uppercase tracking-[0.4em] font-mono">
-          <div>&copy; 2026 Beauty of Cloud. Part of the Digital Multiverse.</div>
+        <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="text-xs text-white/20 uppercase tracking-[0.4em] font-mono order-2 md:order-1 text-center md:text-left">
+            &copy; 2026 Beauty of Cloud. Part of the Digital Multiverse.
+          </div>
           
-          <button 
-            onClick={() => setIsAdminModalOpen(true)}
-            className="group flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all duration-300"
-          >
-            <ShieldCheck size={14} className="text-blue-500 group-hover:animate-pulse" />
-            <span>Admin Access</span>
-          </button>
+          <div className="flex items-center gap-4 order-1 md:order-2">
+            {[
+              { 
+                icon: FacebookIcon, 
+                color: 'hover:bg-[#1877F2]',
+                href: 'https://www.facebook.com/share/1EkWmtzhkP/?mibextid=wwXIfr'
+              },
+              { 
+                icon: LinkedinIcon, 
+                color: 'hover:bg-[#0A66C2]',
+                href: 'https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/'
+              },
+              { 
+                icon: InstagramIcon, 
+                color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]',
+                href: 'https://www.instagram.com/ieee_usj_cs?igsh=aWNheXQyMmxreGto'
+              }
+            ].map(({ icon: Icon, color, href }, i) => (
+              <Link 
+                key={i}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 transition-all duration-300 hover:scale-110 hover:-translate-y-1 ${color} hover:border-transparent hover:text-white text-white/40`}
+              >
+                <Icon className="w-4 h-4" />
+              </Link>
+            ))}
+
+            <div className="w-[1px] h-4 bg-white/10 mx-2" />
+
+            <button 
+              onClick={() => setIsAdminModalOpen(true)}
+              className="group flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all duration-300"
+            >
+              <ShieldCheck size={14} className="text-blue-500 group-hover:animate-pulse" />
+              <span className="text-[10px] uppercase tracking-widest font-mono font-bold text-white/40 group-hover:text-white">Admin</span>
+            </button>
+          </div>
         </div>
 
         <AdminLoginModal 
