@@ -212,21 +212,22 @@ export default function EmailToolPage() {
 
       {/* Compose Modal */}
       {isComposeOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60">
-          <GlassCard className="w-full max-w-2xl rounded-[2.5rem] border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 backdrop-blur-xl bg-black/60">
+          <GlassCard className="w-full max-w-2xl rounded-[2.5rem] border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                   <Plus size={18} />
                 </div>
                 <h2 className="text-xl font-black text-white uppercase tracking-tight">New Transmission</h2>
               </div>
-              <button onClick={() => setIsComposeOpen(false)} className="text-slate-500 hover:text-white transition-all">
+              <button onClick={() => setIsComposeOpen(false)} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
                 Cancel
               </button>
             </div>
 
-            <form onSubmit={handleSendMessage} className="p-8 space-y-6">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
+              <form onSubmit={handleSendMessage} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Recipient Address</label>
                 <input 
@@ -273,9 +274,10 @@ export default function EmailToolPage() {
                   Execute Transmission
                 </button>
               </div>
-            </form>
-          </GlassCard>
-        </div>
+                </form>
+              </div>
+            </GlassCard>
+          </div>
       )}
 
     </div>
