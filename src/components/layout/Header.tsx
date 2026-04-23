@@ -11,8 +11,8 @@ export const Header: React.FC = () => {
     <nav className="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-4 md:py-6 flex justify-between items-center border-b border-white/5 bg-black/80">
       <div className="flex items-center gap-6">
         <motion.a 
-          href="#" 
-          className="relative w-40 h-10 md:w-56 md:h-14 block"
+          href="/" 
+          className="relative w-56 h-12 md:w-72 md:h-16 block"
           whileHover={{ scale: 1.05 }}
         >
           <Image 

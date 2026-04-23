@@ -46,8 +46,10 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             // Check for existing registration
             const exists = await checkRegistrationExists(form.email, sessionId);
             if (exists) {
+                // Wait a bit to show the loading state for UX
+                await new Promise(r => setTimeout(r, 1000));
                 setStatus("error");
-                setErrorMessage("Handshake conflict: A registration with this email already exists for this session.");
+                setErrorMessage("This email is already registered for this session.");
                 return;
             }
 
@@ -56,6 +58,8 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 sessionId
             });
 
+            // Delay for cinematic effect
+            await new Promise(r => setTimeout(r, 1500));
             setStatus("success");
 
             // Reset form
@@ -75,15 +79,84 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             console.error("Error registering user", error);
             setStatus("error");
             if (error.code === 'already-exists' || (error.message && error.message.includes('already exists'))) {
-                setErrorMessage("Handshake conflict: A registration with this signature already exists.");
+                setErrorMessage("A registration with this email already exists.");
             } else {
-                setErrorMessage("Protocol Failure. Please verify data and retry.");
+                setErrorMessage("System error. Please verify your connection and try again.");
             }
         }
     };
 
     return (
         <div className="max-w-4xl mx-auto">
+            {/* Status Overlay */}
+            <AnimatePresence>
+                {status && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center p-6 backdrop-blur-xl bg-black/60"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                        >
+                            <GlassCard className="w-full max-w-sm rounded-[2.5rem] border-white/10 shadow-2xl p-10 flex flex-col items-center text-center">
+                                {status === "loading" && (
+                                    <>
+                                        <div className="relative w-20 h-20 mb-6">
+                                            <div className="absolute inset-0 rounded-full border-4 border-blue-500/20" />
+                                            <motion.div 
+                                                className="absolute inset-0 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent"
+                                                animate={{ rotate: 360 }}
+                                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                            />
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.8)]" />
+                                            </div>
+                                        </div>
+                                        <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Transmitting</h3>
+                                        <p className="text-slate-400 text-sm font-medium">Securing your registration in the cloud...</p>
+                                    </>
+                                )}
+
+                                {status === "success" && (
+                                    <>
+                                        <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6 border border-green-500/30">
+                                            <CheckCircle2 className="w-10 h-10 text-green-500" />
+                                        </div>
+                                        <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Success!</h3>
+                                        <p className="text-slate-400 text-sm font-medium mb-8">Your registration for Session {sessionId} has been confirmed.</p>
+                                        <button 
+                                            onClick={() => setStatus(null)}
+                                            className="w-full py-4 bg-white text-black font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-slate-200 transition-colors"
+                                        >
+                                            Return to Portal
+                                        </button>
+                                    </>
+                                )}
+
+                                {status === "error" && (
+                                    <>
+                                        <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mb-6 border border-red-500/30">
+                                            <AlertCircle className="w-10 h-10 text-red-500" />
+                                        </div>
+                                        <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Protocol Error</h3>
+                                        <p className="text-slate-400 text-sm font-medium mb-8">{errorMessage}</p>
+                                        <button 
+                                            onClick={() => setStatus(null)}
+                                            className="w-full py-4 bg-red-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-red-600 transition-colors"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </>
+                                )}
+                            </GlassCard>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             {/* Form Banner */}
             <div className="mb-12 w-full overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[16/9] md:aspect-[5/1]">
                 <Image 

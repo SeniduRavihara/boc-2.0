@@ -79,8 +79,8 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
 
       {/* Header — Cinematic Centered (As per Image) */}
       <header className="relative z-10 pt-8 md:pt-16 pb-8 md:pb-12 flex flex-col items-center px-6">
-        <Link href="/" className="group flex flex-col items-center gap-4 transition-all hover:opacity-90">
-          <div className="relative h-16 md:h-24 w-auto aspect-square">
+        <Link href="/" className="group flex flex-col items-center gap-6 transition-all hover:opacity-90">
+          <div className="relative h-28 md:h-44 w-auto aspect-square">
             <Image 
               src="/email-and-header/boc.png" 
               alt="Beauty of Cloud 2.0" 
@@ -210,13 +210,7 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
           </div>
         </div>
 
-        {/* Floating Action Button */}
-        <button 
-          onClick={() => setIsAdminModalOpen(true)} 
-          className="fixed bottom-8 right-8 z-[100] flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.4)] transition-all hover:scale-110 hover:-translate-y-1 active:scale-95 group"
-        >
-          <ShieldCheckIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
-        </button>
+        {/* Admin Access moved to footer only */}
 
         <AdminLoginModal 
           isOpen={isAdminModalOpen} 
