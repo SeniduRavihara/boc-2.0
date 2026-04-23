@@ -87,7 +87,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto font-outfit">
+        <div className="max-w-4xl mx-auto">
             {/* Status Overlay */}
             <AnimatePresence>
                 {status && (
@@ -229,7 +229,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     
                     {/* Identity Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">01. Identity Matrix</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">01. Identity Matrix</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -265,7 +265,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* Academic Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">02. Academic Background</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">02. Academic Background</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -301,7 +301,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* Connectivity Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">03. Connectivity</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">03. Connectivity</h3>
                         <div className="grid grid-cols-1 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -322,7 +322,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* IEEE Membership Segment */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">04. IEEE Membership</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">04. IEEE Membership</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">
@@ -369,7 +369,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                     {/* Logistics & Cloud Readiness */}
                     <div className="space-y-8">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1 font-mono">05. Logistics & Readiness</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 ml-1">05. Logistics & Readiness</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-3">
                                 <label className="block text-sm font-bold text-slate-200 ml-1">

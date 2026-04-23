@@ -98,23 +98,23 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
       </header>
 
       {/* Main Content Area */}
-      <main className="relative z-10 px-4 pb-40">
+      <main className="relative z-10 px-4 pb-16 md:pb-24">
         {children}
       </main>
 
       {/* Footer — Three Segment Layout (As per Image) */}
-      <footer className="relative z-10 border-t border-white/5 bg-black/40 backdrop-blur-3xl pt-20 pb-12">
+      <footer className="relative z-10 border-t border-white/5 bg-black/40 backdrop-blur-3xl pt-12 md:pt-20 pb-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           
           {/* Main Footer Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center mb-16 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-center mb-16 relative">
             {/* Divider Lines (Desktop) */}
             <div className="hidden md:block absolute left-1/3 top-0 bottom-0 w-px bg-white/5" />
             <div className="hidden md:block absolute left-2/3 top-0 bottom-0 w-px bg-white/5" />
 
             {/* Segment 1: University */}
             <div className="flex flex-col items-center text-center px-4 group">
-               <div className="relative w-56 h-24 mb-4 flex items-center justify-center transition-all">
+               <div className="relative w-56 h-auto flex items-center justify-center transition-all">
                   <Image 
                     src="/email-and-header/ieee.png" 
                     alt="IEEE Student Branch USJ" 
@@ -124,14 +124,11 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
                     className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,99,235,0.3)]"
                   />
                </div>
-               <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-relaxed group-hover:text-white transition-colors">
-                  University of Sri Jayewardenepura<br/>IEEE Student Branch
-               </h4>
             </div>
 
             {/* Segment 2: Society */}
             <div className="flex flex-col items-center text-center px-4 group">
-               <div className="relative w-40 h-24 mb-4 flex items-center justify-center transition-all">
+               <div className="relative w-40 h-auto flex items-center justify-center transition-all">
                   <Image 
                     src="/email-and-header/IEEE-CS.png" 
                     alt="IEEE Computer Society USJ" 
@@ -141,14 +138,11 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
                     className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(255,191,0,0.2)]"
                   />
                </div>
-               <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-relaxed group-hover:text-white transition-colors">
-                  IEEE Computer Society<br/>Student Chapter
-               </h4>
             </div>
 
             {/* Segment 3: BOC */}
             <div className="flex flex-col items-center text-center px-4 group">
-               <div className="relative w-36 h-20 mb-4 flex items-center justify-center transition-all">
+               <div className="relative w-36 h-auto flex items-center justify-center transition-all">
                   <Image 
                     src="/email-and-header/boc.png" 
                     alt="BOC 2.0" 
@@ -158,9 +152,6 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
                     className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,99,235,0.3)]" 
                   />
                </div>
-               <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 leading-relaxed group-hover:text-white transition-colors">
-                  Beauty of Cloud 2.0<br/>Organizing Committee
-               </h4>
             </div>
           </div>
 
