@@ -64,7 +64,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
             // Auto-redirect to WhatsApp group after a short delay
             setTimeout(() => {
-                window.location.href = "https://chat.whatsapp.com/LgZs82liThUKSAiMqx37fU?mode=gi_t";
+                window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
             }, 3500);
 
             // Reset form
@@ -135,7 +135,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                         <p className="text-slate-400 text-sm font-medium mb-8">Your registration for Session {sessionId} has been confirmed. Redirecting you to the official WhatsApp group...</p>
                                         <div className="flex flex-col gap-3">
                                             <a 
-                                                href="https://chat.whatsapp.com/LgZs82liThUKSAiMqx37fU?mode=gi_t"
+                                                href="https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"
                                                 className="w-full py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                                             >
                                                 Join WhatsApp Group
