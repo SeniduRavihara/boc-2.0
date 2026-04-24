@@ -4,6 +4,8 @@ import { resend } from '@/lib/resend';
 import { addMailMessage, MailFolder, fetchMailboxMessages, updateMailMessageStatus } from '@/firebase/api';
 import { revalidatePath } from 'next/cache';
 import { getBaseTemplate } from '@/lib/email/templates';
+import fs from 'fs';
+import path from 'path';
 
 const FROM_EMAIL = 'Beauty of Cloud 2.0 <noreply@beautyofcloud.com>';
 
@@ -17,12 +19,22 @@ export async function sendMail(params: {
   try {
     const htmlContent = getBaseTemplate(content);
 
-    // 1. Send via Resend
+    // Read the invitation image as a buffer for attachment
+    const invitationPath = path.join(process.cwd(), 'public', 'invitation.jpeg');
+    const invitationBuffer = fs.readFileSync(invitationPath);
+
+    // 1. Send via Resend with Attachment
     const { data: resendData, error: resendError } = await resend.emails.send({
       from: FROM_EMAIL,
       to: [to],
       subject: subject,
       html: htmlContent,
+      attachments: [
+        {
+          filename: 'invitation.jpeg',
+          content: invitationBuffer,
+        },
+      ],
     });
 
     if (resendError) {
@@ -38,7 +50,7 @@ export async function sendMail(params: {
       to_email: to,
       subject: subject,
       content_text: content,
-      content_html: `<div>${content}</div>`,
+      content_html: htmlContent,
       folder: 'sent',
       is_read: true,
       metadata: { source: 'admin_mailbox' }

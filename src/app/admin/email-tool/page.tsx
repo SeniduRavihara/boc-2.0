@@ -76,13 +76,47 @@ export default function EmailToolPage() {
           <h1 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Administrative <span className="text-blue-500">Mailbox</span></h1>
           <p className="text-slate-400 text-sm">Secure communications protocol v2.0</p>
         </div>
-        <button 
-          onClick={() => setIsComposeOpen(true)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all font-bold text-sm shadow-[0_0_20px_rgba(37,99,235,0.3)]"
-        >
-          <Plus size={18} />
-          COMPOSE MESSAGE
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => {
+              setComposeSubject("Official Invitation: Beauty of Cloud 2.0");
+              setComposeContent(`Dear Mr. Tharindu Kalhara,
+
+As discussed previously, on behalf of the Organizing Committee of Beauty of Cloud 2.0, we are pleased to invite you to serve as the speaker for the session titled “Getting into the Cloud with AWS,” organized by the IEEE Computer Society - Student Branch Chapter of the University of Sri Jayewardenepura.
+
+Your expertise in this field would be of great value to our participants, and we believe your contribution will greatly benefit the session.
+
+Please find the attached official invitation letter containing event details, including the scheduled date and time. The session access link and any further information will be shared with you in due course.
+
+We sincerely appreciate your support and look forward to your participation in Beauty of Cloud 2.0.
+
+Thank you.
+
+Warm regards,
+
+• Event Co-chair - Nimesha Kavindu - +94 77 488 8701
+• Event Co-chair - Waruna Udara - +94 78 514 7452
+• Chair of CS Chapter - Rusira Sandul - +94 70 517 0403`);
+              setIsComposeOpen(true);
+            }}
+            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-5 py-3 rounded-2xl flex items-center gap-2 transition-all font-bold text-sm border border-blue-500/30"
+          >
+            <Check size={18} />
+            SPEAKER TEMPLATE
+          </button>
+          <button 
+            onClick={() => {
+              setComposeSubject('');
+              setComposeContent('');
+              setComposeTo('');
+              setIsComposeOpen(true);
+            }}
+            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all font-bold text-sm border border-white/5 shadow-xl"
+          >
+            <Plus size={18} />
+            COMPOSE
+          </button>
+        </div>
       </div>
 
       {/* Main Mailbox Interface */}
