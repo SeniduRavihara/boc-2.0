@@ -17,6 +17,24 @@ export function middleware(request: NextRequest) {
   // 2. Allow only Session 1 registration
   const session1Path = '/register/session/1';
   
+  // 2.1 Check for reveal-home password (query param or cookie)
+  const revealPassword = process.env.REVEAL_HOME_PASSWORD || '1234';
+  const revealHomeQuery = request.nextUrl.searchParams.get('reveal-home');
+  const revealHomeCookie = request.cookies.get('reveal-home')?.value;
+
+  if (revealHomeQuery === revealPassword || revealHomeCookie === revealPassword) {
+    const response = NextResponse.next();
+    
+    // Set cookie if it's coming from query param to persist access
+    if (revealHomeQuery === revealPassword && revealHomeCookie !== revealPassword) {
+      response.cookies.set('reveal-home', revealPassword, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+      });
+    }
+    return response;
+  }
+  
   // If we are already on session 1, allow it
   if (pathname === session1Path) {
     return NextResponse.next();
