@@ -58,13 +58,26 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 sessionId
             });
 
+            // Save to localStorage for quiz integration
+            // We don't have the quiz ID here, but we can save it with a generic key 
+            // or better, the quiz page will query it anyway. 
+            // Actually, let's just save the user data.
+            localStorage.setItem('last_registered_user', JSON.stringify(form));
+
             // Delay for cinematic effect
             await new Promise(r => setTimeout(r, 1500));
             setStatus("success");
 
-            // Auto-redirect to WhatsApp group after a short delay
+            // Auto-redirect
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect');
+
             setTimeout(() => {
-                window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
+                }
             }, 3500);
 
             // Reset form

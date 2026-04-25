@@ -1,0 +1,153 @@
+Getting Into Cloud with AWS
+Session Quiz — 20 Questions
+
+1. A student wants to deploy a web app without buying servers. What core cloud concept
+makes this possible?
+A. Local computing
+B. On-demand resource provisioning
+C. Offline storage
+D. Manual deployment
+■ Answer: B
+
+2. Why is cloud computing considered more flexible than traditional infrastructure?
+A. It uses physical servers only
+B. Resources can be scaled up or down as needed
+C. It has fixed capacity
+D. It works without internet
+■ Answer: B
+
+3. What does "elasticity" mean in cloud computing?
+A. Permanent resource allocation
+B. Automatic adjustment of resources based on demand
+C. Manual scaling
+D. Data encryption
+■ Answer: B
+
+4. Which concept allows multiple virtual machines to run on a single physical server?
+A. Load balancing
+B. Virtualization
+C. Encryption
+D. Compression
+■ Answer: B
+
+5. A company wants to combine its local servers with cloud services. Which model fits BEST?
+A. Public cloud
+B. Private cloud
+C. Hybrid cloud
+D. Community cloud
+■ Answer: C
+
+6. What is the main benefit of "pay-as-you-go" pricing?
+A. Pay fixed monthly cost
+B. Pay only for actual usage
+C. Pay before using
+D. Free services always
+■ Answer: B
+
+7. Which design mindset is MOST important in cloud systems?
+
+A. Avoid failure
+B. Assume failures and design for resilience
+C. Use one server
+D. Ignore backups
+■ Answer: B
+
+8. You want full control over a virtual server (install OS, software, etc.). Which AWS service
+should you use?
+A. AWS Lambda
+B. Amazon EC2
+C. Amazon S3
+D. Amazon RDS
+■ Answer: B
+
+9. You want to store images, videos, and files with high durability. Which AWS service fits
+BEST?
+A. EC2
+B. Lambda
+C. Amazon S3
+D. VPC
+■ Answer: C
+
+10. You only want to run code when an event occurs (no server management). Which service
+is ideal?
+A. EC2
+B. AWS Lambda
+C. S3
+D. RDS
+■ Answer: B
+
+11. A structured database (users, orders) is required. Which AWS service should you choose?
+A. S3
+B. EC2
+C. Amazon RDS
+D. CloudFront
+■ Answer: C
+
+12. What is an AWS Region?
+A. A software tool
+B. A physical location with multiple data centers
+C. A storage type
+D. A programming language
+■ Answer: B
+
+13. Why does AWS provide multiple Availability Zones in a region?
+A. To increase cost
+B. To improve fault tolerance and availability
+C. To reduce storage
+D. To limit users
+
+■ Answer: B
+
+14. What is the purpose of a VPC (Virtual Private Cloud)?
+A. Store files
+B. Run code
+C. Create an isolated network environment in the cloud
+D. Manage databases
+■ Answer: C
+
+15. Your app suddenly gets 10x traffic. What AWS feature helps handle this automatically?
+A. Manual scaling
+B. Fixed servers
+C. Auto Scaling
+D. Local storage
+■ Answer: C
+
+16. A global app needs fast content delivery worldwide. What AWS service helps MOST?
+A. EC2
+B. S3
+C. Amazon CloudFront
+D. RDS
+■ Answer: C
+
+17. In the AWS Shared Responsibility Model, what is the customer responsible for in EC2?
+A. Physical data center security
+B. Managing OS, applications, and configurations
+C. Cooling systems
+D. Power supply
+■ Answer: B
+
+18. What is vendor lock-in in cloud computing?
+A. Faster performance
+B. Dependency on one cloud provider
+C. Better security
+D. Unlimited scaling
+■ Answer: B
+
+19. Which practice improves security in AWS?
+A. Sharing root account
+B. Using least privilege with IAM
+C. Disabling authentication
+D. Making everything public
+■ Answer: B
+
+20. If you are completely new to cloud, what is the BEST learning approach?
+A. Learn all services at once
+B. Focus only on theory
+C. Learn core services (EC2, S3, IAM) and build small projects
+D. Avoid hands-on practice
+
+■ Answer: C
+
+AWS Cloud Fundamentals | Session Quiz
+
+

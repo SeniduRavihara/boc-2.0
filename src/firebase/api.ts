@@ -20,8 +20,6 @@ import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactM
 const TASKS_COLLECTION = "tasks";
 const TEAM_MEMBERS_COLLECTION = "team_members";
 const MEETINGS_COLLECTION = "meetings";
-const QUIZZES_COLLECTION = "quizzes";
-const SUBMISSIONS_COLLECTION = "quiz_submissions";
 const REGISTRATIONS_COLLECTION = "registrations";
 const USERS_COLLECTION = "users";
 const CONTACT_MESSAGES_COLLECTION = "contact_messages";
@@ -163,75 +161,6 @@ export const deleteMeeting = async (id: string) => {
   return await deleteDoc(meetingRef);
 };
 
-// --- Quizzes ---
-
-export const getQuizzes = async (): Promise<Quiz[]> => {
-  const firestore = requireDb();
-  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
-  const q = query(quizzesRef, orderBy("createdAt", "desc"));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as Quiz));
-};
-
-export const addQuiz = async (quiz: Omit<Quiz, "id" | "createdAt">) => {
-  const firestore = requireDb();
-  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
-  return await addDoc(quizzesRef, {
-    ...quiz,
-    createdAt: serverTimestamp()
-  });
-};
-
-export const updateQuiz = async (id: string, data: Partial<Quiz>) => {
-  const firestore = requireDb();
-  const quizRef = doc(firestore, QUIZZES_COLLECTION, id);
-  return await updateDoc(quizRef, data);
-};
-
-export const deleteQuiz = async (id: string) => {
-  const firestore = requireDb();
-  const quizRef = doc(firestore, QUIZZES_COLLECTION, id);
-  return await deleteDoc(quizRef);
-};
-
-export const setActiveQuiz = async (quizId: string, sessionId: string) => {
-  const firestore = requireDb();
-  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
-  
-  // 1. Get all quizzes for this session
-  const q = query(quizzesRef, where("sessionId", "==", sessionId));
-  const querySnapshot = await getDocs(q);
-  
-  // 2. Deactivate all quizzes for this session
-  const batch = querySnapshot.docs.map(document => {
-    const quizRef = doc(firestore, QUIZZES_COLLECTION, document.id);
-    return updateDoc(quizRef, { isActive: false });
-  });
-  
-  await Promise.all(batch);
-  
-  // 3. Activate the target quiz
-  const targetRef = doc(firestore, QUIZZES_COLLECTION, quizId);
-  return await updateDoc(targetRef, { isActive: true });
-};
-
-export const subscribeToQuizzes = (callback: (quizzes: Quiz[]) => void) => {
-  const firestore = requireDb();
-  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
-  const q = query(quizzesRef, orderBy("createdAt", "desc"));
-
-  return onSnapshot(q, (querySnapshot) => {
-    const data = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Quiz));
-    callback(data);
-  });
-};
-
 // --- Registrations ---
 
 export const addRegistration = async (registration: Omit<Registration, "id">) => {
@@ -260,54 +189,6 @@ export const getRegistrationsBySession = async (sessionId: string): Promise<Regi
     id: doc.id,
     ...doc.data()
   } as Registration));
-};
-
-// --- Submissions / Leaderboard ---
-
-export const submitQuizResult = async (submission: Omit<QuizSubmission, "id" | "completedAt">) => {
-  const firestore = requireDb();
-  const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
-  return await addDoc(submissionsRef, {
-    ...submission,
-    completedAt: serverTimestamp()
-  });
-};
-
-export const getLeaderboard = async (limitCount: number = 50): Promise<QuizSubmission[]> => {
-  const firestore = requireDb();
-  const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
-  // Sort by score (desc) and then timeTaken (asc)
-  const q = query(
-    submissionsRef, 
-    orderBy("score", "desc"),
-    orderBy("timeTaken", "asc")
-  );
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as QuizSubmission)).slice(0, limitCount);
-};
-
-export const subscribeToLeaderboard = (
-  callback: (submissions: QuizSubmission[]) => void, 
-  limitCount: number = 50
-) => {
-  const firestore = requireDb();
-  const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
-  const q = query(
-    submissionsRef, 
-    orderBy("score", "desc"),
-    orderBy("timeTaken", "asc")
-  );
-
-  return onSnapshot(q, (querySnapshot) => {
-    const data = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as QuizSubmission)).slice(0, limitCount);
-    callback(data);
-  });
 };
 
 // --- Contact Messages ---
@@ -372,4 +253,105 @@ export const addContactMessage = async (message: Omit<ContactMessage, "id" | "cr
     ...message,
     createdAt: serverTimestamp()
   });
+};
+
+// --- Quizzes ---
+
+const QUIZZES_COLLECTION = "quizzes";
+const QUIZ_SUBMISSIONS_COLLECTION = "quiz_submissions";
+
+export const addQuiz = async (quiz: Omit<Quiz, "id" | "createdAt">) => {
+  const firestore = requireDb();
+  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
+  return await addDoc(quizzesRef, {
+    ...quiz,
+    createdAt: serverTimestamp()
+  });
+};
+
+export const getQuizzes = async (): Promise<Quiz[]> => {
+  const firestore = requireDb();
+  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
+  const q = query(quizzesRef, orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as Quiz));
+};
+
+export const getQuizById = async (id: string): Promise<Quiz | null> => {
+  const firestore = requireDb();
+  const quizRef = doc(firestore, QUIZZES_COLLECTION, id);
+  const quizSnap = await getDoc(quizRef);
+  if (quizSnap.exists()) {
+    return { id: quizSnap.id, ...quizSnap.data() } as Quiz;
+  }
+  return null;
+};
+
+export const updateQuiz = async (id: string, updates: Partial<Quiz>) => {
+  const firestore = requireDb();
+  const quizRef = doc(firestore, QUIZZES_COLLECTION, id);
+  return await updateDoc(quizRef, updates);
+};
+
+export const deleteQuiz = async (id: string) => {
+  const firestore = requireDb();
+  const quizRef = doc(firestore, QUIZZES_COLLECTION, id);
+  return await deleteDoc(quizRef);
+};
+
+export const submitQuizAnswer = async (submission: Omit<QuizSubmission, "id" | "completedAt">) => {
+  const firestore = requireDb();
+  const submissionsRef = collection(firestore, QUIZ_SUBMISSIONS_COLLECTION);
+  return await addDoc(submissionsRef, {
+    ...submission,
+    completedAt: serverTimestamp()
+  });
+};
+
+export const getQuizSubmissions = async (quizId: string): Promise<QuizSubmission[]> => {
+  const firestore = requireDb();
+  const submissionsRef = collection(firestore, QUIZ_SUBMISSIONS_COLLECTION);
+  const q = query(submissionsRef, where("quizId", "==", quizId), orderBy("totalScore", "desc"), orderBy("completedAt", "asc"));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as QuizSubmission));
+};
+
+export const checkUserRegistration = async (email: string): Promise<Registration | null> => {
+  const firestore = requireDb();
+  const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
+  const q = query(registrationsRef, where("email", "==", email));
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Registration;
+  }
+  return null;
+};
+
+// --- Participation ---
+
+const QUIZ_PARTICIPANTS_COLLECTION = "quiz_participants";
+
+export const joinQuiz = async (quizId: string, registration: Registration) => {
+  const firestore = requireDb();
+  const participantRef = doc(firestore, QUIZ_PARTICIPANTS_COLLECTION, `${quizId}_${registration.email}`);
+  return await setDoc(participantRef, {
+    quizId,
+    ...registration,
+    joinedAt: serverTimestamp()
+  });
+};
+
+export const getQuizParticipantsCount = async (quizId: string): Promise<number> => {
+  const firestore = requireDb();
+  const participantsRef = collection(firestore, QUIZ_PARTICIPANTS_COLLECTION);
+  const q = query(participantsRef, where("quizId", "==", quizId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.size;
 };
