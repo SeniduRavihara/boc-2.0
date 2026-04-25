@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { addQuiz } from '@/firebase/api';
 import { Question } from '@/types';
+import { SESSIONS } from '@/constants/sessions';
 
 export default function NewQuizPage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function NewQuizPage() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [sessionId, setSessionId] = useState(SESSIONS[0].id);
   const [timeLimit, setTimeLimit] = useState(10);
   const [questions, setQuestions] = useState<Question[]>([
     {
@@ -89,6 +91,7 @@ export default function NewQuizPage() {
       await addQuiz({
         title,
         description,
+        sessionId,
         timeLimit,
         questions,
         isActive: true
@@ -144,17 +147,32 @@ export default function NewQuizPage() {
                   className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-purple-500/50 transition-all font-medium resize-none"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Time Limit (Minutes)</label>
-                <div className="flex items-center gap-4">
-                  <input 
-                    type="number" 
-                    value={timeLimit}
-                    onChange={e => setTimeLimit(parseInt(e.target.value))}
-                    min={1}
-                    className="w-32 bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-purple-500/50 transition-all font-medium"
-                  />
-                  <span className="text-slate-500">minutes for the whole quiz</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Assign to Session</label>
+                  <select 
+                    value={sessionId}
+                    onChange={e => setSessionId(e.target.value)}
+                    className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-purple-500/50 transition-all font-medium"
+                  >
+                    {SESSIONS.map(session => (
+                      <option key={session.id} value={session.id}>
+                        {session.name}: {session.topic}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Time Limit (Minutes)</label>
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="number" 
+                      value={timeLimit}
+                      onChange={e => setTimeLimit(parseInt(e.target.value))}
+                      min={1}
+                      className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-purple-500/50 transition-all font-medium"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

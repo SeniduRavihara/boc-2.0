@@ -6,14 +6,7 @@ import { Registration } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Filter, Download, Search, ChevronRight } from "lucide-react";
 
-const sessions = [
-    { id: "1", name: "Session 1", topic: "Cloud Foundations" },
-    { id: "2", name: "Session 2", topic: "AWS Deep Dive" },
-    { id: "3", name: "Session 3", topic: "GCP Fundamentals" },
-    { id: "4", name: "Session 4", topic: "Azure Architecture" },
-    { id: "5", name: "Session 5", topic: "DevOps & CI/CD" },
-    { id: "6", name: "Session 6", topic: "Serverless Patterns" },
-];
+import { SESSIONS } from "@/constants/sessions";
 
 export default function AdminRegistrationsPage() {
     const [activeSession, setActiveSession] = useState("1");
@@ -64,7 +57,7 @@ export default function AdminRegistrationsPage() {
 
             {/* Session Tabs */}
             <div className="flex flex-wrap gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl w-fit">
-                {sessions.map((session) => (
+                {SESSIONS.map((session) => (
                     <button
                         key={session.id}
                         onClick={() => setActiveSession(session.id)}

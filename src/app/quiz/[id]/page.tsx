@@ -53,7 +53,19 @@ export default function QuizPlayerPage() {
       setLoading(true);
       const allQuizzes = await getQuizzes();
       const targetQuiz = allQuizzes.find(q => q.id === id);
+      
       if (targetQuiz) {
+        if (!targetQuiz.isActive) {
+          // If not active, find the active quiz for the same session
+          const activeForSession = allQuizzes.find(q => q.sessionId === targetQuiz.sessionId && q.isActive);
+          if (activeForSession) {
+            router.push(`/quiz/${activeForSession.id}`);
+            return;
+          } else {
+            setError("This quiz is currently inactive.");
+            return;
+          }
+        }
         setQuiz(targetQuiz);
         setTimeLeft(targetQuiz.timeLimit * 60);
       } else {

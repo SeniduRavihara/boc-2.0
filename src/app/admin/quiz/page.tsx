@@ -16,8 +16,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { deleteQuiz, updateQuiz, subscribeToQuizzes } from '@/firebase/api';
+import { deleteQuiz, updateQuiz, subscribeToQuizzes, setActiveQuiz } from '@/firebase/api';
 import { Quiz } from '@/types';
+import { SESSIONS, getSessionName } from '@/constants/sessions';
 
 export default function QuizAdminDashboard() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -45,8 +46,13 @@ export default function QuizAdminDashboard() {
 
   const toggleActive = async (quiz: Quiz) => {
     try {
-      await updateQuiz(quiz.id!, { isActive: !quiz.isActive });
-      setQuizzes(quizzes.map(q => q.id === quiz.id ? { ...q, isActive: !q.isActive } : q));
+      if (!quiz.isActive && quiz.sessionId) {
+        // Activating a quiz should deactivate others in the same session
+        await setActiveQuiz(quiz.id!, quiz.sessionId);
+      } else {
+        // Just toggling off or if no sessionId
+        await updateQuiz(quiz.id!, { isActive: !quiz.isActive });
+      }
     } catch (error) {
       console.error("Error updating quiz status:", error);
     }
@@ -126,6 +132,16 @@ export default function QuizAdminDashboard() {
                       </div>
 
                       <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">{quiz.title}</h3>
+                      
+                      {quiz.sessionId && (
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-md mb-4">
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">
+                            {getSessionName(quiz.sessionId)}
+                          </span>
+                        </div>
+                      )}
+
                       <p className="text-slate-500 text-sm line-clamp-2 mb-6">{quiz.description}</p>
 
                       <div className="grid grid-cols-2 gap-4 mt-auto">

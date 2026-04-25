@@ -29,6 +29,7 @@ export interface Quiz {
   id?: string;
   title: string;
   description: string;
+  sessionId?: string;
   isActive: boolean;
   timeLimit: number;
   questions: Question[];

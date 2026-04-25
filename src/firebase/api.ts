@@ -197,6 +197,27 @@ export const deleteQuiz = async (id: string) => {
   return await deleteDoc(quizRef);
 };
 
+export const setActiveQuiz = async (quizId: string, sessionId: string) => {
+  const firestore = requireDb();
+  const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
+  
+  // 1. Get all quizzes for this session
+  const q = query(quizzesRef, where("sessionId", "==", sessionId));
+  const querySnapshot = await getDocs(q);
+  
+  // 2. Deactivate all quizzes for this session
+  const batch = querySnapshot.docs.map(document => {
+    const quizRef = doc(firestore, QUIZZES_COLLECTION, document.id);
+    return updateDoc(quizRef, { isActive: false });
+  });
+  
+  await Promise.all(batch);
+  
+  // 3. Activate the target quiz
+  const targetRef = doc(firestore, QUIZZES_COLLECTION, quizId);
+  return await updateDoc(targetRef, { isActive: true });
+};
+
 export const subscribeToQuizzes = (callback: (quizzes: Quiz[]) => void) => {
   const firestore = requireDb();
   const quizzesRef = collection(firestore, QUIZZES_COLLECTION);
