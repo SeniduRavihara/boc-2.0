@@ -141,12 +141,15 @@ export default function UserQuizPage() {
     }
   }, [quiz?.status, id, quiz?.questions]);
 
-  // Initialize local journey if not already loaded (The Starting Pistol)
+  // Initialize local journey (The Starting Pistol & Late-Join Catch-up)
   useEffect(() => {
     if (quiz?.status === 'in_progress' && localQuestionIndex === null) {
-      setLocalQuestionIndex(0);
+      // If we are joining late (and have no saved progress), sync with the admin's current question
+      // Otherwise, start at 0
+      const syncIndex = quiz.currentQuestionIndex || 0;
+      setLocalQuestionIndex(syncIndex);
     }
-  }, [quiz?.status]);
+  }, [quiz?.status, quiz?.currentQuestionIndex]);
 
   // Local Timer Logic
   useEffect(() => {
