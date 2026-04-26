@@ -48,7 +48,7 @@ export default function LeaderboardPage() {
       orderBy("completedAt", "asc")
     );
     const unsubscribe = onSnapshot(q, (snap) => {
-      setSubmissions(snap.docs.map(doc => doc.data() as QuizSubmission));
+      setSubmissions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as QuizSubmission)));
     });
     return () => unsubscribe();
   }, [id]);
@@ -133,7 +133,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {topThree[1] && (
                 <motion.div
-                  key={topThree[1].email}
+                  key={topThree[1].id || topThree[1].email}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-6"
@@ -160,7 +160,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {topThree[0] && (
                 <motion.div
-                  key={topThree[0].email}
+                  key={topThree[0].id || topThree[0].email}
                   initial={{ opacity: 0, y: 50, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   className="space-y-6"
@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {topThree[2] && (
                 <motion.div
-                  key={topThree[2].email}
+                  key={topThree[2].id || topThree[2].email}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-6"
@@ -221,7 +221,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {others.map((sub, i) => (
                 <motion.div
-                  key={sub.email}
+                  key={sub.id || sub.email}
                   layout
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
