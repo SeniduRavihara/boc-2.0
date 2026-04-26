@@ -70,29 +70,52 @@ export default function QuizControlPage() {
     return () => unsubscribe();
   }, [id]);
 
-  // Timer Logic
-  useEffect(() => {
+  // Derived State for Automatic Mode
+  const { activeQuestionIndex, activeTimeLeft, isAutoFinished } = useMemo(() => {
     if (!quiz || quiz.status !== 'in_progress' || !quiz.startTime) {
-      setTimeLeft(null);
-      return;
+      return { activeQuestionIndex: quiz?.currentQuestionIndex || 0, activeTimeLeft: null, isAutoFinished: false };
     }
 
-    const interval = setInterval(() => {
+    if (quiz.mode === 'manual') {
       const now = Date.now();
-      const start = quiz.startTime!.toDate().getTime();
+      const start = quiz.startTime.toDate().getTime();
       const elapsed = Math.floor((now - start) / 1000);
       const remaining = Math.max(0, quiz.defaultQuestionTime - elapsed);
-      
-      setTimeLeft(remaining);
+      return { activeQuestionIndex: quiz.currentQuestionIndex, activeTimeLeft: remaining, isAutoFinished: false };
+    }
 
-      // Automatic Advancement
-      if (remaining === 0 && quiz.mode === 'automatic') {
-        handleNextQuestion();
-      }
+    // Automatic Mode: Calculate based on global start time
+    const now = Date.now();
+    const start = quiz.startTime.toDate().getTime();
+    const elapsedTotal = Math.floor((now - start) / 1000);
+    const index = Math.floor(elapsedTotal / quiz.defaultQuestionTime);
+    const remaining = Math.max(0, quiz.defaultQuestionTime - (elapsedTotal % quiz.defaultQuestionTime));
+    
+    const isFinished = index >= quiz.questions.length;
+    return { 
+      activeQuestionIndex: Math.min(index, quiz.questions.length - 1), 
+      activeTimeLeft: remaining,
+      isAutoFinished: isFinished
+    };
+  }, [quiz, timeLeft]); // timeLeft acts as a 1s ticker
+
+  // Timer Ticker
+  useEffect(() => {
+    if (!quiz || quiz.status !== 'in_progress') return;
+    
+    const interval = setInterval(() => {
+      setTimeLeft(prev => (prev === null ? 0 : prev + 1));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [quiz]);
+  }, [quiz?.status]);
+
+  // Handle Automatic Finish
+  useEffect(() => {
+    if (isAutoFinished && quiz?.status === 'in_progress' && quiz.mode === 'automatic') {
+      updateQuiz(id, { status: 'finished' });
+    }
+  }, [isAutoFinished, quiz?.status, quiz?.mode]);
 
   const handleStartRegistration = async () => {
     if (!quiz) return;
@@ -114,13 +137,23 @@ export default function QuizControlPage() {
   const handleNextQuestion = async () => {
     if (!quiz) return;
     
-    if (quiz.currentQuestionIndex < quiz.questions.length - 1) {
+    if (quiz.mode === 'automatic') {
+      // In automatic mode, "Next" just skips ahead by adjusting the startTime
+      const now = Date.now();
+      const newStartTime = new Date(now - (quiz.currentQuestionIndex + 1) * quiz.defaultQuestionTime * 1000);
       await updateQuiz(id, { 
         currentQuestionIndex: quiz.currentQuestionIndex + 1,
-        startTime: serverTimestamp() as any
+        startTime: newStartTime as any
       });
     } else {
-      await updateQuiz(id, { status: 'finished' });
+      if (quiz.currentQuestionIndex < quiz.questions.length - 1) {
+        await updateQuiz(id, { 
+          currentQuestionIndex: quiz.currentQuestionIndex + 1,
+          startTime: serverTimestamp() as any
+        });
+      } else {
+        await updateQuiz(id, { status: 'finished' });
+      }
     }
   };
 
@@ -259,21 +292,21 @@ export default function QuizControlPage() {
                   <div className="flex justify-between items-center mb-8">
                     <div>
                       <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Currently Playing</span>
-                      <h2 className="text-2xl font-bold text-white">Question {quiz.currentQuestionIndex + 1} of {quiz.questions.length}</h2>
+                      <h2 className="text-2xl font-bold text-white">Question {activeQuestionIndex + 1} of {quiz.questions.length}</h2>
                     </div>
-                    {timeLeft !== null && (
-                      <div className={`h-16 w-16 rounded-2xl flex flex-col items-center justify-center border-2 ${timeLeft < 10 ? 'border-rose-500 text-rose-500 animate-pulse' : 'border-blue-500 text-blue-400'}`}>
-                        <span className="text-xl font-mono font-bold leading-none">{timeLeft}</span>
+                    {activeTimeLeft !== null && (
+                      <div className={`h-16 w-16 rounded-2xl flex flex-col items-center justify-center border-2 ${activeTimeLeft < 10 ? 'border-rose-500 text-rose-500 animate-pulse' : 'border-blue-500 text-blue-400'}`}>
+                        <span className="text-xl font-mono font-bold leading-none">{activeTimeLeft}</span>
                         <span className="text-[10px] uppercase font-bold opacity-60">Secs</span>
                       </div>
                     )}
                   </div>
 
                   <div className="p-6 bg-slate-950/50 border border-slate-800 rounded-2xl mb-8">
-                    <p className="text-xl font-medium text-white mb-6">"{currentQuestion?.text}"</p>
+                    <p className="text-xl font-medium text-white mb-6">"{quiz.questions[activeQuestionIndex]?.text}"</p>
                     <div className="grid grid-cols-2 gap-3">
-                      {currentQuestion?.options.map((opt, i) => (
-                        <div key={i} className={`p-3 rounded-lg text-sm border ${i === currentQuestion.correctOptionIndex ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
+                      {quiz.questions[activeQuestionIndex]?.options.map((opt, i) => (
+                        <div key={i} className={`p-3 rounded-lg text-sm border ${i === quiz.questions[activeQuestionIndex].correctOptionIndex ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
                           {opt}
                         </div>
                       ))}
@@ -286,7 +319,7 @@ export default function QuizControlPage() {
                       className="flex-1 h-14 bg-white text-black rounded-xl font-bold text-lg hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
                     >
                       <SkipForward size={20} /> 
-                      {quiz.currentQuestionIndex === quiz.questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+                      {activeQuestionIndex === quiz.questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
                     </button>
                     <button 
                       onClick={handleResetQuiz}

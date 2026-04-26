@@ -71,33 +71,59 @@ export default function UserQuizPage() {
     return () => unsubscribe();
   }, [id]);
 
-  // Timer Logic
-  useEffect(() => {
+  // Derived State for Automatic Mode
+  const { activeQuestionIndex, activeTimeLeft } = useMemo(() => {
     if (!quiz || quiz.status !== 'in_progress' || !quiz.startTime) {
-      setTimeLeft(null);
-      return;
+      return { activeQuestionIndex: quiz?.currentQuestionIndex || 0, activeTimeLeft: null };
     }
 
-    // Reset submission state when question changes
-    setIsSubmitted(false);
-    setSelectedOption(null);
-
-    const interval = setInterval(() => {
+    if (quiz.mode === 'manual') {
       const now = Date.now();
-      const start = quiz.startTime!.toDate().getTime();
+      const start = quiz.startTime.toDate().getTime();
       const elapsed = Math.floor((now - start) / 1000);
       const remaining = Math.max(0, quiz.defaultQuestionTime - elapsed);
-      
-      setTimeLeft(remaining);
+      return { activeQuestionIndex: quiz.currentQuestionIndex, activeTimeLeft: remaining };
+    }
 
-      // Auto-submit if time runs out and an option is selected
-      if (remaining === 0 && !isSubmitted && selectedOption !== null) {
-        handleSubmitAnswer();
-      }
+    // Automatic Mode: Calculate based on global start time
+    const now = Date.now();
+    const start = quiz.startTime.toDate().getTime();
+    const elapsedTotal = Math.floor((now - start) / 1000);
+    const index = Math.floor(elapsedTotal / quiz.defaultQuestionTime);
+    const remaining = Math.max(0, quiz.defaultQuestionTime - (elapsedTotal % quiz.defaultQuestionTime));
+    
+    return { 
+      activeQuestionIndex: Math.min(index, quiz.questions.length - 1), 
+      activeTimeLeft: remaining
+    };
+  }, [quiz, timeLeft]);
+
+  // Timer Ticker
+  useEffect(() => {
+    if (!quiz || quiz.status !== 'in_progress') return;
+    
+    const interval = setInterval(() => {
+      setTimeLeft(prev => (prev === null ? 0 : prev + 1));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [quiz?.currentQuestionIndex, quiz?.status, quiz?.startTime]);
+  }, [quiz?.status]);
+
+  // Auto-submit and state reset logic
+  useEffect(() => {
+    if (quiz?.status !== 'in_progress') return;
+    
+    // Reset submission state when question changes
+    setIsSubmitted(false);
+    setSelectedOption(null);
+  }, [activeQuestionIndex]);
+
+  useEffect(() => {
+    // Auto-submit if time runs out and an option is selected
+    if (activeTimeLeft === 0 && !isSubmitted && selectedOption !== null) {
+      handleSubmitAnswer();
+    }
+  }, [activeTimeLeft]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,7 +157,7 @@ export default function UserQuizPage() {
   const handleSubmitAnswer = async () => {
     if (selectedOption === null || isSubmitted || !user || !quiz) return;
 
-    const currentQuestion = quiz.questions[quiz.currentQuestionIndex];
+    const currentQuestion = quiz.questions[activeQuestionIndex];
     const isCorrect = selectedOption === currentQuestion.correctOptionIndex;
     const points = isCorrect ? currentQuestion.points : 0;
     
@@ -142,7 +168,7 @@ export default function UserQuizPage() {
       selectedOptionIndex: selectedOption,
       isCorrect,
       points,
-      timeTaken: quiz.defaultQuestionTime - (timeLeft || 0)
+      timeTaken: quiz.defaultQuestionTime - (activeTimeLeft || 0)
     };
 
     // Update local score
@@ -284,7 +310,7 @@ export default function UserQuizPage() {
           <header className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 bg-slate-900 border border-slate-800 rounded-lg flex items-center justify-center font-bold text-sm">
-                {quiz.currentQuestionIndex + 1}
+                {activeQuestionIndex + 1}
               </div>
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Question</div>
@@ -292,10 +318,10 @@ export default function UserQuizPage() {
               </div>
             </div>
 
-            {timeLeft !== null && (
-              <div className={`flex flex-col items-center ${timeLeft < 10 ? 'text-rose-500' : 'text-blue-400'}`}>
+            {activeTimeLeft !== null && (
+              <div className={`flex flex-col items-center ${activeTimeLeft < 10 ? 'text-rose-500' : 'text-blue-400'}`}>
                 <div className="flex items-center gap-2 font-mono text-2xl font-bold">
-                  <Timer size={24} /> {timeLeft}s
+                  <Timer size={24} /> {activeTimeLeft}s
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-widest opacity-60">Time Left</div>
               </div>
@@ -309,7 +335,7 @@ export default function UserQuizPage() {
 
           <AnimatePresence mode="wait">
             <motion.div
-              key={quiz.currentQuestionIndex}
+              key={activeQuestionIndex}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -317,14 +343,14 @@ export default function UserQuizPage() {
             >
               <GlassCard className="p-8 border-slate-800/50 mb-8">
                 <h2 className="text-2xl font-bold text-white mb-8 leading-tight">
-                  {currentQuestion.text}
+                  {quiz.questions[activeQuestionIndex].text}
                 </h2>
 
                 <div className="space-y-4">
-                  {currentQuestion.options.map((option, index) => (
+                  {quiz.questions[activeQuestionIndex].options.map((option, index) => (
                     <button
                       key={index}
-                      disabled={isSubmitted || timeLeft === 0}
+                      disabled={isSubmitted || activeTimeLeft === 0}
                       onClick={() => setSelectedOption(index)}
                       className={`w-full p-5 rounded-2xl border text-left font-medium transition-all flex items-center justify-between group ${
                         selectedOption === index 
@@ -344,7 +370,7 @@ export default function UserQuizPage() {
               </GlassCard>
 
               <button
-                disabled={isSubmitted || selectedOption === null || timeLeft === 0}
+                disabled={isSubmitted || selectedOption === null || activeTimeLeft === 0}
                 onClick={handleSubmitAnswer}
                 className="w-full h-16 bg-white text-black rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-slate-200 transition-all shadow-2xl disabled:opacity-30"
               >
