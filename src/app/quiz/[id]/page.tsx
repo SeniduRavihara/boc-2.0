@@ -39,6 +39,12 @@ export default function UserQuizPage() {
   const [mySubmission, setMySubmission] = useState<QuizSubmission | null>(null);
   const [rank, setRank] = useState<number | null>(null);
   const [totalParticipants, setTotalParticipants] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  // Hydration Guard
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load from local storage
   useEffect(() => {
@@ -261,7 +267,7 @@ export default function UserQuizPage() {
     setEmail("");
   };
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-[#030712] flex items-center justify-center">
         <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -269,7 +275,7 @@ export default function UserQuizPage() {
     );
   }
 
-  if (!quiz) return <div>Quiz not found</div>;
+  if (!quiz || !quiz.questions || quiz.questions.length === 0) return <div className="text-white text-center py-20">Quiz data initializing...</div>;
 
   // 1. Join State
   if (!user) {
@@ -362,7 +368,8 @@ export default function UserQuizPage() {
 
   // 3. Active Quiz
   if (quiz.status === 'in_progress') {
-    const currentQuestion = quiz.questions[quiz.currentQuestionIndex];
+    const currentQuestion = quiz.questions[activeQuestionIndex];
+    if (!currentQuestion) return <div className="text-white text-center py-20">Preparing next question...</div>;
     
     return (
       <div className="min-h-screen bg-[#030712] text-slate-200 p-4 md:p-6 flex flex-col items-center">
@@ -476,12 +483,11 @@ export default function UserQuizPage() {
               </div>
             </div>
 
-            <button 
-              onClick={() => router.push(`/quiz/${id}/leaderboard`)}
-              className="w-full h-14 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all"
-            >
-              See Full Leaderboard <ArrowRight size={20} />
-            </button>
+            <div className="pt-4 border-t border-slate-800/50">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">
+                Quiz Participation Complete
+              </p>
+            </div>
           </GlassCard>
         </div>
       </div>

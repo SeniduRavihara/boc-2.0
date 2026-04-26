@@ -73,21 +73,24 @@ export async function POST() {
             questions: questions
         };
 
-        // Add to Firestore
+        // Add to Firestore (Update existing or create new with fixed ID)
         if (!db) {
             throw new Error("Firestore is not initialized");
         }
-        const quizzesRef = collection(db, 'quizzes');
-        const docRef = await addDoc(quizzesRef, {
+        const { setDoc, doc } = await import('firebase/firestore');
+        const quizId = 'getting-into-cloud-with-aws';
+        const quizRef = doc(db, 'quizzes', quizId);
+        
+        await setDoc(quizRef, {
             ...quizData,
             createdAt: serverTimestamp()
         });
 
         return NextResponse.json({ 
             success: true, 
-            id: docRef.id, 
+            id: quizId, 
             count: questions.length,
-            message: "Quiz seeded successfully from AWS_Session_Quiz.txt" 
+            message: "Quiz seeded successfully (Updated getting-into-cloud-with-aws)" 
         });
     } catch (error: any) {
         console.error("Seeding error:", error);
