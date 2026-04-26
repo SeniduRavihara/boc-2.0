@@ -34,6 +34,7 @@ export default function UserQuizPage() {
   
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [mySubmission, setMySubmission] = useState<QuizSubmission | null>(null);
@@ -133,6 +134,7 @@ export default function UserQuizPage() {
       if (quiz?.status === 'registering') {
         setLocalQuestionIndex(null);
         setIsSubmitted(false);
+        setIsTransitioning(false);
         setSelectedOption(null);
         setScore(0);
         setMySubmission(null);
@@ -183,24 +185,34 @@ export default function UserQuizPage() {
   }, [activeTimeLeft]);
 
   const handleLocalNext = async () => {
+    if (isTransitioning || quiz?.status !== 'in_progress' || localQuestionIndex === null) return;
+    
     // If we haven't submitted yet, submit whatever we have (or skip)
     if (!isSubmitted) {
       await handleSubmitAnswer();
+      // handleSubmitAnswer will trigger the transition
+    } else {
+      // If already submitted but somehow stuck, move manually
+      triggerTransition();
     }
+  };
 
-    // Delay slightly for visual feedback
+  const triggerTransition = () => {
+    if (isTransitioning || !quiz || localQuestionIndex === null) return;
+    
+    setIsTransitioning(true);
     setTimeout(() => {
-      if (quiz && localQuestionIndex !== null) {
-        if (localQuestionIndex + 1 < quiz.questions.length) {
-          setLocalQuestionIndex(prev => (prev !== null ? prev + 1 : null));
-          setIsSubmitted(false);
-          setSelectedOption(null);
-        } else {
-          // Finished locally!
-          setLocalQuestionIndex(quiz.questions.length);
-        }
+      if (localQuestionIndex + 1 < quiz.questions.length) {
+        localStorage.removeItem(`quiz_submitted_${id}_${localQuestionIndex}`);
+        setLocalQuestionIndex(prev => (prev !== null ? prev + 1 : null));
+        setIsSubmitted(false);
+        setSelectedOption(null);
+        setIsTransitioning(false);
+      } else {
+        setLocalQuestionIndex(quiz.questions.length);
+        setIsTransitioning(false);
       }
-    }, 1000);
+    }, 1500);
   };
 
   // Sync Rank and Total Participants
@@ -280,7 +292,7 @@ export default function UserQuizPage() {
   };
 
   const handleSubmitAnswer = async () => {
-    if (selectedOption === null || isSubmitted || !user || !quiz || localQuestionIndex === null) return;
+    if (selectedOption === null || isSubmitted || isTransitioning || !user || !quiz || localQuestionIndex === null) return;
 
     const currentQuestion = quiz.questions[localQuestionIndex];
     const isCorrect = selectedOption === currentQuestion.correctOptionIndex;
@@ -319,21 +331,11 @@ export default function UserQuizPage() {
       // Persist submission state for current question
       localStorage.setItem(`quiz_submitted_${id}_${localQuestionIndex}`, "true");
       
-      // Auto-advance to next question after submission
-      setTimeout(() => {
-        if (localQuestionIndex + 1 < quiz.questions.length) {
-          // Clear current submitted state before moving
-          localStorage.removeItem(`quiz_submitted_${id}_${localQuestionIndex}`);
-          setLocalQuestionIndex(prev => (prev !== null ? prev + 1 : null));
-          setIsSubmitted(false);
-          setSelectedOption(null);
-        } else {
-          setLocalQuestionIndex(quiz.questions.length);
-        }
-      }, 1500);
+      // Start the transition
+      triggerTransition();
     } catch (err) {
       console.error("Failed to submit answer:", err);
-      setIsSubmitted(false); // Let them try again if it fails
+      setIsSubmitted(false); 
     }
   };
 
