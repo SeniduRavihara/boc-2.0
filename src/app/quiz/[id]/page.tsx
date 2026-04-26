@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -305,7 +305,7 @@ export default function UserQuizPage() {
     const currentQuestion = quiz.questions[quiz.currentQuestionIndex];
     
     return (
-      <div className="min-h-screen bg-[#030712] text-slate-200 p-6 flex flex-col items-center">
+      <div className="min-h-screen bg-[#030712] text-slate-200 p-4 md:p-6 flex flex-col items-center">
         <div className="w-full max-w-2xl">
           <header className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-4">
@@ -341,8 +341,8 @@ export default function UserQuizPage() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <GlassCard className="p-8 border-slate-800/50 mb-8">
-                <h2 className="text-2xl font-bold text-white mb-8 leading-tight">
+              <GlassCard className="p-5 md:p-8 border-slate-800/50 mb-8">
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 leading-tight">
                   {quiz.questions[activeQuestionIndex].text}
                 </h2>
 
@@ -352,7 +352,7 @@ export default function UserQuizPage() {
                       key={index}
                       disabled={isSubmitted || activeTimeLeft === 0}
                       onClick={() => setSelectedOption(index)}
-                      className={`w-full p-5 rounded-2xl border text-left font-medium transition-all flex items-center justify-between group ${
+                      className={`w-full p-4 md:p-5 rounded-2xl border text-left font-medium transition-all flex items-center justify-between group ${
                         selectedOption === index 
                           ? 'bg-blue-500/20 border-blue-500/50 text-white ring-1 ring-blue-500/30' 
                           : 'bg-slate-950/30 border-slate-800 text-slate-400 hover:border-slate-700'
