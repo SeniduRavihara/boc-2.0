@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
@@ -19,12 +19,15 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { addQuiz } from '@/firebase/api';
+import { getQuizById, updateQuiz } from '@/firebase/api';
 import { Question, Quiz } from '@/types';
 
-export default function NewQuizPage() {
+export default function EditQuizPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { id } = useParams() as { id: string };
+  
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
@@ -32,16 +35,32 @@ export default function NewQuizPage() {
   const [registrationTime, setRegistrationTime] = useState(2);
   const [defaultQuestionTime, setDefaultQuestionTime] = useState(60);
   const [mode, setMode] = useState<'manual' | 'automatic'>('manual');
-  
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: Math.random().toString(36).substr(2, 9),
-      text: "",
-      options: ["", "", "", ""],
-      correctOptionIndex: 0,
-      points: 10
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  useEffect(() => {
+    if (id) fetchQuiz();
+  }, [id]);
+
+  const fetchQuiz = async () => {
+    try {
+      setLoading(true);
+      const quiz = await getQuizById(id);
+      if (quiz) {
+        setTitle(quiz.title);
+        setDescription(quiz.description);
+        setRegistrationTime(quiz.registrationTime);
+        setDefaultQuestionTime(quiz.defaultQuestionTime);
+        setMode(quiz.mode);
+        setQuestions(quiz.questions);
+      } else {
+        setError("Quiz not found.");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to load quiz.");
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const handleAddQuestion = () => {
     const newQuestion: Question = {
@@ -54,13 +73,13 @@ export default function NewQuizPage() {
     setQuestions([...questions, newQuestion]);
   };
 
-  const handleRemoveQuestion = (id: string) => {
+  const handleRemoveQuestion = (qId: string) => {
     if (questions.length === 1) return;
-    setQuestions(questions.filter(q => q.id !== id));
+    setQuestions(questions.filter(q => q.id !== qId));
   };
 
-  const handleQuestionChange = (id: string, field: keyof Question, value: any) => {
-    setQuestions(questions.map(q => q.id === id ? { ...q, [field]: value } : q));
+  const handleQuestionChange = (qId: string, field: keyof Question, value: any) => {
+    setQuestions(questions.map(q => q.id === qId ? { ...q, [field]: value } : q));
   };
 
   const handleOptionChange = (qId: string, oIndex: number, value: string) => {
@@ -78,7 +97,6 @@ export default function NewQuizPage() {
     e.preventDefault();
     setError(null);
 
-    // Validation
     if (!title.trim() || !description.trim()) {
       setError("Please fill in the title and description.");
       return;
@@ -91,28 +109,33 @@ export default function NewQuizPage() {
     }
 
     try {
-      setLoading(true);
-      await addQuiz({
+      setSaving(true);
+      await updateQuiz(id, {
         title,
         description,
         registrationTime,
         defaultQuestionTime,
         mode,
-        status: 'idle',
-        currentQuestionIndex: 0,
         questions
       });
       router.push('/admin/quiz');
     } catch (err: any) {
-      setError(err.message || "Failed to create quiz.");
+      setError(err.message || "Failed to update quiz.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#030712] text-slate-200 p-6 md:p-12 font-sans overflow-x-hidden">
-      {/* Background Decorative Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]" />
@@ -123,11 +146,10 @@ export default function NewQuizPage() {
           <Link href="/admin/quiz" className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors mb-6 group">
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Back to Quizzes
           </Link>
-          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Create New MCQ Quiz</h1>
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Edit Quiz</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-12 pb-24">
-          {/* General Info */}
           <GlassCard className="p-8 border-slate-800/50">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
               <Settings className="text-purple-400" size={20} /> Quiz Settings
@@ -140,7 +162,6 @@ export default function NewQuizPage() {
                     type="text" 
                     value={title}
                     onChange={e => setTitle(e.target.value)}
-                    placeholder="e.g., Cloud Computing Challenge"
                     className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-purple-500/50 transition-all font-medium"
                   />
                 </div>
@@ -149,7 +170,6 @@ export default function NewQuizPage() {
                   <textarea 
                     value={description}
                     onChange={e => setDescription(e.target.value)}
-                    placeholder="Short description for the participants"
                     rows={2}
                     className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-purple-500/50 transition-all font-medium resize-none"
                   />
@@ -188,33 +208,30 @@ export default function NewQuizPage() {
                     onClick={() => setMode('manual')}
                     className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
                       mode === 'manual' 
-                      ? 'bg-purple-500/20 border-purple-500/50 text-white shadow-[0_0_20px_-5px_rgba(168,85,247,0.4)]' 
-                      : 'bg-slate-950/30 border-slate-800 text-slate-500 hover:border-slate-700'
+                      ? 'bg-purple-500/20 border-purple-500/50 text-white' 
+                      : 'bg-slate-950/30 border-slate-800 text-slate-500'
                     }`}
                   >
                     <Play size={20} />
                     <span className="font-bold text-sm">Manual Mode</span>
-                    <span className="text-[10px] opacity-60">Admin clicks "Next"</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode('automatic')}
                     className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
                       mode === 'automatic' 
-                      ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-[0_0_20px_-5px_rgba(59,130,246,0.4)]' 
-                      : 'bg-slate-950/30 border-slate-800 text-slate-500 hover:border-slate-700'
+                      ? 'bg-blue-500/20 border-blue-500/50 text-white' 
+                      : 'bg-slate-950/30 border-slate-800 text-slate-500'
                     }`}
                   >
                     <Zap size={20} />
                     <span className="font-bold text-sm">Automatic Mode</span>
-                    <span className="text-[10px] opacity-60">System advances itself</span>
                   </button>
                 </div>
               </div>
             </div>
           </GlassCard>
 
-          {/* Questions */}
           <div className="space-y-8">
             <div className="flex justify-between items-center px-2">
               <h2 className="text-xl font-bold flex items-center gap-2">
@@ -253,7 +270,6 @@ export default function NewQuizPage() {
                         type="text" 
                         value={question.text}
                         onChange={e => handleQuestionChange(question.id, 'text', e.target.value)}
-                        placeholder="Enter your question here..."
                         className="w-full bg-transparent border-b border-slate-800 p-2 text-xl font-semibold text-white outline-none focus:border-blue-500/50 transition-all"
                       />
                     </div>
@@ -265,10 +281,9 @@ export default function NewQuizPage() {
                             type="text" 
                             value={option}
                             onChange={e => handleOptionChange(question.id, oIndex, e.target.value)}
-                            placeholder={`Option ${oIndex + 1}`}
                             className={`w-full bg-slate-950/50 border rounded-xl p-4 pr-12 text-sm outline-none transition-all ${
                               question.correctOptionIndex === oIndex 
-                                ? 'border-emerald-500/50 text-emerald-400 ring-1 ring-emerald-500/20' 
+                                ? 'border-emerald-500/50 text-emerald-400' 
                                 : 'border-slate-800 text-slate-400 focus:border-slate-600'
                             }`}
                           />
@@ -310,15 +325,15 @@ export default function NewQuizPage() {
           <div className="fixed bottom-8 left-1/2 -translate-x-1/2 max-w-4xl w-[calc(100%-48px)] z-50">
             <button
               type="submit"
-              disabled={loading}
+              disabled={saving}
               className="w-full h-16 bg-white text-black rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-slate-200 transition-all shadow-2xl disabled:opacity-50"
             >
-              {loading ? (
+              {saving ? (
                 <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <Save size={20} />
-                  Save and Publish Quiz
+                  Update Quiz Changes
                 </>
               )}
             </button>

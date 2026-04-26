@@ -53,6 +53,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
             // 2. Check if exists in OTHER sessions
             const existingProfile = await checkUserRegistration(form.email);
+            let finalUser: any = form;
             
             if (existingProfile) {
                 // User exists in system, add this session to their profile
@@ -60,23 +61,30 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     ...existingProfile,
                     sessionId
                 } as any);
-                
+                finalUser = existingProfile;
                 setErrorMessage("Welcome back! We've added Session " + sessionId + " to your profile.");
-                setStatus("success");
             } else {
                 // 3. Totally new user
                 await addRegistration({
                     ...form,
                     sessionId
                 });
-                setErrorMessage(null); // Clear any previous error message
-                setStatus("success");
+                setErrorMessage(null);
             }
 
-            // Auto-redirect after a short delay
+            // Save to localStorage for quiz integration
+            localStorage.setItem('last_registered_user', JSON.stringify(finalUser));
+            localStorage.setItem('quiz_user_general', JSON.stringify(finalUser));
+
+            // Cinematic delay
+            await new Promise(r => setTimeout(r, 1500));
+            setStatus("success");
+
+            // Auto-redirect
+            const searchParams = new URLSearchParams(window.location.search);
+            const redirectUrl = searchParams.get('redirect');
+
             setTimeout(() => {
-                const searchParams = new URLSearchParams(window.location.search);
-                const redirectUrl = searchParams.get('redirect');
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                 } else {
@@ -149,7 +157,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                             <CheckCircle2 className="w-10 h-10 text-green-500" />
                                         </div>
                                         <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Success!</h3>
-                                        <p className="text-slate-400 text-sm font-medium mb-8">Your registration for Session {sessionId} has been confirmed. Redirecting you to the official WhatsApp group...</p>
+                                        <p className="text-slate-400 text-sm font-medium mb-8">{errorMessage || `Your registration for Session ${sessionId} has been confirmed. Redirecting you to the official WhatsApp group...`}</p>
                                         <div className="flex flex-col gap-3">
                                             <a 
                                                 href="https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"
@@ -195,7 +203,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     fill 
                     className="object-cover"
                 />
-                {/* Cinematic Blue Filter Overlay */}
                 <div className="absolute inset-0 bg-blue-950/40 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
                 <div className="absolute bottom-4 md:bottom-8 left-6 md:left-10 right-6 md:right-10">
@@ -211,27 +218,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             </div>
 
             <GlassCard className="relative rounded-[3rem] border-white/10 bg-[#09090b]/80 shadow-2xl backdrop-blur-3xl p-6 md:p-16">
-                
-                {/* Session Intel Block (Hidden for now)
-                <div className="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 border-b border-white/5 pb-12">
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Speaker</span>
-                        <p className="text-sm font-bold text-white">Thrindu Kalhara</p>
-                    </div>
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Date</span>
-                        <p className="text-sm font-bold text-white">April 26</p>
-                    </div>
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Time</span>
-                        <p className="text-sm font-bold text-white">7:00 - 9:00 PM</p>
-                    </div>
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Medium</span>
-                        <p className="text-sm font-bold text-white">Zoom</p>
-                    </div>
-                </div>
-                */}
                 
                 {/* Header */}
                 <div className="mb-16 border-b border-white/5 pb-12">
@@ -484,4 +470,3 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
         </div>
     );
 }
-

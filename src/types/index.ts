@@ -3,9 +3,10 @@ import { Timestamp } from "firebase/firestore";
 export interface Task {
   id?: string;
   title: string;
+  description: string;
+  status: 'todo' | 'in-progress' | 'done';
+  priority: 'low' | 'medium' | 'high';
   assignees: string[];
-  status: "Todo" | "In Progress" | "Done";
-  priority: "Low" | "Medium" | "High";
   dueDate: string;
   createdAt?: Timestamp;
 }
@@ -13,26 +14,17 @@ export interface Task {
 export interface TeamMember {
   id?: string;
   name: string;
-  createdAt?: Timestamp;
+  role: string;
+  avatar?: string;
 }
 
 export interface Meeting {
   id?: string;
   title: string;
-  description: string;
   date: string;
+  startTime: string;
+  endTime: string;
   presentMemberIds: string[];
-  createdAt?: Timestamp;
-}
-
-export interface Quiz {
-  id?: string;
-  title: string;
-  description: string;
-  sessionId?: string;
-  isActive: boolean;
-  timeLimit: number;
-  questions: Question[];
   createdAt?: Timestamp;
 }
 
@@ -41,18 +33,34 @@ export interface Registration {
   name: string;
   email: string;
   organization?: string;
-  sessionId: string; // Keep for backward compatibility or transition
-  sessionIds?: string[]; // New array for multiple sessions
-  sessionRegistrationTimes?: Record<string, any>; // Track when they joined each session
-  createdAt?: any;
-  faculty?: string;
   phone?: string;
-  linkedin?: string;
-  attendFirstSession?: string;
-  hasAwsAccount?: string;
-  thoughts?: string;
   isIeeeMember?: string;
   ieeeId?: string;
+  faculty?: string;
+  linkedin?: string;
+  attendFirstSession?: string;
+  thoughts?: string;
+  sessionIds?: string[];
+  sessionRegistrationTimes?: Record<string, Timestamp>;
+  createdAt?: Timestamp;
+}
+
+export interface AttendanceRecord {
+  id?: string;
+  email: string;
+  userName: string;
+  organization?: string;
+  sessionId: string;
+  markedAt: any; // Firestore Timestamp
+}
+
+export interface ContactMessage {
+  id?: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  createdAt?: Timestamp;
 }
 
 export interface Question {
@@ -61,6 +69,20 @@ export interface Question {
   options: string[];
   correctOptionIndex: number;
   points: number;
+}
+
+export interface Quiz {
+  id?: string;
+  title: string;
+  description: string;
+  registrationTime: number; // in minutes
+  defaultQuestionTime: number; // in seconds
+  mode: 'manual' | 'automatic';
+  status: 'idle' | 'registering' | 'in_progress' | 'finished';
+  currentQuestionIndex: number;
+  startTime?: Timestamp;
+  questions: Question[];
+  createdAt?: Timestamp;
 }
 
 export interface QuizSubmission {
@@ -78,23 +100,4 @@ export interface QuizSubmission {
   }[];
   totalScore: number;
   completedAt: Timestamp;
-}
-
-export interface AttendanceRecord {
-  id?: string;
-  sessionId: string;
-  email: string;
-  userName: string;
-  organization?: string;
-  markedAt: any; // Firestore Timestamp
-}
-
-export interface ContactMessage {
-  id?: string;
-  name: string;
-  email: string;
-  telephone: string;
-  subject: string;
-  message: string;
-  createdAt?: Timestamp;
 }
