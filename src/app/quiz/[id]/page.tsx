@@ -439,7 +439,44 @@ export default function UserQuizPage() {
     );
   }
 
-  // 3. Active Quiz
+  // 3. Finished State (Global or Local)
+  if (quiz.status === 'finished' || (localQuestionIndex !== null && localQuestionIndex >= quiz.questions.length)) {
+    return (
+      <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
+        <div className="max-w-md w-full">
+          <GlassCard className="p-10 border-slate-800/50 text-center">
+            <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-500">
+              <Trophy size={48} />
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2">Quiz Finished!</h2>
+            <p className="text-slate-500 mb-8">Excellent effort, {user.name.split(' ')[0]}!</p>
+
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Final Score</div>
+                <div className="text-2xl font-bold text-white font-mono">{score}</div>
+              </div>
+              <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Rank</div>
+                <div className="text-2xl font-bold text-emerald-400 font-mono">#{rank || '--'}</div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-slate-800/50 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">
+                Quiz Participation Complete
+              </p>
+              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-bold text-xs">
+                🎉 Attendance Marked Successfully
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. Active Quiz
   if (quiz.status === 'in_progress') {
     const currentQuestion = quiz.questions[activeQuestionIndex];
     if (!currentQuestion) return <div className="text-white text-center py-20">Preparing next question...</div>;
@@ -528,43 +565,6 @@ export default function UserQuizPage() {
               )}
             </motion.div>
           </AnimatePresence>
-        </div>
-      </div>
-    );
-  }
-
-  // 4. Finished State
-  if (quiz.status === 'finished' || (localQuestionIndex !== null && localQuestionIndex >= quiz.questions.length)) {
-    return (
-      <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
-        <div className="max-w-md w-full">
-          <GlassCard className="p-10 border-slate-800/50 text-center">
-            <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-500">
-              <Trophy size={48} />
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Quiz Finished!</h2>
-            <p className="text-slate-500 mb-8">Excellent effort, {user.name.split(' ')[0]}!</p>
-
-            <div className="grid grid-cols-2 gap-4 mb-10">
-              <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Final Score</div>
-                <div className="text-2xl font-bold text-white font-mono">{score}</div>
-              </div>
-              <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Rank</div>
-                <div className="text-2xl font-bold text-emerald-400 font-mono">#{rank || '--'}</div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-800/50 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">
-                Quiz Participation Complete
-              </p>
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-bold text-xs">
-                🎉 Attendance Marked Successfully
-              </div>
-            </div>
-          </GlassCard>
         </div>
       </div>
     );
