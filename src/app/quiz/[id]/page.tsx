@@ -117,16 +117,26 @@ export default function UserQuizPage() {
     };
   }, [quiz, localQuestionIndex, timeLeft]);
 
-  // Handle Global Stop (Admin Finish)
+  // Handle Global Stop or Restart (Clear Local Storage)
   useEffect(() => {
-    if (quiz?.status === 'finished') {
-      // Clear local progress when quiz is officially over
+    if (quiz?.status === 'finished' || quiz?.status === 'registering') {
+      // Clear local progress when quiz is over or being prepared for a new start
       localStorage.removeItem(`quiz_progress_${id}`);
       // Also clear all submission flags for this quiz
       if (quiz.questions) {
         quiz.questions.forEach((_, i) => {
           localStorage.removeItem(`quiz_submitted_${id}_${i}`);
         });
+      }
+      
+      // If we are back in registration, also reset local state for a TOTAL restart
+      if (quiz?.status === 'registering') {
+        setLocalQuestionIndex(null);
+        setIsSubmitted(false);
+        setSelectedOption(null);
+        setScore(0);
+        setMySubmission(null);
+        setRank(null);
       }
     }
   }, [quiz?.status, id, quiz?.questions]);
