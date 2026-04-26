@@ -28,6 +28,7 @@ export default function AttendancePage() {
   const [email, setEmail] = useState("");
   const [checking, setChecking] = useState(false);
   const [user, setUser] = useState<Registration | null>(null);
+  const [feedback, setFeedback] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [alreadyMarked, setAlreadyMarked] = useState(false);
@@ -134,7 +135,8 @@ export default function AttendancePage() {
         sessionId,
         email: user.email,
         userName: user.name,
-        organization: user.organization
+        organization: user.organization,
+        feedback: feedback.trim() || undefined
       });
       setSuccess(true);
     } catch (err) {
@@ -321,6 +323,16 @@ export default function AttendancePage() {
                     </div>
                     <div className="text-xs font-bold text-slate-300">Live Workshop Portal</div>
                   </div>
+                </div>
+                
+                <div className="space-y-2 mb-8">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Optional Feedback</label>
+                  <textarea 
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="Any thoughts or suggestions for this session?"
+                    className="w-full bg-slate-950/50 border border-slate-800 rounded-2xl p-4 text-white outline-none focus:border-blue-500/50 focus:bg-slate-900/50 transition-all font-medium text-sm min-h-[100px] resize-none"
+                  />
                 </div>
 
                 <button 

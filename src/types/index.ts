@@ -53,6 +53,7 @@ export interface AttendanceRecord {
   userName: string;
   organization?: string;
   sessionId: string;
+  feedback?: string;
   markedAt: any; // Firestore Timestamp
 }
 

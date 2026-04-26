@@ -92,7 +92,27 @@ export default function LeaderboardPage() {
     const nextRankings: Record<string, number> = {};
     let playsRankUpSound = false;
 
-    const processed = data.map((sub, index) => {
+    // Deduplicate by email (Keep highest score)
+    const unique = new Map<string, QuizSubmission>();
+    data.forEach(sub => {
+      const existing = unique.get(sub.userEmail);
+      if (!existing || sub.totalScore > existing.totalScore) {
+        unique.set(sub.userEmail, sub);
+      } else if (sub.totalScore === existing.totalScore) {
+        const subTime = (sub.completedAt as any)?.toMillis?.() || Number(sub.completedAt) || 0;
+        const existingTime = (existing.completedAt as any)?.toMillis?.() || Number(existing.completedAt) || 0;
+        if ((subTime as number) < (existingTime as number)) unique.set(sub.userEmail, sub);
+      }
+    });
+
+    const uniqueData = Array.from(unique.values()).sort((a, b) => {
+      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+      const timeA = (a.completedAt as any)?.toMillis?.() || Number(a.completedAt) || 0;
+      const timeB = (b.completedAt as any)?.toMillis?.() || Number(b.completedAt) || 0;
+      return (timeA as number) - (timeB as number);
+    });
+
+    const processed = uniqueData.map((sub, index) => {
       const currentRank = index + 1;
       const prevRank = prevRankingsRef.current[sub.userEmail];
       let change = 0;
@@ -103,7 +123,7 @@ export default function LeaderboardPage() {
       }
 
       nextRankings[sub.userEmail] = currentRank;
-      return { ...sub, rank: currentRank, change };
+      return { ...sub, rank: currentRank, change } as CompetitionMember;
     });
 
     if (playsRankUpSound && !isMuted && rankUpSoundRef.current) {

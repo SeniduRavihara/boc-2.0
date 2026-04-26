@@ -53,6 +53,33 @@ export default function LeaderboardPage() {
     return () => unsubscribe();
   }, [id]);
 
+  // Process and Deduplicate Submissions
+  const processedSubmissions = React.useMemo(() => {
+    const unique = new Map<string, QuizSubmission>();
+    
+    submissions.forEach(sub => {
+      const existing = unique.get(sub.userEmail);
+      // Keep the submission with the highest score
+      if (!existing || sub.totalScore > existing.totalScore) {
+        unique.set(sub.userEmail, sub);
+      } else if (sub.totalScore === existing.totalScore) {
+        // If scores are equal, keep the one completed earlier
+        const subTime = (sub.completedAt as any)?.toMillis?.() || Number(sub.completedAt) || 0;
+        const existingTime = (existing.completedAt as any)?.toMillis?.() || Number(existing.completedAt) || 0;
+        if ((subTime as number) < (existingTime as number)) {
+          unique.set(sub.userEmail, sub);
+        }
+      }
+    });
+
+    return Array.from(unique.values()).sort((a, b) => {
+      if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+      const timeA = (a.completedAt as any)?.toMillis?.() || Number(a.completedAt) || 0;
+      const timeB = (b.completedAt as any)?.toMillis?.() || Number(b.completedAt) || 0;
+      return (timeA as number) - (timeB as number);
+    });
+  }, [submissions]);
+
   // Timer Logic
   useEffect(() => {
     if (!quiz || quiz.status !== 'in_progress' || !quiz.startTime) {
@@ -81,8 +108,8 @@ export default function LeaderboardPage() {
 
   if (!quiz) return <div className="text-white text-center py-20">Quiz not found</div>;
 
-  const topThree = submissions.slice(0, 3);
-  const others = submissions.slice(3, 10); // Show top 10
+  const topThree = processedSubmissions.slice(0, 3);
+  const others = processedSubmissions.slice(3, 10); // Show top 10
 
   return (
     <div className="min-h-screen bg-[#030712] text-slate-200 p-8 md:p-16 font-sans overflow-hidden">
@@ -113,7 +140,7 @@ export default function LeaderboardPage() {
           <div className="flex gap-12 text-right">
             <div className="flex flex-col">
               <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Participants</span>
-              <span className="text-5xl font-black text-white font-mono">{submissions.length}</span>
+              <span className="text-5xl font-black text-white font-mono">{processedSubmissions.length}</span>
             </div>
             {timeLeft !== null && (
               <div className="flex flex-col">

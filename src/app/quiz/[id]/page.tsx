@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { db } from '@/firebase/config';
-import { doc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot, serverTimestamp, collection, query, where, orderBy } from 'firebase/firestore';
 import { checkUserRegistration, joinQuiz, submitQuizAnswer, getQuizById } from '@/firebase/api';
 import { Quiz, Question, QuizSubmission, Registration } from '@/types';
 
@@ -37,6 +37,8 @@ export default function UserQuizPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [mySubmission, setMySubmission] = useState<QuizSubmission | null>(null);
+  const [rank, setRank] = useState<number | null>(null);
+  const [totalParticipants, setTotalParticipants] = useState(0);
 
   // Load from local storage
   useEffect(() => {
@@ -72,9 +74,9 @@ export default function UserQuizPage() {
   }, [id]);
 
   // Derived State for Automatic Mode
-  const { activeQuestionIndex, activeTimeLeft } = useMemo(() => {
+  const { activeQuestionIndex, activeTimeLeft, isAutoFinished } = useMemo(() => {
     if (!quiz || quiz.status !== 'in_progress' || !quiz.startTime) {
-      return { activeQuestionIndex: quiz?.currentQuestionIndex || 0, activeTimeLeft: null };
+      return { activeQuestionIndex: quiz?.currentQuestionIndex || 0, activeTimeLeft: null, isAutoFinished: false };
     }
 
     if (quiz.mode === 'manual') {
@@ -82,7 +84,7 @@ export default function UserQuizPage() {
       const start = quiz.startTime.toDate().getTime();
       const elapsed = Math.floor((now - start) / 1000);
       const remaining = Math.max(0, quiz.defaultQuestionTime - elapsed);
-      return { activeQuestionIndex: quiz.currentQuestionIndex, activeTimeLeft: remaining };
+      return { activeQuestionIndex: quiz.currentQuestionIndex, activeTimeLeft: remaining, isAutoFinished: false };
     }
 
     // Automatic Mode: Calculate based on global start time
@@ -92,9 +94,11 @@ export default function UserQuizPage() {
     const index = Math.floor(elapsedTotal / quiz.defaultQuestionTime);
     const remaining = Math.max(0, quiz.defaultQuestionTime - (elapsedTotal % quiz.defaultQuestionTime));
     
+    const isFinished = index >= quiz.questions.length;
     return { 
       activeQuestionIndex: Math.min(index, quiz.questions.length - 1), 
-      activeTimeLeft: remaining
+      activeTimeLeft: remaining,
+      isAutoFinished: isFinished
     };
   }, [quiz, timeLeft]);
 
@@ -124,6 +128,62 @@ export default function UserQuizPage() {
       handleSubmitAnswer();
     }
   }, [activeTimeLeft]);
+
+  // Handle Automatic Finish Fallback
+  useEffect(() => {
+    if (isAutoFinished && quiz?.status === 'in_progress' && quiz.mode === 'automatic') {
+      import('@/firebase/api').then(api => {
+        api.updateQuiz(id, { status: 'finished' });
+      });
+    }
+  }, [isAutoFinished, quiz?.status, quiz?.mode, id]);
+
+  // Sync Rank and Total Participants
+  useEffect(() => {
+    if (!id || !db || !user?.email) return;
+
+    const q = query(
+      collection(db, "quiz_submissions"), 
+      where("quizId", "==", id),
+      orderBy("score", "desc"),
+      orderBy("completedAt", "asc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const allSubmissions = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as QuizSubmission));
+      
+      // Deduplicate by email (same logic as leaderboard)
+      const unique = new Map<string, QuizSubmission>();
+      allSubmissions.forEach(sub => {
+        const existing = unique.get(sub.userEmail);
+        if (!existing || sub.score > existing.score) {
+          unique.set(sub.userEmail, sub);
+        } else if (sub.score === existing.score) {
+          const subTime = (sub.completedAt as any)?.toMillis?.() || Number(sub.completedAt) || 0;
+          const existingTime = (existing.completedAt as any)?.toMillis?.() || Number(existing.completedAt) || 0;
+          if ((subTime as number) < (existingTime as number)) unique.set(sub.userEmail, sub);
+        }
+      });
+
+      const sorted = Array.from(unique.values()).sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        const timeA = (a.completedAt as any)?.toMillis?.() || Number(a.completedAt) || 0;
+        const timeB = (b.completedAt as any)?.toMillis?.() || Number(b.completedAt) || 0;
+        return (timeA as number) - (timeB as number);
+      });
+
+      setTotalParticipants(sorted.length);
+      
+      const myIndex = sorted.findIndex(sub => sub.userEmail === user.email);
+      if (myIndex !== -1) {
+        setRank(myIndex + 1);
+        // Also sync local score just in case
+        setScore(sorted[myIndex].score);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [id, user?.email]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -394,7 +454,7 @@ export default function UserQuizPage() {
   }
 
   // 4. Finished State
-  if (quiz.status === 'finished') {
+  if (quiz.status === 'finished' || isAutoFinished) {
     return (
       <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
         <div className="max-w-md w-full">
@@ -412,7 +472,7 @@ export default function UserQuizPage() {
               </div>
               <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Rank</div>
-                <div className="text-2xl font-bold text-emerald-400 font-mono">#--</div>
+                <div className="text-2xl font-bold text-emerald-400 font-mono">#{rank || '--'}</div>
               </div>
             </div>
 

@@ -350,8 +350,8 @@ export const deleteQuiz = async (id: string) => {
 
 export const submitQuizAnswer = async (submission: Omit<QuizSubmission, "id" | "completedAt">) => {
   const firestore = requireDb();
-  const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
-  return await addDoc(submissionsRef, {
+  const submissionRef = doc(firestore, SUBMISSIONS_COLLECTION, `${submission.quizId}_${submission.userEmail}`);
+  return await setDoc(submissionRef, {
     ...submission,
     completedAt: serverTimestamp()
   });
