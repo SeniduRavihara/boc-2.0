@@ -79,6 +79,27 @@ export default function AdminQuizPage() {
     );
   };
 
+  const seedQuiz = async () => {
+    if (!confirm("This will populate a test quiz from AWS_Session_Quiz.txt. Proceed?")) return;
+    
+    try {
+      setLoading(true);
+      const res = await fetch('/api/admin/seed-quiz', { method: 'POST' });
+      const data = await res.json();
+      
+      if (data.success) {
+        alert("Quiz seeded successfully! Total questions: " + data.count);
+        fetchQuizzes();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (err: any) {
+      alert("Failed to seed quiz: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#030712] text-slate-200 p-6 md:p-12 font-sans overflow-x-hidden">
       {/* Background Decorative Elements */}
@@ -93,12 +114,20 @@ export default function AdminQuizPage() {
             <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 mb-2">Quiz Management</h1>
             <p className="text-slate-500">Create, monitor, and control your live MCQ sessions.</p>
           </div>
-          <Link 
-            href="/admin/quiz/new" 
-            className="flex items-center justify-center gap-2 bg-white text-black h-12 px-6 rounded-xl font-bold hover:bg-slate-200 transition-all shadow-xl shadow-white/5"
-          >
-            <Plus size={18} /> Create New Quiz
-          </Link>
+          <div className="flex gap-4">
+            <button 
+              onClick={seedQuiz}
+              className="flex items-center justify-center gap-2 bg-slate-900 text-white border border-slate-800 h-12 px-6 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl"
+            >
+              <Zap size={18} className="text-yellow-400" /> Seed Test Quiz
+            </button>
+            <Link 
+              href="/admin/quiz/new" 
+              className="flex items-center justify-center gap-2 bg-white text-black h-12 px-6 rounded-xl font-bold hover:bg-slate-200 transition-all shadow-xl shadow-white/5"
+            >
+              <Plus size={18} /> Create New Quiz
+            </Link>
+          </div>
         </div>
 
         {loading ? (
