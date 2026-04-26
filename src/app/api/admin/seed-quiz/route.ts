@@ -74,6 +74,9 @@ export async function POST() {
         };
 
         // Add to Firestore
+        if (!db) {
+            throw new Error("Firestore is not initialized");
+        }
         const quizzesRef = collection(db, 'quizzes');
         const docRef = await addDoc(quizzesRef, {
             ...quizData,
