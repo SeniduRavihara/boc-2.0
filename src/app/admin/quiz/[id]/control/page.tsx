@@ -140,11 +140,17 @@ export default function QuizControlPage() {
     if (quiz.mode === 'automatic') {
       // In automatic mode, "Next" just skips ahead by adjusting the startTime
       const now = Date.now();
-      const newStartTime = new Date(now - (quiz.currentQuestionIndex + 1) * quiz.defaultQuestionTime * 1000);
-      await updateQuiz(id, { 
-        currentQuestionIndex: quiz.currentQuestionIndex + 1,
-        startTime: newStartTime as any
-      });
+      const targetIndex = activeQuestionIndex + 1;
+      
+      if (targetIndex >= quiz.questions.length) {
+        await updateQuiz(id, { status: 'finished' });
+      } else {
+        const newStartTime = new Date(now - targetIndex * quiz.defaultQuestionTime * 1000);
+        await updateQuiz(id, { 
+          currentQuestionIndex: targetIndex,
+          startTime: newStartTime as any
+        });
+      }
     } else {
       if (quiz.currentQuestionIndex < quiz.questions.length - 1) {
         await updateQuiz(id, { 
@@ -159,7 +165,21 @@ export default function QuizControlPage() {
 
   const handleToggleMode = async () => {
     if (!quiz) return;
-    await updateQuiz(id, { mode: quiz.mode === 'manual' ? 'automatic' : 'manual' });
+    const newMode = quiz.mode === 'manual' ? 'automatic' : 'manual';
+    const updates: any = { mode: newMode };
+    
+    if (newMode === 'manual') {
+      // Sync manual index to current automatic position
+      updates.currentQuestionIndex = activeQuestionIndex;
+      updates.startTime = serverTimestamp() as any; // Reset timer for the current question
+    } else {
+      // Sync automatic start time to current manual position
+      const now = Date.now();
+      const newStartTime = new Date(now - quiz.currentQuestionIndex * quiz.defaultQuestionTime * 1000);
+      updates.startTime = newStartTime as any;
+    }
+
+    await updateQuiz(id, updates);
   };
 
   const handleResetQuiz = async () => {

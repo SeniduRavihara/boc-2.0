@@ -135,12 +135,12 @@ export default function UserQuizPage() {
     }
   }, [activeTimeLeft]);
 
-  // Handle Automatic Finish Fallback
+  // Handle Automatic Finish Fallback (Local Only)
   useEffect(() => {
     if (isAutoFinished && quiz?.status === 'in_progress' && quiz.mode === 'automatic') {
-      import('@/firebase/api').then(api => {
-        api.updateQuiz(id, { status: 'finished' });
-      });
+      // We don't update the database here anymore to prevent students with fast clocks 
+      // from ending the quiz for everyone else. They will just see their own finished screen.
+      console.log("Local auto-finish reached");
     }
   }, [isAutoFinished, quiz?.status, quiz?.mode, id]);
 

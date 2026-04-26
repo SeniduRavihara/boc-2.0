@@ -11,7 +11,8 @@ import {
   Star,
   Activity,
   CheckCircle2,
-  Timer
+  Timer,
+  Crown
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { db } from '@/firebase/config';
@@ -125,8 +126,8 @@ export default function LeaderboardPage() {
         <div className="flex justify-between items-end mb-16">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-bold uppercase tracking-widest">
-                Live Leaderboard
+              <span className="px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                <Crown size={14} /> QUIZ LEADERBOARD
               </span>
               {quiz.status === 'in_progress' && (
                 <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 uppercase tracking-widest animate-pulse">

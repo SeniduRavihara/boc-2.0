@@ -180,7 +180,7 @@ export default function LeaderboardPage() {
         {/* Header - Aligned with Sample */}
         <div className="flex items-center gap-3 mb-8">
            <Crown className="text-amber-500" size={32} />
-           <h1 className="text-3xl font-black text-white tracking-tight">TEAM LEADERBOARD</h1>
+           <h1 className="text-3xl font-black text-white tracking-tight">QUIZ LEADERBOARD</h1>
         </div>
 
         {/* Stats Grid - Exact Sample Layout */}
