@@ -136,7 +136,6 @@ export default function AdminRegistrationsPage() {
                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Delegate</th>
                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Phone</th>
                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Organization</th>
-                                                <th className="px-8 py-5 text-center text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
                                                 <th className="px-8 py-5 text-right text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Action</th>
                                             </tr>
                                         </thead>
@@ -146,7 +145,11 @@ export default function AdminRegistrationsPage() {
                                                     <td className="px-8 py-6">
                                                         <div className="flex flex-col">
                                                             <span className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors uppercase tracking-tight">{reg.name}</span>
-                                                            <span className="text-xs text-slate-500 font-mono">{reg.email}</span>
+                                                            <span className="text-[10px] text-slate-500 font-mono">
+                                                                {reg.sessionRegistrationTimes?.[activeSession] 
+                                                                    ? new Date(reg.sessionRegistrationTimes[activeSession].toDate()).toLocaleString()
+                                                                    : reg.createdAt ? new Date(reg.createdAt.toDate()).toLocaleString() : 'N/A'}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                     <td className="px-8 py-6">
@@ -156,12 +159,6 @@ export default function AdminRegistrationsPage() {
                                                         <span className="inline-flex px-3 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                                                             {reg.organization || "Independent"}
                                                         </span>
-                                                    </td>
-                                                    <td className="px-8 py-6">
-                                                        <div className="flex items-center justify-center gap-2 text-green-500">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest">Verified</span>
-                                                        </div>
                                                     </td>
                                                     <td className="px-8 py-6 text-right">
                                                         <button 

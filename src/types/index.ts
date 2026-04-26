@@ -41,7 +41,10 @@ export interface Registration {
   name: string;
   email: string;
   organization?: string;
-  sessionId: string;
+  sessionId: string; // Keep for backward compatibility or transition
+  sessionIds?: string[]; // New array for multiple sessions
+  sessionRegistrationTimes?: Record<string, any>; // Track when they joined each session
+  createdAt?: any;
   faculty?: string;
   phone?: string;
   linkedin?: string;

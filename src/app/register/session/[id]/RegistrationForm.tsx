@@ -1,6 +1,6 @@
 'use client';
 
-import { addRegistration, checkRegistrationExists } from '@/firebase/api';
+import { addRegistration, checkRegistrationExists, checkUserRegistration } from '@/firebase/api';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,24 +43,35 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
         try {
             setStatus("loading");
 
-            // Check for existing registration
-            const exists = await checkRegistrationExists(form.email, sessionId);
-            if (exists) {
-                // Wait a bit to show the loading state for UX
-                await new Promise(r => setTimeout(r, 1000));
+            // 1. Check if already registered for THIS session
+            const alreadyInSession = await checkRegistrationExists(form.email, sessionId);
+            if (alreadyInSession) {
+                setErrorMessage("You're already registered for this session!");
                 setStatus("error");
-                setErrorMessage("This email is already registered for this session.");
                 return;
             }
 
-            await addRegistration({
-                ...form,
-                sessionId
-            });
-
-            // Delay for cinematic effect
-            await new Promise(r => setTimeout(r, 1500));
-            setStatus("success");
+            // 2. Check if exists in OTHER sessions
+            const existingProfile = await checkUserRegistration(form.email);
+            
+            if (existingProfile) {
+                // User exists in system, add this session to their profile
+                await addRegistration({
+                    ...existingProfile,
+                    sessionId
+                } as any);
+                
+                setErrorMessage("Welcome back! We've added Session " + sessionId + " to your profile.");
+                setStatus("success");
+            } else {
+                // 3. Totally new user
+                await addRegistration({
+                    ...form,
+                    sessionId
+                });
+                setErrorMessage(null); // Clear any previous error message
+                setStatus("success");
+            }
 
             // Auto-redirect to WhatsApp group after a short delay
             setTimeout(() => {

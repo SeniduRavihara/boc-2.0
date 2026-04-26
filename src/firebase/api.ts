@@ -237,8 +237,38 @@ export const subscribeToQuizzes = (callback: (quizzes: Quiz[]) => void) => {
 export const addRegistration = async (registration: Omit<Registration, "id">) => {
   const firestore = requireDb();
   const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
+  
+  // Check if user already exists in ANY session
+  const existingUser = await checkUserRegistration(registration.email);
+  
+  if (existingUser && existingUser.id) {
+    // User exists, update their sessions
+    const userRef = doc(firestore, REGISTRATIONS_COLLECTION, existingUser.id);
+    const currentSessions = existingUser.sessionIds || [existingUser.sessionId];
+    const currentTimes = existingUser.sessionRegistrationTimes || {};
+    
+    if (!currentSessions.includes(registration.sessionId)) {
+      return await updateDoc(userRef, {
+        sessionIds: [...currentSessions, registration.sessionId],
+        sessionRegistrationTimes: {
+          ...currentTimes,
+          [registration.sessionId]: serverTimestamp()
+        },
+        // Update other info if provided
+        phone: registration.phone || existingUser.phone,
+        organization: registration.organization || existingUser.organization
+      });
+    }
+    return existingUser.id; // Already in this session
+  }
+
+  // New user
   return await addDoc(registrationsRef, {
     ...registration,
+    sessionIds: [registration.sessionId],
+    sessionRegistrationTimes: {
+      [registration.sessionId]: serverTimestamp()
+    },
     createdAt: serverTimestamp()
   });
 };
@@ -246,20 +276,49 @@ export const addRegistration = async (registration: Omit<Registration, "id">) =>
 export const checkRegistrationExists = async (email: string, sessionId: string): Promise<boolean> => {
   const firestore = requireDb();
   const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
-  const q = query(registrationsRef, where("email", "==", email), where("sessionId", "==", sessionId));
-  const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty;
+  
+  // Check old field
+  const q1 = query(registrationsRef, where("email", "==", email), where("sessionId", "==", sessionId));
+  // Check new array
+  const q2 = query(registrationsRef, where("email", "==", email), where("sessionIds", "array-contains", sessionId));
+  
+  const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+  return !snap1.empty || !snap2.empty;
 };
 
 export const getRegistrationsBySession = async (sessionId: string): Promise<Registration[]> => {
   const firestore = requireDb();
   const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
-  const q = query(registrationsRef, where("sessionId", "==", sessionId), orderBy("createdAt", "desc"));
+  
+  // We check both the old 'sessionId' field and the new 'sessionIds' array
+  const q1 = query(registrationsRef, where("sessionId", "==", sessionId));
+  const q2 = query(registrationsRef, where("sessionIds", "array-contains", sessionId));
+  
+  const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+  
+  const results = new Map<string, Registration>();
+  
+  [...snap1.docs, ...snap2.docs].forEach(doc => {
+    results.set(doc.id, { id: doc.id, ...doc.data() } as Registration);
+  });
+  
+  return Array.from(results.values()).sort((a, b) => {
+    const timeA = a.createdAt?.toMillis() || 0;
+    const timeB = b.createdAt?.toMillis() || 0;
+    return timeB - timeA;
+  });
+};
+
+export const checkUserRegistration = async (email: string): Promise<Registration | null> => {
+  const firestore = requireDb();
+  const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
+  const q = query(registrationsRef, where("email", "==", email));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  } as Registration));
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Registration;
+  }
+  return null;
 };
 
 // --- Submissions / Leaderboard ---
