@@ -81,6 +81,27 @@ export default function UserQuizPage() {
 
   const [localQuestionIndex, setLocalQuestionIndex] = useState<number | null>(null);
 
+  // Persistence: Load progress from local storage
+  useEffect(() => {
+    const savedIndex = localStorage.getItem(`quiz_progress_${id}`);
+    if (savedIndex !== null) {
+      setLocalQuestionIndex(parseInt(savedIndex));
+    }
+  }, [id]);
+
+  // Persistence: Save progress to local storage
+  useEffect(() => {
+    if (localQuestionIndex !== null) {
+      localStorage.setItem(`quiz_progress_${id}`, localQuestionIndex.toString());
+      
+      // Also recover submission state for this specific question
+      const alreadySubmitted = localStorage.getItem(`quiz_submitted_${id}_${localQuestionIndex}`);
+      if (alreadySubmitted === "true") {
+        setIsSubmitted(true);
+      }
+    }
+  }, [localQuestionIndex, id]);
+
   // Derived State for Self-Paced Flow
   const { activeQuestionIndex, activeTimeLeft } = useMemo(() => {
     if (!quiz || quiz.status !== 'in_progress') {
@@ -96,7 +117,21 @@ export default function UserQuizPage() {
     };
   }, [quiz, localQuestionIndex, timeLeft]);
 
-  // Initialize local journey
+  // Handle Global Stop (Admin Finish)
+  useEffect(() => {
+    if (quiz?.status === 'finished') {
+      // Clear local progress when quiz is officially over
+      localStorage.removeItem(`quiz_progress_${id}`);
+      // Also clear all submission flags for this quiz
+      if (quiz.questions) {
+        quiz.questions.forEach((_, i) => {
+          localStorage.removeItem(`quiz_submitted_${id}_${i}`);
+        });
+      }
+    }
+  }, [quiz?.status, id, quiz?.questions]);
+
+  // Initialize local journey if not already loaded (The Starting Pistol)
   useEffect(() => {
     if (quiz?.status === 'in_progress' && localQuestionIndex === null) {
       setLocalQuestionIndex(0);
@@ -268,9 +303,14 @@ export default function UserQuizPage() {
       await submitQuizAnswer(submission);
       setMySubmission(submission as any);
       
+      // Persist submission state for current question
+      localStorage.setItem(`quiz_submitted_${id}_${localQuestionIndex}`, "true");
+      
       // Auto-advance to next question after submission
       setTimeout(() => {
         if (localQuestionIndex + 1 < quiz.questions.length) {
+          // Clear current submitted state before moving
+          localStorage.removeItem(`quiz_submitted_${id}_${localQuestionIndex}`);
           setLocalQuestionIndex(prev => (prev !== null ? prev + 1 : null));
           setIsSubmitted(false);
           setSelectedOption(null);
