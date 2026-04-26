@@ -79,70 +79,81 @@ export default function UserQuizPage() {
     return () => unsubscribe();
   }, [id]);
 
-  // Derived State for Automatic Mode
-  const { activeQuestionIndex, activeTimeLeft, isAutoFinished } = useMemo(() => {
-    if (!quiz || quiz.status !== 'in_progress' || !quiz.startTime) {
-      return { activeQuestionIndex: quiz?.currentQuestionIndex || 0, activeTimeLeft: null, isAutoFinished: false };
+  const [localQuestionIndex, setLocalQuestionIndex] = useState<number | null>(null);
+
+  // Derived State for Self-Paced Flow
+  const { activeQuestionIndex, activeTimeLeft } = useMemo(() => {
+    if (!quiz || quiz.status !== 'in_progress') {
+      return { activeQuestionIndex: 0, activeTimeLeft: null };
     }
 
-    if (quiz.mode === 'manual') {
-      const now = Date.now();
-      const start = quiz.startTime.toDate().getTime();
-      const elapsed = Math.floor((now - start) / 1000);
-      const remaining = Math.max(0, quiz.defaultQuestionTime - elapsed);
-      return { activeQuestionIndex: quiz.currentQuestionIndex, activeTimeLeft: remaining, isAutoFinished: false };
-    }
-
-    // Automatic Mode: Calculate based on global start time
-    const now = Date.now();
-    const start = quiz.startTime.toDate().getTime();
-    const elapsedTotal = Math.floor((now - start) / 1000);
-    const index = Math.floor(elapsedTotal / quiz.defaultQuestionTime);
-    const remaining = Math.max(0, quiz.defaultQuestionTime - (elapsedTotal % quiz.defaultQuestionTime));
+    // If we haven't started our local journey yet, start at 0
+    const index = localQuestionIndex ?? 0;
     
-    const isFinished = index >= quiz.questions.length;
     return { 
-      activeQuestionIndex: Math.min(index, quiz.questions.length - 1), 
-      activeTimeLeft: remaining,
-      isAutoFinished: isFinished
+      activeQuestionIndex: index, 
+      activeTimeLeft: timeLeft
     };
-  }, [quiz, timeLeft]);
+  }, [quiz, localQuestionIndex, timeLeft]);
 
-  // Timer Ticker
+  // Initialize local journey
   useEffect(() => {
-    if (!quiz || quiz.status !== 'in_progress') return;
-    
+    if (quiz?.status === 'in_progress' && localQuestionIndex === null) {
+      setLocalQuestionIndex(0);
+    }
+  }, [quiz?.status]);
+
+  // Local Timer Logic
+  useEffect(() => {
+    if (!quiz || quiz.status !== 'in_progress' || localQuestionIndex === null) {
+      setTimeLeft(null);
+      return;
+    }
+
+    // Reset local timer for each new local question
+    setTimeLeft(quiz.defaultQuestionTime);
+
     const interval = setInterval(() => {
-      setTimeLeft(prev => (prev === null ? 0 : prev + 1));
+      setTimeLeft(prev => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [quiz?.status]);
+  }, [quiz?.status, localQuestionIndex]);
 
-  // Auto-submit and state reset logic
+  // Auto-submit and Local Progression
   useEffect(() => {
-    if (quiz?.status !== 'in_progress') return;
-    
-    // Reset submission state when question changes
-    setIsSubmitted(false);
-    setSelectedOption(null);
-  }, [activeQuestionIndex]);
-
-  useEffect(() => {
-    // Auto-submit if time runs out and an option is selected
-    if (activeTimeLeft === 0 && !isSubmitted && selectedOption !== null) {
-      handleSubmitAnswer();
+    // If time is up, auto-submit and move to next
+    if (activeTimeLeft === 0 && quiz?.status === 'in_progress' && localQuestionIndex !== null) {
+      handleLocalNext();
     }
   }, [activeTimeLeft]);
 
-  // Handle Automatic Finish Fallback (Local Only)
-  useEffect(() => {
-    if (isAutoFinished && quiz?.status === 'in_progress' && quiz.mode === 'automatic') {
-      // We don't update the database here anymore to prevent students with fast clocks 
-      // from ending the quiz for everyone else. They will just see their own finished screen.
-      console.log("Local auto-finish reached");
+  const handleLocalNext = async () => {
+    // If we haven't submitted yet, submit whatever we have (or skip)
+    if (!isSubmitted) {
+      await handleSubmitAnswer();
     }
-  }, [isAutoFinished, quiz?.status, quiz?.mode, id]);
+
+    // Delay slightly for visual feedback
+    setTimeout(() => {
+      if (quiz && localQuestionIndex !== null) {
+        if (localQuestionIndex + 1 < quiz.questions.length) {
+          setLocalQuestionIndex(prev => (prev !== null ? prev + 1 : null));
+          setIsSubmitted(false);
+          setSelectedOption(null);
+        } else {
+          // Finished locally!
+          setLocalQuestionIndex(quiz.questions.length);
+        }
+      }
+    }, 1000);
+  };
 
   // Sync Rank and Total Participants
   useEffect(() => {
@@ -221,9 +232,9 @@ export default function UserQuizPage() {
   };
 
   const handleSubmitAnswer = async () => {
-    if (selectedOption === null || isSubmitted || !user || !quiz) return;
+    if (selectedOption === null || isSubmitted || !user || !quiz || localQuestionIndex === null) return;
 
-    const currentQuestion = quiz.questions[activeQuestionIndex];
+    const currentQuestion = quiz.questions[localQuestionIndex];
     const isCorrect = selectedOption === currentQuestion.correctOptionIndex;
     const points = isCorrect ? currentQuestion.points : 0;
     
@@ -234,7 +245,7 @@ export default function UserQuizPage() {
       selectedOptionIndex: selectedOption,
       isCorrect,
       points,
-      timeTaken: quiz.defaultQuestionTime - (activeTimeLeft || 0)
+      timeTaken: quiz.defaultQuestionTime - (timeLeft || 0)
     };
 
     // Update local score
@@ -256,8 +267,20 @@ export default function UserQuizPage() {
     try {
       await submitQuizAnswer(submission);
       setMySubmission(submission as any);
+      
+      // Auto-advance to next question after submission
+      setTimeout(() => {
+        if (localQuestionIndex + 1 < quiz.questions.length) {
+          setLocalQuestionIndex(prev => (prev !== null ? prev + 1 : null));
+          setIsSubmitted(false);
+          setSelectedOption(null);
+        } else {
+          setLocalQuestionIndex(quiz.questions.length);
+        }
+      }, 1500);
     } catch (err) {
       console.error("Failed to submit answer:", err);
+      setIsSubmitted(false); // Let them try again if it fails
     }
   };
 
@@ -450,7 +473,7 @@ export default function UserQuizPage() {
               
               {isSubmitted && (
                 <p className="mt-4 text-center text-slate-500 text-sm italic font-medium">
-                  Waiting for the next question...
+                  Saving and moving to next...
                 </p>
               )}
             </motion.div>
@@ -461,7 +484,7 @@ export default function UserQuizPage() {
   }
 
   // 4. Finished State
-  if (quiz.status === 'finished' || isAutoFinished) {
+  if (quiz.status === 'finished' || (localQuestionIndex !== null && localQuestionIndex >= quiz.questions.length)) {
     return (
       <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
         <div className="max-w-md w-full">
@@ -483,10 +506,13 @@ export default function UserQuizPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-800/50">
+            <div className="pt-4 border-t border-slate-800/50 text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">
                 Quiz Participation Complete
               </p>
+              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-bold text-xs">
+                🎉 Attendance Marked Successfully
+              </div>
             </div>
           </GlassCard>
         </div>
