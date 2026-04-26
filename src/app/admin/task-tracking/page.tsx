@@ -38,6 +38,7 @@ function cn(...inputs: ClassValue[]) {
 
 interface TaskFormState {
   title: string;
+  description: string;
   assignees: string[];
   status: Task['status'];
   priority: Task['priority'];
@@ -57,9 +58,10 @@ export default function TaskTrackingPage() {
   // New task form state
   const [newTask, setNewTask] = useState<TaskFormState>({
     title: "",
+    description: "",
     assignees: [] as string[],
-    status: "Todo",
-    priority: "Medium",
+    status: "todo",
+    priority: "medium",
     dueDate: new Date().toISOString().split('T')[0]
   });
 
@@ -99,9 +101,10 @@ export default function TaskTrackingPage() {
       
       setNewTask({
         title: "",
+        description: "",
         assignees: [],
-        status: "Todo",
-        priority: "Medium",
+        status: "todo",
+        priority: "medium",
         dueDate: new Date().toISOString().split('T')[0]
       });
       setIsFormOpen(false);
@@ -116,6 +119,7 @@ export default function TaskTrackingPage() {
   const handleEditTask = (task: Task) => {
     setNewTask({
       title: task.title,
+      description: task.description || "",
       assignees: task.assignees || [],
       status: task.status,
       priority: task.priority,
@@ -153,7 +157,7 @@ export default function TaskTrackingPage() {
   };
 
   const handleUpdateStatus = async (id: string, currentStatus: string) => {
-    const statuses: Task['status'][] = ["Todo", "In Progress", "Done"];
+    const statuses: Task['status'][] = ["todo", "in-progress", "done"];
     const currentStatusIndex = statuses.indexOf(currentStatus as Task['status']);
     const nextStatus = statuses[(currentStatusIndex + 1) % statuses.length];
     
@@ -315,7 +319,7 @@ export default function TaskTrackingPage() {
                     {editingTaskId ? "Edit Task" : "Create New Task"}
                   </h2>
                   {editingTaskId && (
-                    <button onClick={() => { setEditingTaskId(null); setNewTask({ title: "", assignees: [], status: "Todo", priority: "Medium", dueDate: new Date().toISOString().split('T')[0] }); }} className="text-xs text-slate-500 hover:text-white transition-colors">
+                    <button onClick={() => { setEditingTaskId(null); setNewTask({ title: "", description: "", assignees: [], status: "todo", priority: "medium", dueDate: new Date().toISOString().split('T')[0] }); }} className="text-xs text-slate-500 hover:text-white transition-colors">
                       Cancel Edit
                     </button>
                   )}
@@ -332,6 +336,15 @@ export default function TaskTrackingPage() {
                         className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 outline-none focus:border-cyan-500/50 transition-all text-slate-100"
                       />
                     </div>
+                    <div className="md:col-span-2 lg:col-span-4">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Description</label>
+                      <textarea 
+                        placeholder="Add details about the task..."
+                        value={newTask.description}
+                        onChange={e => setNewTask({...newTask, description: e.target.value})}
+                        className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 outline-none focus:border-cyan-500/50 transition-all text-slate-100 resize-none h-20"
+                      />
+                    </div>
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Priority</label>
                       <select 
@@ -339,9 +352,9 @@ export default function TaskTrackingPage() {
                         onChange={e => setNewTask({...newTask, priority: e.target.value as Task['priority']})}
                         className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 outline-none focus:border-cyan-500/50 appearance-none text-white"
                       >
-                        <option value="Low" className="bg-slate-900">Low</option>
-                        <option value="Medium" className="bg-slate-900">Medium</option>
-                        <option value="High" className="bg-slate-900">High</option>
+                        <option value="low" className="bg-slate-900">Low</option>
+                        <option value="medium" className="bg-slate-900">Medium</option>
+                        <option value="high" className="bg-slate-900">High</option>
                       </select>
                     </div>
                     <div>
@@ -351,9 +364,9 @@ export default function TaskTrackingPage() {
                         onChange={e => setNewTask({...newTask, status: e.target.value as Task['status']})}
                         className="w-full bg-slate-950/50 border border-slate-800 rounded-lg p-3 outline-none focus:border-cyan-500/50 appearance-none text-white"
                       >
-                        <option value="Todo" className="bg-slate-900">Todo</option>
-                        <option value="In Progress" className="bg-slate-900">In Progress</option>
-                        <option value="Done" className="bg-slate-900">Done</option>
+                        <option value="todo" className="bg-slate-900">Todo</option>
+                        <option value="in-progress" className="bg-slate-900">In Progress</option>
+                        <option value="done" className="bg-slate-900">Done</option>
                       </select>
                     </div>
                   </div>
@@ -434,15 +447,15 @@ export default function TaskTrackingPage() {
                           onClick={() => handleUpdateStatus(task.id!, task.status)}
                           className={cn(
                             "w-12 h-12 rounded-full flex items-center justify-center cursor-pointer transition-all duration-500",
-                            task.status === "Done" ? "bg-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : 
-                            task.status === "In Progress" ? "bg-cyan-500/20 text-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : 
+                            task.status === "done" ? "bg-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : 
+                            task.status === "in-progress" ? "bg-cyan-500/20 text-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.2)]" : 
                             "bg-slate-800/80 text-slate-500"
                           )}
                         >
-                          {task.status === "Done" ? <CheckCircle2 size={24} /> : <Clock size={24} />}
+                          {task.status === "done" ? <CheckCircle2 size={24} /> : <Clock size={24} />}
                         </motion.div>
                         <div>
-                          <h3 className={cn("text-xl font-semibold mb-1 transition-all", task.status === "Done" && "line-through text-slate-600")}>
+                          <h3 className={cn("text-xl font-semibold mb-1 transition-all", task.status === "done" && "line-through text-slate-600")}>
                             {task.title}
                           </h3>
                           <div className="flex flex-wrap gap-4 text-sm text-slate-500">
@@ -466,7 +479,7 @@ export default function TaskTrackingPage() {
 
                       <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
                         <div className="flex gap-3">
-                          <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest", task.priority === "High" ? "bg-rose-500/10 text-rose-500 border border-rose-500/20" : task.priority === "Medium" ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : "bg-slate-500/10 text-slate-400 border border-slate-500/20")}>
+                          <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest", task.priority === "high" ? "bg-rose-500/10 text-rose-500 border border-rose-500/20" : task.priority === "medium" ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : "bg-slate-500/10 text-slate-400 border border-slate-500/20")}>
                             {task.priority}
                           </span>
                           <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/5 text-slate-400 border border-white/10")}>

@@ -46,8 +46,21 @@ export default function AttendancePage() {
         const savedUser = localStorage.getItem(`quiz_user_general`) || localStorage.getItem(`last_registered_user`);
         if (savedUser) {
           const userData = JSON.parse(savedUser);
-          setUser(userData);
-          await checkExistingAttendance(userData.email);
+          
+          // CRITICAL: Verify they are actually registered for THIS session
+          const isRegistered = 
+            userData.sessionIds?.includes(sessionId) || 
+            userData.sessionId === sessionId;
+
+          if (isRegistered) {
+            setUser(userData);
+            await checkExistingAttendance(userData.email);
+          } else {
+            // Not registered for this one, but pre-fill email for convenience
+            setEmail(userData.email);
+            setUser(null);
+            setLoading(false);
+          }
         } else {
           setLoading(false);
         }
@@ -83,11 +96,27 @@ export default function AttendancePage() {
       const registration = await checkUserRegistration(email.trim().toLowerCase());
       
       if (registration) {
-        setUser(registration);
+        // ALWAYS update local storage so other pages know who we are now
         localStorage.setItem(`quiz_user_general`, JSON.stringify(registration));
+        localStorage.setItem(`last_registered_user`, JSON.stringify(registration));
+
+        // Check if user is registered for THIS specific session
+        const isRegisteredForThisSession = 
+          registration.sessionIds?.includes(sessionId) || 
+          registration.sessionId === sessionId;
+
+        if (!isRegisteredForThisSession) {
+          setError(`You are registered for previous sessions, but not for Session ${sessionId}. Please register for this session first.`);
+          return;
+        }
+
+        setUser(registration);
         await checkExistingAttendance(registration.email);
       } else {
         setError("Email not found in our registration list.");
+        // Clear local storage if they entered a completely unknown email
+        localStorage.removeItem(`quiz_user_general`);
+        localStorage.removeItem(`last_registered_user`);
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong.");
@@ -242,7 +271,7 @@ export default function AttendancePage() {
                       </div>
                       <button 
                         type="button"
-                        onClick={() => router.push(`/register/session/${sessionId}?redirect=/attendance/${sessionId}`)}
+                        onClick={() => router.push(`/register/session/${sessionId}?redirect=/attendance/${sessionId}&email=${encodeURIComponent(email)}`)}
                         className="w-full h-10 bg-rose-500 text-white rounded-xl font-bold text-xs hover:bg-rose-600 transition-all"
                       >
                         Register Now

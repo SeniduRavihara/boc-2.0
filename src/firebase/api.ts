@@ -11,6 +11,7 @@ import {
   query, 
   orderBy,
   where,
+  limit,
   serverTimestamp,
   type Firestore
 } from "firebase/firestore";
@@ -172,28 +173,42 @@ export const addRegistration = async (registration: Omit<Registration, "id">) =>
   
   if (existingUser && existingUser.id) {
     const userRef = doc(firestore, REGISTRATIONS_COLLECTION, existingUser.id);
-    const currentSessions = existingUser.sessionIds || [existingUser.sessionId || "1"];
+    
+    // BACKWARD COMPATIBILITY: If they have legacy sessionId but no sessionIds array
+    let currentSessions = existingUser.sessionIds || [];
+    if (currentSessions.length === 0 && existingUser.sessionId) {
+      currentSessions = [existingUser.sessionId];
+    }
+    
     const currentTimes = existingUser.sessionRegistrationTimes || {};
     
-    if (!currentSessions.includes(registration.sessionId || "1")) {
+    // Find which session ID is being added
+    const newSessionId = (registration as any).sessionId || (registration.sessionIds?.find(id => !currentSessions.includes(id))) || "1";
+    
+    if (!currentSessions.includes(newSessionId)) {
       return await updateDoc(userRef, {
-        sessionIds: [...currentSessions, registration.sessionId || "1"],
+        sessionId: newSessionId, // Force update top-level ID
+        sessionIds: [...currentSessions, newSessionId],
         sessionRegistrationTimes: {
           ...currentTimes,
-          [registration.sessionId || "1"]: serverTimestamp()
+          [newSessionId]: serverTimestamp()
         },
         phone: registration.phone || existingUser.phone,
         organization: registration.organization || existingUser.organization
       });
     }
-    return existingUser.id;
+    
+    // Even if session already in array, ensure top-level sessionId is this one
+    return await updateDoc(userRef, { sessionId: newSessionId });
   }
 
+  const newSessionId = (registration as any).sessionId || (registration.sessionIds && registration.sessionIds[0]) || "1";
+  
   return await addDoc(registrationsRef, {
     ...registration,
-    sessionIds: [registration.sessionId || "1"],
+    sessionIds: [newSessionId],
     sessionRegistrationTimes: {
-      [registration.sessionId || "1"]: serverTimestamp()
+      [newSessionId]: serverTimestamp()
     },
     createdAt: serverTimestamp()
   });
@@ -243,6 +258,12 @@ export const checkUserRegistration = async (email: string): Promise<Registration
   return null;
 };
 
+export const deleteRegistration = async (id: string) => {
+  const firestore = requireDb();
+  const registrationRef = doc(firestore, REGISTRATIONS_COLLECTION, id);
+  return await deleteDoc(registrationRef);
+};
+
 // --- Attendance ---
 
 export const markAttendance = async (attendance: Omit<AttendanceRecord, "id" | "markedAt">) => {
@@ -270,6 +291,17 @@ export const checkAttendanceExists = async (email: string, sessionId: string): P
   const attendanceRef = doc(firestore, ATTENDANCE_COLLECTION, `${sessionId}_${email}`);
   const snap = await getDoc(attendanceRef);
   return snap.exists();
+};
+
+export const getAttendanceByUser = async (email: string): Promise<AttendanceRecord[]> => {
+  const firestore = requireDb();
+  const attendanceRef = collection(firestore, ATTENDANCE_COLLECTION);
+  const q = query(attendanceRef, where("email", "==", email));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as AttendanceRecord));
 };
 
 // --- Quizzes ---
@@ -371,11 +403,84 @@ export const getGlobalSettings = async () => {
 
 // --- Mail & Contact ---
 
+export type MailFolder = 'inbox' | 'sent' | 'archive' | 'trash';
+
+export interface MailMessage {
+  id: string;
+  resend_id: string;
+  direction: 'incoming' | 'outgoing';
+  from_email: string;
+  to_email: string;
+  subject: string;
+  content_text: string;
+  content_html: string;
+  folder: MailFolder;
+  is_read: boolean;
+  metadata?: any;
+  createdAt: any;
+}
+
+export const fetchMailboxMessages = async (folder: MailFolder = 'inbox'): Promise<MailMessage[]> => {
+  const firestore = requireDb();
+  const mailboxRef = collection(firestore, MAILBOX_COLLECTION);
+  const q = query(mailboxRef, where("folder", "==", folder), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as MailMessage));
+};
+
+export const updateMailMessageStatus = async (id: string, updates: Partial<MailMessage>) => {
+  const firestore = requireDb();
+  const messageRef = doc(firestore, MAILBOX_COLLECTION, id);
+  return await updateDoc(messageRef, updates);
+};
+
+export const addMailMessage = async (message: Omit<MailMessage, "id" | "createdAt">) => {
+  const firestore = requireDb();
+  const mailboxRef = collection(firestore, MAILBOX_COLLECTION);
+  return await addDoc(mailboxRef, {
+    ...message,
+    createdAt: serverTimestamp()
+  });
+};
+
+export const addSystemLog = async (log: any) => {
+  const firestore = requireDb();
+  const logsRef = collection(firestore, SYSTEM_LOGS_COLLECTION);
+  return await addDoc(logsRef, {
+    ...log,
+    createdAt: serverTimestamp()
+  });
+};
+
 export const addContactMessage = async (message: Omit<ContactMessage, "id" | "createdAt">) => {
   const firestore = requireDb();
   const messagesRef = collection(firestore, CONTACT_MESSAGES_COLLECTION);
   return await addDoc(messagesRef, {
     ...message,
     createdAt: serverTimestamp()
+  });
+};
+
+// --- Real-time Subscriptions ---
+
+export const subscribeToLeaderboard = (callback: (submissions: QuizSubmission[]) => void, limitCount: number = 50) => {
+  const firestore = requireDb();
+  const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
+  const q = query(
+    submissionsRef, 
+    orderBy("totalScore", "desc"), 
+    orderBy("completedAt", "asc"),
+    limit(limitCount)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const submissions = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as QuizSubmission));
+    callback(submissions);
   });
 };

@@ -28,7 +28,7 @@ export default function LeaderboardPage() {
 
   // Sync Quiz Data
   useEffect(() => {
-    if (!id) return;
+    if (!id || !db) return;
     const unsubscribe = onSnapshot(doc(db, "quizzes", id), (docSnap) => {
       if (docSnap.exists()) {
         setQuiz({ id: docSnap.id, ...docSnap.data() } as Quiz);
@@ -40,7 +40,7 @@ export default function LeaderboardPage() {
 
   // Sync Submissions
   useEffect(() => {
-    if (!id) return;
+    if (!id || !db) return;
     const q = query(
       collection(db, "quiz_submissions"), 
       where("quizId", "==", id),
@@ -133,7 +133,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {topThree[1] && (
                 <motion.div
-                  key={topThree[1].id || topThree[1].email}
+                  key={topThree[1].id || topThree[1].userEmail}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-6"
@@ -147,7 +147,7 @@ export default function LeaderboardPage() {
                     <div className="text-slate-500 text-sm font-medium">{topThree[1].organization}</div>
                   </div>
                   <div className="h-48 bg-gradient-to-t from-slate-400/20 to-slate-400/5 rounded-t-3xl border-x border-t border-slate-400/20 flex flex-col items-center justify-center gap-2">
-                    <span className="text-4xl font-black text-white font-mono">{topThree[1].totalScore}</span>
+                    <span className="text-4xl font-black text-white font-mono">{topThree[1].score}</span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Points</span>
                   </div>
                 </motion.div>
@@ -160,7 +160,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {topThree[0] && (
                 <motion.div
-                  key={topThree[0].id || topThree[0].email}
+                  key={topThree[0].id || topThree[0].userEmail}
                   initial={{ opacity: 0, y: 50, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   className="space-y-6"
@@ -179,7 +179,7 @@ export default function LeaderboardPage() {
                     <div className="text-yellow-500/70 text-lg font-bold">{topThree[0].organization}</div>
                   </div>
                   <div className="h-64 bg-gradient-to-t from-yellow-500/20 to-yellow-500/5 rounded-t-3xl border-x border-t border-yellow-500/30 flex flex-col items-center justify-center gap-2">
-                    <span className="text-6xl font-black text-white font-mono drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">{topThree[0].totalScore}</span>
+                    <span className="text-6xl font-black text-white font-mono drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">{topThree[0].score}</span>
                     <span className="text-xs font-bold uppercase tracking-widest text-yellow-500/60">Points</span>
                   </div>
                 </motion.div>
@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {topThree[2] && (
                 <motion.div
-                  key={topThree[2].id || topThree[2].email}
+                  key={topThree[2].id || topThree[2].userEmail}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-6"
@@ -206,7 +206,7 @@ export default function LeaderboardPage() {
                     <div className="text-slate-500 text-sm font-medium">{topThree[2].organization}</div>
                   </div>
                   <div className="h-36 bg-gradient-to-t from-orange-700/20 to-orange-700/5 rounded-t-3xl border-x border-t border-orange-700/20 flex flex-col items-center justify-center gap-2">
-                    <span className="text-4xl font-black text-white font-mono">{topThree[2].totalScore}</span>
+                    <span className="text-4xl font-black text-white font-mono">{topThree[2].score}</span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-orange-700/60">Points</span>
                   </div>
                 </motion.div>
@@ -221,7 +221,7 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="popLayout">
               {others.map((sub, i) => (
                 <motion.div
-                  key={sub.id || sub.email}
+                  key={sub.id || sub.userEmail}
                   layout
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -238,7 +238,7 @@ export default function LeaderboardPage() {
                       <div className="text-xs font-medium text-slate-500 uppercase tracking-widest">{sub.organization || "Independent"}</div>
                     </div>
                     <div className="flex flex-col items-end">
-                      <div className="text-2xl font-black text-white font-mono">{sub.totalScore}</div>
+                      <div className="text-2xl font-black text-white font-mono">{sub.score}</div>
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Points</div>
                     </div>
                   </GlassCard>

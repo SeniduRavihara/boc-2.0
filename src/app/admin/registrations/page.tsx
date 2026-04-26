@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings } from "@/firebase/api";
+import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings, getAttendanceByUser, deleteRegistration } from "@/firebase/api";
 import { Registration } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Filter, Download, Search, ChevronRight, Zap, Activity } from "lucide-react";
+import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2 } from "lucide-react";
 
 import { SESSIONS } from "@/constants/sessions";
 
@@ -19,6 +19,11 @@ export default function AdminRegistrationsPage() {
     const [attendanceMap, setAttendanceMap] = useState<Record<string, Set<string>>>({});
     const [liveSession, setLiveSession] = useState<string | null>(null);
     const [updating, setUpdating] = useState(false);
+    const [selectedUserAttendance, setSelectedUserAttendance] = useState<Set<string>>(new Set());
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [attendanceFilter, setAttendanceFilter] = useState<'all' | 'present' | 'absent'>('all');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchData = async (sessionId: string) => {
         setLoading(true);
@@ -61,6 +66,44 @@ export default function AdminRegistrationsPage() {
         fetchData(activeSession);
     }, [activeSession]);
 
+    // Fetch full attendance history when a user is selected
+    useEffect(() => {
+        const fetchUserHistory = async () => {
+            if (!selectedRegistration) {
+                setSelectedUserAttendance(new Set());
+                return;
+            }
+            
+            setLoadingHistory(true);
+            try {
+                const history = await getAttendanceByUser(selectedRegistration.email);
+                const sessionSet = new Set(history.map(h => h.sessionId));
+                setSelectedUserAttendance(sessionSet);
+            } catch (err) {
+                console.error("Error fetching user history:", err);
+            }
+            setLoadingHistory(false);
+        };
+        
+        fetchUserHistory();
+    }, [selectedRegistration]);
+
+    const handleDelete = async () => {
+        if (!selectedRegistration?.id) return;
+        
+        setIsDeleting(true);
+        try {
+            await deleteRegistration(selectedRegistration.id);
+            setSelectedRegistration(null);
+            setShowDeleteConfirm(false);
+            fetchData(activeSession); // Refresh list
+        } catch (err) {
+            console.error("Error deleting registration:", err);
+            alert("Failed to delete registration.");
+        }
+        setIsDeleting(false);
+    };
+
     const exportToCSV = () => {
         const headers = ["Name", "Email", "Phone", "Organization", "Attendance", "Registered At"];
         const rows = filteredRegistrations.map(reg => [
@@ -90,12 +133,19 @@ export default function AdminRegistrationsPage() {
         document.body.removeChild(link);
     };
 
-    const filteredRegistrations = registrations.filter(reg => 
-        reg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reg.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        reg.phone?.includes(searchQuery)
-    );
+    const filteredRegistrations = registrations.filter(reg => {
+        const matchesSearch = 
+            reg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            reg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            reg.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            reg.phone?.includes(searchQuery);
+        
+        const isPresent = attendanceMap[reg.email]?.has(activeSession);
+        
+        if (attendanceFilter === 'present') return matchesSearch && isPresent;
+        if (attendanceFilter === 'absent') return matchesSearch && !isPresent;
+        return matchesSearch;
+    });
 
     return (
         <div className="space-y-8 pb-20">
@@ -143,6 +193,7 @@ export default function AdminRegistrationsPage() {
                         className={`
                             px-6 py-2.5 rounded-xl transition-all duration-300
                             text-xs font-black uppercase tracking-widest
+                            flex items-center gap-2
                             ${activeSession === session.id
                                 ? "bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]"
                                 : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
@@ -150,6 +201,12 @@ export default function AdminRegistrationsPage() {
                         `}
                     >
                         {session.name}
+                        {liveSession === session.id && (
+                            <div className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </div>
+                        )}
                     </button>
                 ))}
             </div>
@@ -159,9 +216,30 @@ export default function AdminRegistrationsPage() {
                 <div className="bg-[#0f172a]/50 backdrop-blur-xl border border-white/10 rounded-[32px] overflow-hidden shadow-2xl">
                     
                     {/* Toolbar */}
-                    <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/5">
-                        <div className="relative flex-1 max-w-md">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <div className="p-6 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/5">
+                        <div className="flex items-center gap-2 p-1 bg-black/20 rounded-xl border border-white/5 w-full md:w-auto">
+                            <button 
+                                onClick={() => setAttendanceFilter('all')}
+                                className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${attendanceFilter === 'all' ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                            >
+                                All ({registrations.length})
+                            </button>
+                            <button 
+                                onClick={() => setAttendanceFilter('present')}
+                                className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${attendanceFilter === 'present' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                            >
+                                Present ({registrations.filter(r => attendanceMap[r.email]?.has(activeSession)).length})
+                            </button>
+                            <button 
+                                onClick={() => setAttendanceFilter('absent')}
+                                className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${attendanceFilter === 'absent' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                            >
+                                Absent ({registrations.filter(r => !attendanceMap[r.email]?.has(activeSession)).length})
+                            </button>
+                        </div>
+
+                        <div className="relative flex-1 max-w-md group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-500 transition-colors" size={18} />
                             <input 
                                 type="text"
                                 placeholder="Search by name, email, phone or org..."
@@ -313,6 +391,7 @@ export default function AdminRegistrationsPage() {
                                         onClick={() => {
                                             setSelectedRegistration(null);
                                             setModalTab('profile');
+                                            setShowDeleteConfirm(false);
                                         }}
                                         className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-all"
                                     >
@@ -386,9 +465,14 @@ export default function AdminRegistrationsPage() {
                                         <div className="col-span-2 space-y-6">
                                             <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
                                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-4">Session Participation History</label>
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 relative">
+                                                    {loadingHistory && (
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-[#0f172a]/50 backdrop-blur-sm z-10 rounded-xl">
+                                                            <Loader2 className="animate-spin text-purple-500" size={24} />
+                                                        </div>
+                                                    )}
                                                     {SESSIONS.map(session => {
-                                                        const isPresent = attendanceMap[selectedRegistration.email]?.has(session.id);
+                                                        const isPresent = selectedUserAttendance.has(session.id);
                                                         return (
                                                             <div 
                                                                 key={session.id}
@@ -424,7 +508,34 @@ export default function AdminRegistrationsPage() {
                                 )}
                             </div>
 
-                            <div className="p-8 bg-white/5 border-t border-white/5 flex justify-end">
+                            <div className="p-8 bg-white/5 border-t border-white/5 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    {!showDeleteConfirm ? (
+                                        <button 
+                                            onClick={() => setShowDeleteConfirm(true)}
+                                            className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                        >
+                                            Delete Profile
+                                        </button>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={handleDelete}
+                                                disabled={isDeleting}
+                                                className="px-4 py-2 bg-rose-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-500/20 hover:bg-rose-600 transition-all disabled:opacity-50"
+                                            >
+                                                {isDeleting ? "Deleting..." : "Confirm Delete?"}
+                                            </button>
+                                            <button 
+                                                onClick={() => setShowDeleteConfirm(false)}
+                                                className="px-4 py-2 bg-white/5 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:text-white transition-all"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                
                                 <button 
                                     onClick={() => setSelectedRegistration(null)}
                                     className="px-8 py-3 bg-purple-500 text-white rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"

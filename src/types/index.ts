@@ -21,6 +21,7 @@ export interface TeamMember {
 export interface Meeting {
   id?: string;
   title: string;
+  description?: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -40,6 +41,7 @@ export interface Registration {
   linkedin?: string;
   attendFirstSession?: string;
   thoughts?: string;
+  sessionId?: string; // Singular sessionId for top-level tracking
   sessionIds?: string[];
   sessionRegistrationTimes?: Record<string, Timestamp>;
   createdAt?: Timestamp;
@@ -88,7 +90,7 @@ export interface Quiz {
 export interface QuizSubmission {
   id?: string;
   quizId: string;
-  email: string;
+  userEmail: string;
   userName: string;
   organization?: string;
   answers: {
@@ -98,6 +100,8 @@ export interface QuizSubmission {
     points: number;
     timeTaken: number; // in ms
   }[];
-  totalScore: number;
+  totalScore: number; // For backward compatibility if needed, but score is primary
+  score: number;
+  timeTaken: number;
   completedAt: Timestamp;
 }

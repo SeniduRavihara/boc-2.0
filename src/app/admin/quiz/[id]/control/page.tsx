@@ -38,7 +38,7 @@ export default function QuizControlPage() {
 
   // Sync Quiz Data
   useEffect(() => {
-    if (!id) return;
+    if (!id || !db) return;
 
     const unsubscribe = onSnapshot(doc(db, "quizzes", id), (docSnap) => {
       if (docSnap.exists()) {
@@ -52,7 +52,7 @@ export default function QuizControlPage() {
 
   // Sync Participants
   useEffect(() => {
-    if (!id) return;
+    if (!id || !db) return;
     const q = query(collection(db, "quiz_participants"), where("quizId", "==", id));
     const unsubscribe = onSnapshot(q, (snap) => {
       setParticipantsCount(snap.size);
@@ -62,7 +62,7 @@ export default function QuizControlPage() {
 
   // Sync Submissions
   useEffect(() => {
-    if (!id) return;
+    if (!id || !db) return;
     const q = query(collection(db, "quiz_submissions"), where("quizId", "==", id));
     const unsubscribe = onSnapshot(q, (snap) => {
       setSubmissions(snap.docs.map(doc => doc.data() as QuizSubmission));

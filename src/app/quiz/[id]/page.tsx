@@ -59,7 +59,7 @@ export default function UserQuizPage() {
 
   // Sync Quiz Data
   useEffect(() => {
-    if (!id) return;
+    if (!id || !db) return;
 
     const unsubscribe = onSnapshot(doc(db, "quizzes", id), (docSnap) => {
       if (docSnap.exists()) {
@@ -152,11 +152,13 @@ export default function UserQuizPage() {
     // Prepare full submission
     const submission: Omit<QuizSubmission, "id" | "completedAt"> = {
       quizId: id,
-      email: user.email,
+      userEmail: user.email,
       userName: user.name,
       organization: user.organization,
       answers: [...(mySubmission?.answers || []), newAnswer],
-      totalScore: newScore
+      score: newScore,
+      totalScore: newScore,
+      timeTaken: (mySubmission?.timeTaken || 0) + newAnswer.timeTaken
     };
 
     try {
