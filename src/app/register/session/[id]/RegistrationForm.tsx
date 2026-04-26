@@ -73,9 +73,15 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 setStatus("success");
             }
 
-            // Auto-redirect to WhatsApp group after a short delay
+            // Auto-redirect after a short delay
             setTimeout(() => {
-                window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
+                const searchParams = new URLSearchParams(window.location.search);
+                const redirectUrl = searchParams.get('redirect');
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
+                }
             }, 3500);
 
             // Reset form

@@ -432,3 +432,51 @@ export const addContactMessage = async (message: Omit<ContactMessage, "id" | "cr
     createdAt: serverTimestamp()
   });
 };
+
+// --- Attendance ---
+
+const ATTENDANCE_COLLECTION = "session_attendance";
+
+export const markAttendance = async (attendance: Omit<AttendanceRecord, "id" | "markedAt">) => {
+  const firestore = requireDb();
+  const attendanceRef = doc(firestore, ATTENDANCE_COLLECTION, `${attendance.sessionId}_${attendance.email}`);
+  return await setDoc(attendanceRef, {
+    ...attendance,
+    markedAt: serverTimestamp()
+  });
+};
+
+export const getAttendanceBySession = async (sessionId: string): Promise<AttendanceRecord[]> => {
+  const firestore = requireDb();
+  const attendanceRef = collection(firestore, ATTENDANCE_COLLECTION);
+  const q = query(attendanceRef, where("sessionId", "==", sessionId), orderBy("markedAt", "desc"));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as AttendanceRecord));
+};
+
+export const checkAttendanceExists = async (email: string, sessionId: string): Promise<boolean> => {
+  const firestore = requireDb();
+  const attendanceRef = doc(firestore, ATTENDANCE_COLLECTION, `${sessionId}_${email}`);
+  const snap = await getDoc(attendanceRef);
+  return snap.exists();
+};
+
+// --- Settings / Controls ---
+
+const SETTINGS_COLLECTION = "settings";
+
+export const updateGlobalSettings = async (settings: any) => {
+  const firestore = requireDb();
+  const settingsRef = doc(firestore, SETTINGS_COLLECTION, "global");
+  return await setDoc(settingsRef, settings, { merge: true });
+};
+
+export const getGlobalSettings = async () => {
+  const firestore = requireDb();
+  const settingsRef = doc(firestore, SETTINGS_COLLECTION, "global");
+  const snap = await getDoc(settingsRef);
+  return snap.exists() ? snap.data() : null;
+};

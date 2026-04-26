@@ -66,12 +66,27 @@ export interface Question {
 export interface QuizSubmission {
   id?: string;
   quizId: string;
+  email: string;
   userName: string;
-  userEmail: string;
-  score: number;
-  totalQuestions: number;
-  timeTaken: number;
-  completedAt?: Timestamp;
+  organization?: string;
+  answers: {
+    questionId: string;
+    selectedOptionIndex: number;
+    isCorrect: boolean;
+    points: number;
+    timeTaken: number; // in ms
+  }[];
+  totalScore: number;
+  completedAt: Timestamp;
+}
+
+export interface AttendanceRecord {
+  id?: string;
+  sessionId: string;
+  email: string;
+  userName: string;
+  organization?: string;
+  markedAt: any; // Firestore Timestamp
 }
 
 export interface ContactMessage {
