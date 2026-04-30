@@ -278,12 +278,19 @@ export const markAttendance = async (attendance: Omit<AttendanceRecord, "id" | "
 export const getAttendanceBySession = async (sessionId: string): Promise<AttendanceRecord[]> => {
   const firestore = requireDb();
   const attendanceRef = collection(firestore, ATTENDANCE_COLLECTION);
-  const q = query(attendanceRef, where("sessionId", "==", sessionId), orderBy("markedAt", "desc"));
+  // In-memory sorting to avoid composite index requirement
+  const q = query(attendanceRef, where("sessionId", "==", sessionId));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
+  const records = querySnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   } as AttendanceRecord));
+
+  return records.sort((a, b) => {
+    const timeA = a.markedAt?.toMillis?.() || 0;
+    const timeB = b.markedAt?.toMillis?.() || 0;
+    return timeB - timeA;
+  });
 };
 
 export const checkAttendanceExists = async (email: string, sessionId: string): Promise<boolean> => {
@@ -360,12 +367,20 @@ export const submitQuizAnswer = async (submission: Omit<QuizSubmission, "id" | "
 export const getQuizSubmissions = async (quizId: string): Promise<QuizSubmission[]> => {
   const firestore = requireDb();
   const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
-  const q = query(submissionsRef, where("quizId", "==", quizId), orderBy("totalScore", "desc"), orderBy("completedAt", "asc"));
+  // In-memory sorting to avoid composite index requirement
+  const q = query(submissionsRef, where("quizId", "==", quizId));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
+  const submissions = querySnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   } as QuizSubmission));
+
+  return submissions.sort((a, b) => {
+    if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+    const timeA = (a.completedAt as any)?.toMillis?.() || Number(a.completedAt) || 0;
+    const timeB = (b.completedAt as any)?.toMillis?.() || Number(b.completedAt) || 0;
+    return (timeA as number) - (timeB as number);
+  });
 };
 
 export const joinQuiz = async (quizId: string, registration: Registration) => {
@@ -423,12 +438,19 @@ export interface MailMessage {
 export const fetchMailboxMessages = async (folder: MailFolder = 'inbox'): Promise<MailMessage[]> => {
   const firestore = requireDb();
   const mailboxRef = collection(firestore, MAILBOX_COLLECTION);
-  const q = query(mailboxRef, where("folder", "==", folder), orderBy("createdAt", "desc"));
+  // In-memory sorting to avoid composite index requirement
+  const q = query(mailboxRef, where("folder", "==", folder));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({
+  const messages = querySnapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
   } as MailMessage));
+
+  return messages.sort((a, b) => {
+    const timeA = a.createdAt?.toMillis?.() || 0;
+    const timeB = b.createdAt?.toMillis?.() || 0;
+    return timeB - timeA;
+  });
 };
 
 export const updateMailMessageStatus = async (id: string, updates: Partial<MailMessage>) => {

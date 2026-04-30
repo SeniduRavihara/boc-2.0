@@ -10,71 +10,89 @@ export const getBaseTemplate = (content: string) => `
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       line-height: 1.8;
-      color: #334155;
+      color: #94a3b8;
       margin: 0;
       padding: 0;
-      background-color: #f8fafc;
+      background-color: #020617;
     }
     .container {
       max-width: 600px;
       margin: 40px auto;
-      background: #ffffff;
-      border-radius: 24px;
+      background: #0f172a;
+      border-radius: 32px;
       overflow: hidden;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 50px 100px rgba(0,0,0,0.8);
     }
     .header {
-      background: radial-gradient(circle at top, #1e40af 0%, #020617 70%);
-      padding: 35px 20px;
+      background: radial-gradient(circle at top right, #1e40af 0%, #020617 80%);
+      padding: 30px 20px;
       text-align: center;
-      border-bottom: 4px solid #1e40af;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
     .logo {
-      max-width: 200px;
+      max-width: 140px;
       height: auto;
     }
     .content {
-      padding: 40px 35px;
+      padding: 35px 40px;
       text-align: left;
-      color: #1e293b;
+      color: #f1f5f9;
       font-size: 16px;
       white-space: pre-line;
     }
     .footer {
-      background: radial-gradient(circle at bottom, #1e40af 0%, #020617 70%);
-      padding: 50px 30px;
+      background: #020617;
+      padding: 40px 30px;
       text-align: center;
-      color: #94a3b8;
-      border-top: 4px solid #1e40af;
+      color: #475569;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     .footer-logos {
-      margin-bottom: 30px;
-      padding-bottom: 25px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 35px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     .footer-logo {
-      height: 35px;
+      height: 32px;
       width: auto;
-      margin: 0 15px;
+      margin: 0 18px;
       vertical-align: middle;
-      opacity: 0.8;
+      opacity: 0.5;
+      filter: grayscale(100%);
     }
     .social-links {
-      margin-bottom: 25px;
+      margin-bottom: 30px;
     }
     .social-icon {
-      width: 32px;
-      height: 32px;
-      margin: 0 10px;
+      width: 28px;
+      height: 28px;
+      margin: 0 12px;
       vertical-align: middle;
+      opacity: 0.6;
     }
     .footer-text {
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
-      font-weight: 900;
-      color: #64748b;
+      letter-spacing: 0.3em;
+      font-weight: 800;
+      color: #334155;
+    }
+    a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .voucher-code {
+      display: inline-block;
+      padding: 12px 24px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 12px;
+      color: #60a5fa;
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 18px;
+      margin: 20px 0;
     }
   </style>
 </head>
@@ -100,7 +118,7 @@ export const getBaseTemplate = (content: string) => `
       </div>
 
       <div class="footer-text">
-        <p style="margin: 0 0 8px 0;">&copy; ${new Date().getFullYear()} Beauty of Cloud 2.0</p>
+        <p style="margin: 0 0 10px 0;">&copy; ${new Date().getFullYear()} Beauty of Cloud 2.0</p>
         <p style="margin: 0;">Organizing Committee · University of Sri Jayewardenepura</p>
       </div>
     </div>

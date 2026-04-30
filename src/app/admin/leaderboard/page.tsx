@@ -18,12 +18,14 @@ import {
   Target,
   Maximize2,
   Minimize2,
-  User
+  User,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { subscribeToLeaderboard } from '@/firebase/api';
 import { QuizSubmission } from '@/types';
+import * as XLSX from 'xlsx';
 
 type CompetitionMember = QuizSubmission & {
   rank: number;
@@ -145,6 +147,39 @@ export default function LeaderboardPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleExportExcel = () => {
+    if (submissions.length === 0) return;
+    
+    const top30 = submissions.slice(0, 30);
+    const data = top30.map(s => ({
+      Rank: s.rank,
+      Name: s.userName,
+      Email: s.userEmail,
+      Organization: s.organization || '',
+      Points: s.score,
+      "Time (s)": s.timeTaken,
+      "Time Format": formatTime(s.timeTaken)
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Top 30 Delegates");
+    
+    // Auto-adjust column widths
+    const wscols = [
+      {wch: 6},  // Rank
+      {wch: 30}, // Name
+      {wch: 40}, // Email
+      {wch: 30}, // Organization
+      {wch: 10}, // Points
+      {wch: 10}, // Time (s)
+      {wch: 15}  // Time Format
+    ];
+    worksheet['!cols'] = wscols;
+
+    XLSX.writeFile(workbook, `BOC_Quiz_Top_30_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   const TopTeam = submissions[0];
   const BestTime = submissions.length > 0 ? Math.min(...submissions.map(s => s.timeTaken)) : null;
 
@@ -158,9 +193,19 @@ export default function LeaderboardPage() {
         {/* Controls Overlay (Projector Friendly) */}
         <div className="absolute top-0 right-0 flex items-center gap-3 z-50">
            {!isProjectorMode && (
-              <Link href="/quiz" className="p-3 bg-slate-900 border border-slate-800 rounded-full text-slate-400 hover:text-white transition-all mr-2">
-                <ArrowLeft size={20} />
-              </Link>
+              <>
+                <button 
+                  onClick={handleExportExcel}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-500 hover:bg-emerald-500/20 transition-all text-xs font-black uppercase tracking-widest"
+                  title="Export Top 30 Excel"
+                >
+                  <Download size={16} /> Export Top 30 (Excel)
+                </button>
+
+                <Link href="/quiz" className="p-3 bg-slate-900 border border-slate-800 rounded-full text-slate-400 hover:text-white transition-all mr-2">
+                  <ArrowLeft size={20} />
+                </Link>
+              </>
            )}
            <button 
              onClick={toggleProjectorMode} 
