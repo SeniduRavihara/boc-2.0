@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Activity } from 'react';
-import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { getMessages, sendMail, markAsRead } from '@/app/actions/mailbox';
 import { MailMessage, MailFolder, getQuizzes, getQuizSubmissions } from '@/firebase/api';
@@ -217,7 +217,7 @@ export default function EmailToolPage() {
 
   const loadMessages = async () => {
     setLoading(true);
-    const data = await getMessages(activeFolder);
+    const data = await getMessages(activeFolder as MailFolder);
     setMessages(data);
     setLoading(false);
   };
