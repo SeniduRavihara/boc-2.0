@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Footer } from '@/components/sections/Footer';
 import { LinuxEnvironment } from '@/components/ui/LinuxEnvironment';
 import { LinuxShell } from '@/components/ui/LinuxShell';
-import { Footer } from '@/components/sections/Footer';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -167,17 +167,21 @@ export function HomeClient() {
       </div>
 
       <div
-        ref={sectionZoneRef}
+        // ref={sectionZoneRef}
         className="relative"
-        style={{ height: `${NUM_SECTIONS * SECTION_BAND_VH}vh` }}
+        style={{ height: `${NUM_SECTIONS * 100}vh` }}
       >
-        <div className="sticky top-0 h-[100svh] w-full">
-          <LinuxShell
+        <div className="sticky top-0 h-screen w-full">
+          {/* <LinuxShell
             activeSection={activeSection}
             onSectionClick={scrollToSection}
-          />
+          /> */}
+                <div className='bg-green-300 h-screen'>SENIDU</div>
+
         </div>
       </div>
+
+      <div className='bg-green-800 h-100'>SENIDU</div>
 
       <Footer />
     </main>

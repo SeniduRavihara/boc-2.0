@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity } from 'lucide-react';
+import { getMessages, markAsRead, sendMail } from '@/app/actions/mailbox';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { getMessages, sendMail, markAsRead } from '@/app/actions/mailbox';
-import { MailMessage, MailFolder, getQuizzes, getQuizSubmissions } from '@/firebase/api';
+import { MailFolder, MailMessage, getQuizSubmissions, getQuizzes } from '@/firebase/api';
 import { Quiz, QuizSubmission } from '@/types';
 import { format } from 'date-fns';
+import { AlertCircle, Archive, Check, ChevronRight, ExternalLink, Inbox, Loader2, Mail, Plus, RefreshCw, Search, Send, Ticket, Trash2, Trophy } from 'lucide-react';
+import { Activity, useEffect, useState } from 'react';
 
 export const getAWSTemplate = (name: string, code: string) => `Dear ${name},
 
@@ -217,7 +217,7 @@ export default function EmailToolPage() {
 
   const loadMessages = async () => {
     setLoading(true);
-    const data = await getMessages(activeFolder as MailFolder);
+    const data = await getMessages(activeFolder);
     setMessages(data);
     setLoading(false);
   };

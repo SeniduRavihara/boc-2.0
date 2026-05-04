@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2 } from "lucide-react";
 
 import { SESSIONS } from "@/constants/sessions";
+import * as XLSX from 'xlsx';
+
 
 export default function AdminRegistrationsPage() {
     const [activeSession, setActiveSession] = useState("1");
@@ -133,6 +135,39 @@ export default function AdminRegistrationsPage() {
         document.body.removeChild(link);
     };
 
+    const exportToExcel = () => {
+        const data = filteredRegistrations.map(reg => ({
+            "Name": reg.name,
+            "Email": reg.email,
+            "Phone": reg.phone || "N/A",
+            "Organization": reg.organization || "Independent",
+            "IEEE Member": reg.isIeeeMember === 'yes' ? 'Yes' : 'No',
+            "IEEE ID": reg.ieeeId || "N/A",
+            "Faculty": reg.faculty || "N/A",
+            "Attendance": attendanceMap[reg.email]?.has(activeSession) ? "PRESENT" : "ABSENT",
+            "Registration Time": reg.sessionRegistrationTimes?.[activeSession] 
+                ? new Date(reg.sessionRegistrationTimes[activeSession].toDate()).toLocaleString()
+                : reg.createdAt ? new Date(reg.createdAt.toDate()).toLocaleString() : 'N/A',
+            "Thoughts": reg.thoughts || ""
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+        
+        // Auto-size columns
+        const maxWidths = Object.keys(data[0] || {}).map(key => {
+            return Math.max(
+                key.length,
+                ...data.map(row => String(row[key as keyof typeof row]).length)
+            );
+        });
+        worksheet['!cols'] = maxWidths.map(w => ({ w: w + 2 }));
+
+        XLSX.writeFile(workbook, `BOC_Session_${activeSession}_Attendance.xlsx`);
+    };
+
+
     const filteredRegistrations = registrations.filter(reg => {
         const matchesSearch = 
             reg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -179,8 +214,15 @@ export default function AdminRegistrationsPage() {
                         onClick={exportToCSV}
                         className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-slate-300 transition-all"
                     >
-                        <Download size={16} /> Export CSV
+                        <Download size={16} /> CSV
                     </button>
+                    <button 
+                        onClick={exportToExcel}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 border border-purple-400/20 rounded-xl text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                    >
+                        <Download size={16} /> Excel Sheet
+                    </button>
+
                 </div>
             </div>
 

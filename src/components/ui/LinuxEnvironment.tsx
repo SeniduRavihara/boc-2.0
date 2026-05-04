@@ -1,13 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Terminal as TerminalIcon, X, Minus, Square, Search, Wifi, Volume2,
-  FolderOpen, FileCode, Globe, Settings, Power, Lock, Camera, Battery,
-  Monitor, Cpu, HardDrive, Activity, Zap, Cloud, Grid,
-  Bluetooth, Sun, Moon, Plane, ChevronRight, ChevronLeft, ChevronDown, Menu, Calculator, Clock,
-  Edit, PlaySquare, Briefcase, Wrench, FileText
+  Activity,
+  Bluetooth,
+  Camera,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Lock,
+  Menu,
+  Monitor,
+  Moon, Plane,
+  Power,
+  Search,
+  Settings,
+  Sun,
+  Wifi,
+  X
 } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // — Types —
 type AppId = 'terminal' | 'files' | 'editor' | 'browser' | 'monitor' | 'settings' | 'calculator' | 'viewer';
@@ -548,13 +560,25 @@ const Window = ({
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <button onClick={onClose} className="w-4 h-4 rounded-full bg-[#ff5f56] flex items-center justify-center hover:bg-[#ff5f56]/80 group transition-colors shadow-sm">
+            <button 
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onClose(); }} 
+              className="w-4 h-4 rounded-full bg-[#ff5f56] flex items-center justify-center hover:bg-[#ff5f56]/80 group transition-colors shadow-sm"
+            >
               <img src="/linux-icons/actions/16/window-close-symbolic.svg" alt="close" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
             </button>
-            <button onClick={onMinimise} className="w-4 h-4 rounded-full bg-[#ffbd2e] flex items-center justify-center hover:bg-[#ffbd2e]/80 group transition-colors shadow-sm">
+            <button 
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onMinimise(); }} 
+              className="w-4 h-4 rounded-full bg-[#ffbd2e] flex items-center justify-center hover:bg-[#ffbd2e]/80 group transition-colors shadow-sm"
+            >
               <img src="/linux-icons/actions/16/window-minimize-symbolic.svg" alt="minimize" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
             </button>
-            <button onClick={onMaximise} className={`w-4 h-4 rounded-full bg-[#27c93f] items-center justify-center hover:bg-[#27c93f]/80 group transition-colors shadow-sm ${isMobile ? 'hidden' : 'flex'}`}>
+            <button 
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); onMaximise(); }} 
+              className={`w-4 h-4 rounded-full bg-[#27c93f] items-center justify-center hover:bg-[#27c93f]/80 group transition-colors shadow-sm ${isMobile ? 'hidden' : 'flex'}`}
+            >
               <img src="/linux-icons/actions/16/window-maximize-symbolic.svg" alt={app.isMaximised ? 'restore' : 'maximize'} className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
             </button>
           </div>
