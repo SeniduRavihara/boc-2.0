@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LinuxEnvironment } from '@/components/ui/LinuxEnvironment';
 import { LinuxShell } from '@/components/ui/LinuxShell';
 import { Footer } from '@/components/sections/Footer';
+import { Gallery } from './ui/Gallery';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -87,8 +88,10 @@ export function HomeClient() {
         end:                 '+=400%',
         scrub:               touch ? 0.8 : 1,
         pin:                 pinnedRef.current,
+        markers:             false, // DEBUG MARKERS
         anticipatePin:       1,
         invalidateOnRefresh: true,
+        refreshPriority:     1, // Higher priority
       },
     });
 
@@ -128,7 +131,7 @@ export function HomeClient() {
 
   return (
     <main className="flex flex-col relative bg-[#050812]">
-      <div
+      {/* <div
         ref={pinnedRef}
         className="relative z-20 h-[100svh] w-full overflow-hidden bg-black touch-pan-y"
       >
@@ -164,18 +167,17 @@ export function HomeClient() {
         >
           <LinuxEnvironment />
         </div>
-      </div>
+      </div> */}
+
+      {/* <div className='h-100 bg-green-200'></div> */}
 
       <div
         ref={sectionZoneRef}
         className="relative"
         style={{ height: `${NUM_SECTIONS * SECTION_BAND_VH}vh` }}
       >
-        <div className="sticky top-0 h-[100svh] w-full">
-          <LinuxShell
-            activeSection={activeSection}
-            onSectionClick={scrollToSection}
-          />
+        <div className="sticky top-0 h-screen w-full">
+          <Gallery triggerRef={sectionZoneRef} />
         </div>
       </div>
 
