@@ -31,7 +31,7 @@ const SYSTEM_LOGS_COLLECTION = "system_logs";
 const ATTENDANCE_COLLECTION = "session_attendance";
 const QUIZ_PARTICIPANTS_COLLECTION = "quiz_participants";
 const SETTINGS_COLLECTION = "settings";
-const SESSIONS_COLLECTION = "sessions_timeline";
+const SESSIONS_COLLECTION = "sessions";
 
 // Helper: ensures Firestore is initialized before any API call.
 function requireDb(): Firestore {

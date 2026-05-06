@@ -1,19 +1,9 @@
 ﻿'use client';
 // import './page.module.css'
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-
-import { db } from "@/firebase/config";
-
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { DM_Mono, Sora } from 'next/font/google';
-import { createSession, getSessions, removeSession, updateSession } from "@/firebase/api";
+import { checkAndInitializeUser, createSession, getSessions, removeSession, updateSession } from "@/firebase/api";
+import { useAuth } from "@/context/AuthContext";
 
 type SessionType = 'aws' | 'gcp' | 'comp' | 'dmz-light' | 'dmz' | 'finale';
 type Mode = 'Online' | 'Physical' | 'Hybrid' | 'Blocked';
@@ -113,10 +103,10 @@ function generateJSON(sessions: Session[]) {
   return JSON.stringify({ event: 'Beauty of Cloud 2.0', year: 2025, sessions }, null, 2);
 }
 
-const role: Role = 'user';
+//let role: Role = 'user';
 
 export default function TimelinePage() {
-  const isAdmin = role === 'admin';
+ // const isAdmin = role === 'admin';
   const [exportType, setExportType] = useState<ExportType>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
@@ -129,12 +119,31 @@ export default function TimelinePage() {
   const [addingSession, setAddingSession] = useState(false);
   const [deletingSession, setDeletingSession] = useState<string | null>(null);
   const [updatingSession, setUpdatingSession] = useState<string | null>(null);
+  const [role, setRole] = useState<Role>('user');
+  const { user } = useAuth();
+  const isAdmin = role === 'admin';
+
 
   useEffect(() => {
+    const initRole = async () => {
+      if (!user) {
+        setRole('user');
+        return;
+      }
+
+      try {
+        const currentRole = await checkAndInitializeUser(user.uid, user.email, user.displayName);
+        setRole(currentRole as Role);
+      } catch (err) {
+        console.error("Error checking user role:", err);
+        setRole('user');
+      }
+    };
+
     const fetchSessions = async () => {
       try {
-const data = await getSessions();
-setSessions(data);
+        const data = await getSessions();
+        setSessions(data);
       } catch (err) {
         console.error("Error loading sessions:", err);
       } finally {
@@ -143,7 +152,8 @@ setSessions(data);
     };
 
     fetchSessions();
-  }, []);
+    initRole();
+  }, [user]);
 
   const counts = useMemo(() => {
     return sessions.reduce(
@@ -289,12 +299,12 @@ setSessions(data);
 
   if (loading) {
     return (
-<div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-transparent">
-  <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-  <p className="text-slate-500 animate-pulse">
-    Fetching meeting records...
-  </p>
-</div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4 bg-transparent">
+        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-slate-500 animate-pulse">
+          Fetching meeting records...
+        </p>
+      </div>
     );
   }
 
@@ -386,26 +396,26 @@ setSessions(data);
 
       {isAdmin && (
 
-      <div className="px-10 py-4 border-b border-[#2a3547] flex flex-wrap gap-5 items-center">
-        <span className={`${dmMono.className} text-[11px] text-[#4a5870]`}>TYPE:</span>
-        {Object.entries(TYPES).map(([key, type]) => (
-          <div key={key} className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
-            <div className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: key === 'aws' ? '#FF9900' : key === 'gcp' ? '#4285F4' : key === 'comp' ? '#34A853' : key === 'dmz-light' ? '#FBBC04' : key === 'dmz' ? '#EA4335' : '#9b5de5' }} />
-            {type.label}
+        <div className="px-10 py-4 border-b border-[#2a3547] flex flex-wrap gap-5 items-center">
+          <span className={`${dmMono.className} text-[11px] text-[#4a5870]`}>TYPE:</span>
+          {Object.entries(TYPES).map(([key, type]) => (
+            <div key={key} className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
+              <div className="w-2.5 h-2.5 rounded-[3px] flex-shrink-0" style={{ background: key === 'aws' ? '#FF9900' : key === 'gcp' ? '#4285F4' : key === 'comp' ? '#34A853' : key === 'dmz-light' ? '#FBBC04' : key === 'dmz' ? '#EA4335' : '#9b5de5' }} />
+              {type.label}
+            </div>
+          ))}
+          <div className="w-px h-4 bg-[#2a3547] mx-1" />
+          <span className={`${dmMono.className} text-[11px] text-[#4a5870]`}>MODE:</span>
+          <div className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
+            <div className="w-2.5 h-2.5 rounded-full bg-[#FF9900]" /> Online
           </div>
-        ))}
-        <div className="w-px h-4 bg-[#2a3547] mx-1" />
-        <span className={`${dmMono.className} text-[11px] text-[#4a5870]`}>MODE:</span>
-        <div className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
-          <div className="w-2.5 h-2.5 rounded-full bg-[#FF9900]" /> Online
+          <div className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
+            <div className="w-2.5 h-2.5 rounded-full bg-[#4285F4]" /> Physical
+          </div>
+          <div className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
+            <div className="w-2.5 h-2.5 rounded-full bg-[#EA4335]" /> Blocked
+          </div>
         </div>
-        <div className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
-          <div className="w-2.5 h-2.5 rounded-full bg-[#4285F4]" /> Physical
-        </div>
-        <div className={`${dmMono.className} flex items-center gap-1.5 text-[11px] text-[#7a8ba6]`}>
-          <div className="w-2.5 h-2.5 rounded-full bg-[#EA4335]" /> Blocked
-        </div>
-      </div>
       )}
 
       {isAdmin && (
