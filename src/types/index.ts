@@ -106,3 +106,26 @@ export interface QuizSubmission {
   timeTaken: number;
   completedAt: Timestamp;
 }
+
+
+  // -------------------- timeline 
+
+export type SessionMode = 'Online' | 'Physical' | 'Blocked';
+
+export type SessionType =
+  | 'aws'
+  | 'gcp'
+  | 'comp'
+  | 'dmz'
+  | 'dmz-light'
+  | 'finale';
+
+export interface Session {
+  id: string;
+  type: SessionType;
+  ref: string;
+  date: string;
+  time: string;
+  mode: SessionMode;
+  title: string;
+}
