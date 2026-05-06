@@ -69,6 +69,7 @@ export function HomeClient() {
   useGSAP(() => {
     ScrollTrigger.config({ ignoreMobileResize: true });
     if (ScrollTrigger.isTouch === 1) ScrollTrigger.normalizeScroll(true);
+    if (!pinnedRef.current) return;
 
     const touch = ScrollTrigger.isTouch === 1;
 
