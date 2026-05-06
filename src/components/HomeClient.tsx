@@ -12,9 +12,6 @@ import { Gallery } from './ui/Gallery';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SECTION_BAND_VH = 220;
-const NUM_SECTIONS    = 5;
-
 const GALLERY_ZONE_DVH = 500;
 
 export function HomeClient() {
@@ -23,9 +20,6 @@ export function HomeClient() {
   const heroContentRef = useRef<HTMLDivElement>(null);
   const windowRef      = useRef<HTMLDivElement>(null);
   const galleryZoneRef = useRef<HTMLDivElement>(null);
-  const sectionZoneRef = useRef<HTMLDivElement>(null);
-
-  const [activeSection, setActiveSection] = useState(0);
 
   /* ── Reset scroll on mount ───────────────────────────────── */
   React.useEffect(() => {
@@ -34,29 +28,6 @@ export function HomeClient() {
     window.history.scrollRestoration = 'manual';
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     return () => { window.history.scrollRestoration = prev; };
-  }, []);
-
-  /* ── Active section tracker ──────────────────────────────── */
-  useEffect(() => {
-    const handleScroll = () => {
-      const zone = sectionZoneRef.current;
-      if (!zone) return;
-      const scrollInZone = window.scrollY - zone.offsetTop;
-      if (scrollInZone < 0) return;
-      const bandPx = window.innerHeight * (SECTION_BAND_VH / 100);
-      const idx    = Math.floor(scrollInZone / bandPx);
-      setActiveSection(Math.max(0, Math.min(NUM_SECTIONS - 1, idx)));
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToSection = useCallback((index: number) => {
-    const zone = sectionZoneRef.current;
-    if (!zone) return;
-    const bandPx  = window.innerHeight * (SECTION_BAND_VH / 100);
-    const targetY = zone.offsetTop + index * bandPx;
-    window.scrollTo({ top: targetY, behavior: 'smooth' });
   }, []);
 
   /* ── Hero → Linux GSAP animation (unchanged) ─────────────── */
@@ -155,17 +126,6 @@ export function HomeClient() {
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           <Gallery triggerRef={galleryZoneRef} />
-        </div>
-      </div>
-
-      {/* ── 3. Linux shell sections ──────────────────────────────── */}
-      <div
-        ref={sectionZoneRef}
-        className="relative"
-        style={{ height: `${NUM_SECTIONS * SECTION_BAND_VH}vh` }}
-      >
-        <div className="sticky top-0 h-screen w-full">
-          {/* <LinuxShell activeSection={activeSection} scrollToSection={scrollToSection} /> */}
         </div>
       </div>
 

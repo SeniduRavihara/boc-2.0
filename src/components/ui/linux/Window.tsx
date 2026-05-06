@@ -79,13 +79,25 @@ export const Window: React.FC<WindowProps> = ({
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <button onClick={onClose} className="w-4 h-4 rounded-full bg-[#ff5f56] flex items-center justify-center hover:bg-[#ff5f56]/80 group transition-colors shadow-sm">
+            <button 
+              onClick={(e) => { e.stopPropagation(); onClose(); }} 
+              onPointerDown={(e) => e.stopPropagation()}
+              className="w-4 h-4 rounded-full bg-[#ff5f56] flex items-center justify-center hover:bg-[#ff5f56]/80 group transition-colors shadow-sm"
+            >
               <img src="/linux-icons/actions/16/window-close-symbolic.svg" alt="close" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
             </button>
-            <button onClick={onMinimise} className="w-4 h-4 rounded-full bg-[#ffbd2e] flex items-center justify-center hover:bg-[#ffbd2e]/80 group transition-colors shadow-sm">
+            <button 
+              onClick={(e) => { e.stopPropagation(); onMinimise(); }} 
+              onPointerDown={(e) => e.stopPropagation()}
+              className="w-4 h-4 rounded-full bg-[#ffbd2e] flex items-center justify-center hover:bg-[#ffbd2e]/80 group transition-colors shadow-sm"
+            >
               <img src="/linux-icons/actions/16/window-minimize-symbolic.svg" alt="minimize" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
             </button>
-            <button onClick={onMaximise} className={`w-4 h-4 rounded-full bg-[#27c93f] items-center justify-center hover:bg-[#27c93f]/80 group transition-colors shadow-sm ${isMobile ? 'hidden' : 'flex'}`}>
+            <button 
+              onClick={(e) => { e.stopPropagation(); onMaximise(); }} 
+              onPointerDown={(e) => e.stopPropagation()}
+              className={`w-4 h-4 rounded-full bg-[#27c93f] items-center justify-center hover:bg-[#27c93f]/80 group transition-colors shadow-sm ${isMobile ? 'hidden' : 'flex'}`}
+            >
               <img src="/linux-icons/actions/16/window-maximize-symbolic.svg" alt={app.isMaximised ? 'restore' : 'maximize'} className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
             </button>
           </div>

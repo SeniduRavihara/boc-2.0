@@ -164,7 +164,13 @@ export function Gallery({ triggerRef }: { triggerRef?: React.RefObject<HTMLDivEl
         />
 
         <div className="relative w-full rounded-xl overflow-hidden border border-white/10" style={{ aspectRatio: '16/6' }}>
-          <Image src={GALLERY_IMAGES[2].src} alt={GALLERY_IMAGES[2].alt} fill className="object-cover" sizes="100vw" />
+          <Image 
+            src={GALLERY_IMAGES[2].src} 
+            alt={GALLERY_IMAGES[2].alt} 
+            fill 
+            className="object-cover" 
+            sizes="(max-width: 768px) 100vw, 66vw" 
+          />
         </div>
       </div>
 
@@ -185,7 +191,13 @@ export function Gallery({ triggerRef }: { triggerRef?: React.RefObject<HTMLDivEl
         />
 
         <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 col-span-2">
-          <Image src={GALLERY_IMAGES[2].src} alt={GALLERY_IMAGES[2].alt} fill className="object-cover" sizes="66vw" />
+          <Image 
+            src={GALLERY_IMAGES[2].src} 
+            alt={GALLERY_IMAGES[2].alt} 
+            fill 
+            className="object-cover" 
+            sizes="(max-width: 1024px) 100vw, 66vw" 
+          />
         </div>
         <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
           <Image src={GALLERY_IMAGES[3].src} alt={GALLERY_IMAGES[3].alt} fill className="object-cover" sizes="33vw" />
@@ -231,7 +243,7 @@ export function Gallery({ triggerRef }: { triggerRef?: React.RefObject<HTMLDivEl
                 className={`w-full flex items-center justify-center border-b-4 border-white/20 ${s.bg}/80`}
                 style={{ height: '100vh' }}
               >
-                <h1 className="text-9xl font-bold text-white opacity-50">{s.label}</h1>
+                <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold text-white opacity-50">{s.label}</h1>
               </div>
             ))}
           </div>
