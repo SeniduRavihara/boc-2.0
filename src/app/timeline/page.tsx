@@ -106,7 +106,7 @@ function generateJSON(sessions: Session[]) {
 //let role: Role = 'user';
 
 export default function TimelinePage() {
- // const isAdmin = role === 'admin';
+  // const isAdmin = role === 'admin';
   const [exportType, setExportType] = useState<ExportType>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
@@ -444,7 +444,7 @@ export default function TimelinePage() {
       )}
 
       <div className="px-12 pb-10 pt-5 flex flex-col gap-4">
-        <div className="grid grid-cols-[36px_90px_140px_90px_120px_minmax(0,1fr)_110px_38px] gap-[10px] mb-[6px]">
+        <div className="grid grid-cols-[36px_90px_140px_90px_120px_minmax(0,1fr)_110px_38px] mt-8 gap-[10px] mb-[6px]">
           <div />
           <div className={`${dmMono.className} text-[10px] uppercase tracking-[0.08em] text-[#4a5870] px-3 py-1`}>Ref#</div>
           <div className={`${dmMono.className} text-[10px] uppercase tracking-[0.08em] text-[#4a5870] px-3 py-1`}>Date</div>
@@ -454,104 +454,113 @@ export default function TimelinePage() {
           <div className={`${dmMono.className} text-[10px] uppercase tracking-[0.08em] text-[#4a5870] px-3 py-1`}>Type</div>
           <div />
         </div>
-        <div id="timeline" className="flex flex-col gap-4 align-items-center justify-content-center">
-          {sessions.map((session, idx) => (
-            <div
-              key={session.id}
-              className={`grid grid-cols-[36px_minmax(0,1fr)] mb-2 rounded-[8px] border border-[#2a3547] bg-[#141920] transition-colors duration-150 relative hover:border-[#374560] ${SESSION_TYPE_CLASSES[session.type]} ${dragOverIndex === idx ? 'border-[#FF9900] shadow-[0_0_0_1px_rgba(255,153,0,0.35)]' : ''}`}
-              draggable={isAdmin}
-              onDragStart={isAdmin ? () => handleDragStart(idx) : undefined}
-              onDragEnd={isAdmin ? handleDragEnd : undefined}
-              onDragOver={isAdmin ? (event) => handleDragOver(event, idx) : undefined}
-              onDragLeave={isAdmin ? handleDragLeave : undefined}
-              onDrop={isAdmin ? (event) => handleDrop(event, idx) : undefined}
-            >
-              {isAdmin ? (
-                <div className="flex items-center justify-center cursor-grab text-[#4a5870] text-base border-r border-[#2a3547] rounded-l-[8px] transition-colors duration-150 hover:bg-[#1c2330] hover:text-[#7a8ba6]" title="Drag to reorder">
-                  ⠿
-                </div>
-              ) : (
-                <div className="w-[36px]" />
-              )}
-              <div className="grid grid-cols-[90px_140px_90px_120px_minmax(0,1fr)_110px_38px] items-center min-h-[52px]">
-                <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
-                  <input
-                    className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
-                    readOnly={!isAdmin}
-                    value={session.ref}
-                    placeholder="S1"
-                    title="Reference ID"
-                    onChange={(event) => updateField(session.id, 'ref', event.target.value)}
-                  />
-                </div>
-                <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
-                  <input
-                    type="date"
-                    className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
-                    readOnly={!isAdmin}
-                    value={formatDateForInput(session.date)}
-                    placeholder="Mon, Jan 1"
-                    title="Date"
-                    onChange={(event) => updateField(session.id, 'date', event.target.value || "Click to edit")}
-                  />
-                </div>
-                <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
-                  <input
-                    type="time"
-                    className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
-                    readOnly={!isAdmin}
-                    value={formatTimeForInput(session.time)}
-                    placeholder="7:00 PM"
-                    title="Time"
-                    onChange={(event) => updateField(session.id, 'time', event.target.value || "7:00 PM")}
-                  />
-                </div>
-                <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
-                  <select
-                    className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] cursor-pointer focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
-                    disabled={!isAdmin}
-                    title="Mode"
-                    value={session.mode}
-                    onChange={(event) => updateField(session.id, 'mode', event.target.value as Mode)}
-                  >
-                    {MODE_OPTIONS.map((mode) => (
-                      <option key={mode} value={mode}>
-                        {mode}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
-                  <input
-                    className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1 font-sans text-[13px] font-medium`}
-                    readOnly={!isAdmin}
-                    value={session.title}
-                    placeholder="Session title..."
-                    title="Session title"
-                    onChange={(event) => updateField(session.id, 'title', event.target.value)}
-                  />
-                </div>
-                <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
-                  <select
-                    className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] cursor-pointer focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
-                    disabled={!isAdmin}
-                    title="Type"
-                    value={session.type}
-                    onChange={(event) => updateField(session.id, 'type', event.target.value as SessionType)}
-                  >
-                    {Object.entries(TYPES).map(([key, type]) => (
-                      <option key={key} value={key}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-center justify-center cursor-pointer text-[#4a5870] transition-colors duration-150 p-2 hover:text-[#EA4335]" title={isAdmin ? 'Delete row' : undefined} onClick={isAdmin ? () => deleteSession(session.id) : undefined}>
-                  {isAdmin ? (deletingSession === session.id ? '⏳' : '✕') : ''}
+        <div id="timeline" className="flex flex-col gap-6 p-10 mt-[-30px] align-items-center justify-content-center">
+          {[...sessions]
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map((session, idx) => (
+              <div
+                key={session.id}
+                className={`grid grid-cols-[36px_minmax(0,1fr)] mb-2 rounded-[8px] border border-[#2a3547] bg-[#141920] transition-colors duration-150 relative hover:border-[#374560] ${SESSION_TYPE_CLASSES[session.type]} ${dragOverIndex === idx ? 'border-[#FF9900] shadow-[0_0_0_1px_rgba(255,153,0,0.35)]' : ''}`}
+                draggable={isAdmin}
+                onDragStart={isAdmin ? () => handleDragStart(idx) : undefined}
+                onDragEnd={isAdmin ? handleDragEnd : undefined}
+                onDragOver={isAdmin ? (event) => handleDragOver(event, idx) : undefined}
+                onDragLeave={isAdmin ? handleDragLeave : undefined}
+                onDrop={isAdmin ? (event) => handleDrop(event, idx) : undefined}
+              >
+                {isAdmin ? (
+                  <div className="flex items-center justify-center cursor-grab text-[#4a5870] text-base border-r border-[#2a3547] rounded-l-[8px] transition-colors duration-150 hover:bg-[#1c2330] hover:text-[#7a8ba6]" title="Drag to reorder">
+                    ⠿
+                  </div>
+                ) : (
+                  <div className="w-[36px]" />
+                )}
+                <div className="grid grid-cols-[90px_140px_90px_120px_minmax(0,1fr)_110px_38px] items-center min-h-[52px]">
+                  <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
+                    <input
+                      className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
+                      readOnly={!isAdmin}
+                      value={session.ref}
+                      placeholder="S1"
+                      title="Reference ID"
+                      onChange={(event) => updateField(session.id, 'ref', event.target.value)}
+                    />
+                  </div>
+                  <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
+                    <input
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
+                      className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
+                      readOnly={!isAdmin}
+                      value={formatDateForInput(session.date)}
+                      placeholder="Mon, Jan 1"
+                      title="Date"
+                      onChange={(event) =>
+                        updateField(
+                          session.id,
+                          'date',
+                          event.target.value || "Click to edit"
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
+                    <input
+                      type="time"
+                      className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
+                      readOnly={!isAdmin}
+                      value={formatTimeForInput(session.time)}
+                      placeholder="7:00 PM"
+                      title="Time"
+                      onChange={(event) => updateField(session.id, 'time', event.target.value || "7:00 PM")}
+                    />
+                  </div>
+                  <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
+                    <select
+                      className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] cursor-pointer focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
+                      disabled={!isAdmin}
+                      title="Mode"
+                      value={session.mode}
+                      onChange={(event) => updateField(session.id, 'mode', event.target.value as Mode)}
+                    >
+                      {MODE_OPTIONS.map((mode) => (
+                        <option key={mode} value={mode}>
+                          {mode}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
+                    <input
+                      className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] resize-none cursor-text focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1 font-sans text-[13px] font-medium`}
+                      readOnly={!isAdmin}
+                      value={session.title}
+                      placeholder="Session title..."
+                      title="Session title"
+                      onChange={(event) => updateField(session.id, 'title', event.target.value)}
+                    />
+                  </div>
+                  <div className="px-3 py-2 border-r border-[#2a3547] h-full flex items-center">
+                    <select
+                      className={`${dmMono.className} w-full bg-transparent border-none outline-none text-[11px] text-[#e8edf5] cursor-pointer focus:bg-[#1c2330] focus:rounded-[4px] focus:px-1 focus:py-1`}
+                      disabled={!isAdmin}
+                      title="Type"
+                      value={session.type}
+                      onChange={(event) => updateField(session.id, 'type', event.target.value as SessionType)}
+                    >
+                      {Object.entries(TYPES).map(([key, type]) => (
+                        <option key={key} value={key}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-center cursor-pointer text-[#4a5870] transition-colors duration-150 p-2 hover:text-[#EA4335]" title={isAdmin ? 'Delete row' : undefined} onClick={isAdmin ? () => deleteSession(session.id) : undefined}>
+                    {isAdmin ? (deletingSession === session.id ? '⏳' : '✕') : ''}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 
