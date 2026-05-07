@@ -30,33 +30,33 @@ export function PortalSection1() {
         
         {/* Timeline Section */}
         <section>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
+          <div className="text-center mb-10 md:mb-16">
+            <h2 className="text-3xl md:text-6xl font-bold text-white mb-4">
               Event <span className="text-blue-400">Timeline</span>
             </h2>
-            <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" />
+            <div className="h-1 w-16 md:w-20 bg-blue-500 mx-auto rounded-full" />
           </div>
 
-          <div className="relative border-l-2 border-blue-500/20 ml-4 md:ml-0 md:grid md:grid-cols-2 md:border-l-0">
+          <div className="relative border-l-2 border-blue-500/20 ml-2 md:ml-0 md:grid md:grid-cols-2 md:border-l-0">
             {/* Center line for desktop */}
             <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/50 via-blue-500/20 to-transparent -translate-x-1/2" />
             
             {TIMELINE_EVENTS.map((event, idx) => (
               <div 
                 key={idx} 
-                className={`relative mb-12 md:mb-20 ${idx % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12 md:col-start-2'}`}
+                className={`relative mb-8 md:mb-20 ${idx % 2 === 0 ? 'md:pr-12 md:text-right' : 'md:pl-12 md:col-start-2'}`}
               >
                 {/* Dot */}
-                <div className="absolute -left-[9px] md:left-1/2 top-2 w-4 h-4 rounded-full bg-blue-500 border-4 border-[#050812] md:-translate-x-1/2 z-10 shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                <div className="absolute -left-[9px] md:left-1/2 top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 border-4 border-[#050812] md:-translate-x-1/2 z-10 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
                 
-                <div className="pl-8 md:pl-0">
-                  <span className="text-sm font-mono text-blue-400/80 uppercase tracking-widest mb-1 block">
+                <div className="pl-6 md:pl-0">
+                  <span className="text-[10px] md:text-sm font-mono text-blue-400/80 uppercase tracking-widest mb-1 block">
                     {event.date}
                   </span>
-                  <h3 className="text-xl font-bold text-white mb-2 tracking-tight group-hover:text-blue-300 transition-colors">
+                  <h3 className="text-lg md:text-xl font-bold text-white mb-1 md:mb-2 tracking-tight group-hover:text-blue-300 transition-colors">
                     {event.title}
                   </h3>
-                  <p className="text-slate-400 text-sm leading-relaxed max-w-md mx-auto md:mx-0">
+                  <p className="text-slate-400 text-xs md:text-sm leading-relaxed max-w-md mx-auto md:mx-0">
                     {event.desc}
                   </p>
                 </div>

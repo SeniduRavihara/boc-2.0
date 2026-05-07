@@ -54,8 +54,8 @@ const DEPARTMENTS = [
 
 export function PortalSection2() {
   return (
-    <div className="w-full h-screen overflow-y-auto bg-[#050812] custom-scrollbar">
-      <div className="max-w-7xl mx-auto px-6 py-20">
+    <div className="w-full min-h-screen bg-[#050812] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
         
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -65,7 +65,7 @@ export function PortalSection2() {
         </div>
 
         {/* Executives */}
-        <div className="flex flex-col md:flex-row justify-center items-center gap-10 mb-32">
+        <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-10 mb-20 md:mb-32">
           {EXECUTIVES.map((exec, idx) => (
             <div key={idx} className="group relative w-full max-w-[280px]">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity" />

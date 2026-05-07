@@ -16,9 +16,9 @@ const PARTNERS = [
 
 export function PortalSection3() {
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center bg-[#050812] px-6">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-[#050812] px-4 md:px-6 py-16 md:py-24">
       
-      <div className="text-center mb-20">
+      <div className="text-center mb-12 md:mb-20">
         <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">
           Our <span className="text-blue-400">Partners</span>
         </h2>
