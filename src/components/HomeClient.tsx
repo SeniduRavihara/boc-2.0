@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { LinuxEnvironment } from '@/components/ui/LinuxEnvironment';
-import { LinuxShell } from '@/components/ui/LinuxShell';
 import { Footer } from '@/components/sections/Footer';
-import { Gallery } from './ui/Gallery';
+import { Gallery, GALLERY_ZONE_DVH } from './ui/Gallery'; // ← import the constant
+import { PortalSection2 } from './sections/gallery/PortalSection2';
+import { PortalSection3 } from './sections/gallery/PortalSection3';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const GALLERY_ZONE_DVH = 500;
 
 export function HomeClient() {
   const mainRef        = useRef<HTMLDivElement>(null);
@@ -21,7 +20,7 @@ export function HomeClient() {
   const windowRef      = useRef<HTMLDivElement>(null);
   const galleryZoneRef = useRef<HTMLDivElement>(null);
 
-  /* ── Reset scroll on mount ───────────────────────────────── */
+  /* ── Reset scroll on mount ─────────────────────────── */
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
     const prev = window.history.scrollRestoration;
@@ -30,7 +29,7 @@ export function HomeClient() {
     return () => { window.history.scrollRestoration = prev; };
   }, []);
 
-  /* ── Hero → Linux GSAP animation (unchanged) ─────────────── */
+  /* ── Hero → Linux animation ────────────────────────── */
   useGSAP(() => {
     ScrollTrigger.config({ ignoreMobileResize: true });
     if (ScrollTrigger.isTouch === 1) ScrollTrigger.normalizeScroll(true);
@@ -39,28 +38,28 @@ export function HomeClient() {
     const touch = ScrollTrigger.isTouch === 1;
 
     gsap.set(windowRef.current, {
-      left:            '50%',
-      xPercent:        -50,
-      yPercent:        touch ? 125 : 60,
-      scale:           touch ? 0.96 : 0.85,
-      pointerEvents:   'none',
+      left           : '50%',
+      xPercent       : -50,
+      yPercent       : touch ? 125 : 60,
+      scale          : touch ? 0.96 : 0.85,
+      pointerEvents  : 'none',
       transformOrigin: 'bottom center',
     });
 
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger:             pinnedRef.current, // Now triggers on the zone
-        start:               'top top',
-        end:                 'bottom bottom',
-        scrub:               touch ? 0.8 : 1,
+        trigger            : pinnedRef.current,
+        start              : 'top top',
+        end                : 'bottom bottom',
+        scrub              : touch ? 0.8 : 1,
         invalidateOnRefresh: true,
-        refreshPriority:     1, 
+        refreshPriority    : 1,
       },
     });
 
     tl.to(heroContentRef.current, { opacity: 0, y: -80, duration: 0.8, ease: 'power2.out' }, 0)
-      .to(windowRef.current, { yPercent: 0, scale: 1, pointerEvents: 'auto', duration: 1, ease: 'power2.out' }, 0)
-      .to(windowRef.current, { width: '100%', height: '100%', borderRadius: 0, duration: 1.2, ease: 'power3.inOut' }, 0.8);
+      .to(windowRef.current,      { yPercent: 0, scale: 1, pointerEvents: 'auto', duration: 1, ease: 'power2.out' }, 0)
+      .to(windowRef.current,      { width: '100%', height: '100%', borderRadius: 0, duration: 1.2, ease: 'power3.inOut' }, 0.8);
 
     const refresh = () => ScrollTrigger.refresh();
     window.addEventListener('resize',            refresh);
@@ -76,12 +75,8 @@ export function HomeClient() {
   return (
     <main ref={mainRef} className="flex flex-col relative bg-[#050812]">
 
-      {/* ── 1. Hero + Linux (CSS Sticky Calibration) ────────── */}
-      <div
-        ref={pinnedRef}
-        style={{ height: '500vh' }}
-        className="relative z-20 w-full bg-black"
-      >
+      {/* ── 1. Hero + Linux — 500vh scroll space ─────────────── */}
+      <div ref={pinnedRef} style={{ height: '500vh' }} className="relative z-20 w-full bg-black">
         <div className="sticky top-0 h-screen w-full overflow-hidden touch-pan-y">
           <div className="absolute inset-0 z-0">
             <video autoPlay loop muted playsInline className="h-full w-full object-cover opacity-50">
@@ -90,10 +85,7 @@ export function HomeClient() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
           </div>
 
-          <div
-            ref={heroContentRef}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
-          >
+          <div ref={heroContentRef} className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-40 text-center">
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/5 px-4 py-2 backdrop-blur-md">
               <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400">
@@ -118,7 +110,14 @@ export function HomeClient() {
         </div>
       </div>
 
-      {/* ── 2. Gallery (Sticky Calibration) ────────────────── */}
+      {/*
+        ── 2. Gallery zoom + PortalSection1 ─────────────────────────────────
+        Height is GALLERY_ZONE_DVH imported directly from Gallery.tsx.
+        When you change ZOOM_SCROLL or add sections in Gallery, this
+        automatically updates — no manual sync needed.
+
+        Current: TOTAL_SCROLL_MULTIPLIER = 1.5 + 1×1.0 = 2.5 → 250dvh
+      */}
       <div
         ref={galleryZoneRef}
         style={{ height: `${GALLERY_ZONE_DVH}dvh` }}
@@ -128,6 +127,10 @@ export function HomeClient() {
           <Gallery triggerRef={galleryZoneRef} />
         </div>
       </div>
+
+      {/* ── 3. Normal page sections (no scroll tricks) ───────── */}
+      <PortalSection2 />
+      <PortalSection3 />
 
       <Footer />
     </main>
