@@ -16,7 +16,7 @@ import {
   type Firestore
 } from "firebase/firestore";
 import { db } from "./config";
-import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord } from "@/types";
+import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session } from "@/types";
 
 const TASKS_COLLECTION = "tasks";
 const TEAM_MEMBERS_COLLECTION = "team_members";
@@ -31,6 +31,7 @@ const SYSTEM_LOGS_COLLECTION = "system_logs";
 const ATTENDANCE_COLLECTION = "session_attendance";
 const QUIZ_PARTICIPANTS_COLLECTION = "quiz_participants";
 const SETTINGS_COLLECTION = "settings";
+const SESSIONS_COLLECTION = "sessions";
 
 // Helper: ensures Firestore is initialized before any API call.
 function requireDb(): Firestore {
@@ -505,4 +506,55 @@ export const subscribeToLeaderboard = (callback: (submissions: QuizSubmission[])
     } as QuizSubmission));
     callback(submissions);
   });
+};
+
+
+// ---  timeline  ---
+
+
+
+// 🔹 GET ALL SESSIONS
+export const getSessions = async (): Promise<Session[]> => {
+  const firestore = requireDb();
+
+  const snapshot = await getDocs(
+    collection(firestore, SESSIONS_COLLECTION)
+  );
+
+  return snapshot.docs.map((d) => ({
+    id: d.id,
+    ...(d.data() as Omit<Session, "id">),
+  }));
+};
+
+// 🔹 ADD SESSION
+export const createSession = async (data: Omit<Session, "id">) => {
+  const firestore = requireDb();
+
+  return await addDoc(
+    collection(firestore, SESSIONS_COLLECTION),
+    data
+  );
+};
+
+// 🔹 UPDATE SESSION
+export const updateSession = async (
+  id: string,
+  data: Partial<Session>
+) => {
+  const firestore = requireDb();
+
+  return await updateDoc(
+    doc(firestore, SESSIONS_COLLECTION, id),
+    data
+  );
+};
+
+// 🔹 DELETE SESSION
+export const removeSession = async (id: string) => {
+  const firestore = requireDb();
+
+  return await deleteDoc(
+    doc(firestore, SESSIONS_COLLECTION, id)
+  );
 };
