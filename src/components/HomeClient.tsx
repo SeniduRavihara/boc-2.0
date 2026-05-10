@@ -7,9 +7,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { LinuxEnvironment } from '@/components/ui/LinuxEnvironment';
 import { Footer } from '@/components/sections/Footer';
-import { Gallery, GALLERY_ZONE_DVH } from './ui/Gallery'; // ← import the constant
+import MainFooter from '@/components/layout/MainFooter';
+import { Gallery, GALLERY_ZONE_DVH } from './ui/Gallery';
 import { PortalSection2 } from './sections/gallery/PortalSection2';
 import { PortalSection3 } from './sections/gallery/PortalSection3';
+import { ContactSection } from './sections/ContactSection';
+import { GalleryNew } from './sections/GalleryNew';
+import { AboutNew } from './sections/AboutNew';
+import { Partners } from './sections/Partners';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -129,10 +134,15 @@ export function HomeClient() {
       </div>
 
       {/* ── 3. Normal page sections (no scroll tricks) ───────── */}
-      <PortalSection2 />
-      <PortalSection3 />
+      <AboutNew />
+      {/* <PortalSection2 /> */}
+      {/* <PortalSection3 /> */}
+      <GalleryNew />
+      <Partners />
+      <ContactSection />
 
       <Footer />
+      <MainFooter />
     </main>
   );
 }
