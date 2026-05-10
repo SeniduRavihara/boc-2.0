@@ -9,6 +9,6 @@ for f in *; do
     echo "Optimizing $f -> compressed/${f%.*}.webp"
     
     # -y overwrites if it already exists in the compressed folder
-    ffmpeg -i "$f" -c:v libwebp -lossless 0 -quality 50 -preset drawing "compressed/${f%.*}.webp" -y
+    ffmpeg -i "$f" -c:v libwebp -lossless 0 -quality 70 -preset drawing "compressed/${f%.*}.webp" -y
 done
 

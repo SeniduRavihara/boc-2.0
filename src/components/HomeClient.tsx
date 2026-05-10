@@ -141,7 +141,7 @@ export function HomeClient() {
       <Partners />
       <ContactSection />
 
-      <Footer />
+      {/* <Footer /> */}
       <MainFooter />
     </main>
   );

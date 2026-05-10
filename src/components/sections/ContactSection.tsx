@@ -118,7 +118,7 @@ export function ContactSection() {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory scrollbar-hide">
           {CONTACTS.map((contact, idx) => (
             <motion.div
               key={idx}
@@ -127,7 +127,7 @@ export function ContactSection() {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
               whileHover={{ y: -12, transition: { duration: 0.3 } }}
-              className="relative group h-full"
+              className="relative group h-full flex-shrink-0 w-[85%] md:w-auto snap-center"
             >
               {/* Card Glow Effect */}
               <div className="absolute -inset-[1px] bg-gradient-to-b from-blue-500 to-transparent rounded-3xl opacity-20 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
