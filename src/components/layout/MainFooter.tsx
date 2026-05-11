@@ -76,17 +76,33 @@ const MainFooter: React.FC = () => {
     { name: "Contact Us", href: "/#contact" },
   ];
 
+  // Manual logo position and scale controls
+  const LOGO_CONFIG = {
+    boc: { top: 0, left: 0, scale: 1 },
+    ieee: { top: 0, left: 0, scale: 1 },
+    ieee_cs: { top: 0, left: 0, scale: 1 },
+  };
+
+
   return (
     <footer className="relative w-full overflow-hidden bg-[#001a3d] border-t border-white/5 py-12 md:py-16">
       {/* Background Gradient Effect */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-full bg-[radial-gradient(50%_50%_at_50%_0%,rgba(43,137,243,0.1)_0%,transparent_100%)] pointer-events-none" />
       
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+        {/* Top Section: Logos Only (Stacked on mobile, 3 columns on desktop) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center mb-12 border-b border-white/5 pb-12">
           
-          {/* Column 1: Brand & Nav */}
-          <div className="flex flex-col items-center md:items-start space-y-6">
-            <div className="relative w-48 h-16 transition-transform hover:scale-105 duration-300">
+          {/* Logo 1: BOC */}
+          <div className="flex justify-center md:justify-start">
+            <div 
+              className="relative w-64 h-20 md:w-48 md:h-16 transition-transform hover:scale-105 duration-300"
+              style={{ 
+                top: `${LOGO_CONFIG.boc.top}px`, 
+                left: `${LOGO_CONFIG.boc.left}px`,
+                transform: `scale(${LOGO_CONFIG.boc.scale})` 
+              }}
+            >
               <Image 
                 src="/email-and-header/boc.png" 
                 alt="Beauty of Cloud" 
@@ -94,7 +110,52 @@ const MainFooter: React.FC = () => {
                 className="object-contain"
               />
             </div>
-            
+          </div>
+
+          {/* Logo 2: IEEE USJ */}
+          <div className="flex justify-center">
+            <div 
+              className="relative w-64 h-20 transition-transform hover:scale-105 duration-300"
+              style={{ 
+                top: `${LOGO_CONFIG.ieee.top}px`, 
+                left: `${LOGO_CONFIG.ieee.left}px`,
+                transform: `scale(${LOGO_CONFIG.ieee.scale})` 
+              }}
+            >
+              <Image 
+                src="/email-and-header/ieee.png" 
+                alt="IEEE USJ" 
+                fill 
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Logo 3: IEEE CS USJ */}
+          <div className="flex justify-center md:justify-end">
+            <div 
+              className="relative w-64 h-20 md:w-72 md:h-24 transition-transform hover:scale-105 duration-300"
+              style={{ 
+                top: `${LOGO_CONFIG.ieee_cs.top}px`, 
+                left: `${LOGO_CONFIG.ieee_cs.left}px`,
+                transform: `scale(${LOGO_CONFIG.ieee_cs.scale})` 
+              }}
+            >
+              <Image 
+                src="/email-and-header/IEEE-CS.png" 
+                alt="IEEE CS USJ" 
+                fill 
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Section: Content (Nav, Socials, Copyright) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+          
+          {/* Nav Links */}
+          <div className="flex flex-col items-center md:items-start">
             <div className="flex flex-col space-y-2 text-center md:text-left">
               <nav className="flex flex-col space-y-2">
                 {navLinks.map((link) => (
@@ -110,19 +171,9 @@ const MainFooter: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 2: Student Branch & Socials */}
-          <div className="flex flex-col items-center space-y-8">
-            <div className="flex items-center gap-4 group">
-              <div className="relative w-64 h-20">
-                <Image 
-                  src="/email-and-header/ieee.png" 
-                  alt="IEEE USJ" 
-                  fill 
-                  className="object-contain"
-                />
-              </div>
-            </div>
-
+          {/* Socials */}
+          <div className="flex flex-col items-center space-y-4">
+            <p className="text-white/40 text-[10px] uppercase tracking-widest font-mono">Connect With Us</p>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
                 <motion.a
@@ -140,19 +191,8 @@ const MainFooter: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 3: IEEE CS & Copyright */}
-          <div className="flex flex-col items-center md:items-end space-y-8 text-center md:text-right">
-            <div className="flex items-center gap-4 group">
-              <div className="relative w-72 h-24">
-                <Image 
-                  src="/email-and-header/IEEE-CS.png" 
-                  alt="IEEE CS USJ" 
-                  fill 
-                  className="object-contain"
-                />
-              </div>
-            </div>
-
+          {/* Copyright & Admin */}
+          <div className="flex flex-col items-center md:items-end space-y-6 text-center md:text-right">
             <div className="max-w-[300px]">
               <p className="text-white/40 text-[11px] leading-relaxed mb-4">
                 Copyright © {currentYear} Beauty of Cloud Designed by IEEE Student Branch of University of Sri Jayewardenepura
@@ -160,7 +200,7 @@ const MainFooter: React.FC = () => {
               
               <button 
                 onClick={() => setIsAdminModalOpen(true)}
-                className="group flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all duration-300 ml-auto md:mr-0"
+                className="group flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all duration-300 mx-auto md:mr-0"
               >
                 <ShieldCheck size={14} className="text-blue-500 group-hover:animate-pulse" />
                 <span className="text-[10px] uppercase tracking-widest font-mono font-bold text-white/40 group-hover:text-white">Admin</span>

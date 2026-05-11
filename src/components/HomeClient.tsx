@@ -1,96 +1,215 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useRef } from "react";
 
-import { LinuxEnvironment } from '@/components/ui/LinuxEnvironment';
-import { Footer } from '@/components/sections/Footer';
-import MainFooter from '@/components/layout/MainFooter';
-import { Gallery, GALLERY_ZONE_DVH } from './ui/Gallery';
-import { PortalSection2 } from './sections/gallery/PortalSection2';
-import { PortalSection3 } from './sections/gallery/PortalSection3';
-import { ContactSection } from './sections/ContactSection';
-import { GalleryNew } from './sections/GalleryNew';
-import { AboutNew } from './sections/AboutNew';
-import { Partners } from './sections/Partners';
+import MainFooter from "@/components/layout/MainFooter";
+import { AboutNew } from "./sections/AboutNew";
+import { ContactSection } from "./sections/ContactSection";
+import { GalleryNew } from "./sections/GalleryNew";
+import { Partners } from "./sections/Partners";
+import { Gallery, GALLERY_ZONE_DVH } from "./ui/Gallery";
+import { MissionPillars } from "./sections/MissionPillars";
+import { Timeline } from "./sections/Timeline";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function HomeClient() {
-  const mainRef        = useRef<HTMLDivElement>(null);
-  const pinnedRef      = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  const pinnedRef = useRef<HTMLDivElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
-  const windowRef      = useRef<HTMLDivElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
   const galleryZoneRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
 
   /* ── Reset scroll on mount ─────────────────────────── */
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     const prev = window.history.scrollRestoration;
-    window.history.scrollRestoration = 'manual';
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    return () => { window.history.scrollRestoration = prev; };
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    return () => {
+      window.history.scrollRestoration = prev;
+    };
   }, []);
 
-  /* ── Hero → Linux animation ────────────────────────── */
-  useGSAP(() => {
-    ScrollTrigger.config({ ignoreMobileResize: true });
-    if (ScrollTrigger.isTouch === 1) ScrollTrigger.normalizeScroll(true);
-    if (!pinnedRef.current) return;
+  /* ── Earth Image Sequence Preloading ──────────────── */
+  useEffect(() => {
+    const loadedImages: HTMLImageElement[] = [];
+    let loadedCount = 0;
+    const totalFrames = 120;
 
-    const touch = ScrollTrigger.isTouch === 1;
+    for (let i = 1; i <= totalFrames; i++) {
+      const img = new Image();
+      const frameNum = String(i).padStart(3, "0");
+      img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalFrames) {
+          // Initial render
+          renderFrame(0);
+        }
+      };
+      loadedImages.push(img);
+    }
+    imagesRef.current = loadedImages;
 
-    gsap.set(windowRef.current, {
-      left           : '50%',
-      xPercent       : -50,
-      yPercent       : touch ? 125 : 60,
-      scale          : touch ? 0.96 : 0.85,
-      pointerEvents  : 'none',
-      transformOrigin: 'bottom center',
-    });
+    function renderFrame(progress: number) {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (!canvas || !ctx || imagesRef.current.length === 0) return;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger            : pinnedRef.current,
-        start              : 'top top',
-        end                : 'bottom bottom',
-        scrub              : touch ? 0.8 : 1,
-        invalidateOnRefresh: true,
-        refreshPriority    : 1,
-      },
-    });
+      const totalFrames = 120;
+      const frameIndex = Math.min(
+        Math.floor(progress * totalFrames),
+        totalFrames - 1,
+      );
+      const img = imagesRef.current[frameIndex];
+      if (!img) return;
 
-    tl.to(heroContentRef.current, { opacity: 0, y: -80, duration: 0.8, ease: 'power2.out' }, 0)
-      .to(windowRef.current,      { yPercent: 0, scale: 1, pointerEvents: 'auto', duration: 1, ease: 'power2.out' }, 0)
-      .to(windowRef.current,      { width: '100%', height: '100%', borderRadius: 0, duration: 1.2, ease: 'power3.inOut' }, 0.8);
+      // Cover scaling logic
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const imgWidth = img.width;
+      const imgHeight = img.height;
 
-    const refresh = () => ScrollTrigger.refresh();
-    window.addEventListener('resize',            refresh);
-    window.addEventListener('orientationchange', refresh);
-    ScrollTrigger.refresh();
+      const canvasRatio = canvasWidth / canvasHeight;
+      const imgRatio = imgWidth / imgHeight;
+
+      let drawWidth, drawHeight, drawX, drawY;
+
+      if (canvasRatio > imgRatio) {
+        drawWidth = canvasWidth;
+        drawHeight = canvasWidth / imgRatio;
+        drawX = 0;
+        drawY = (canvasHeight - drawHeight) / 2;
+      } else {
+        drawHeight = canvasHeight;
+        drawWidth = canvasHeight * imgRatio;
+        drawX = (canvasWidth - drawWidth) / 2;
+        drawY = 0;
+      }
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+    }
+
+    const handleResize = () => {
+      if (canvasRef.current) {
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    // Store render function for ScrollTrigger
+    (window as any).renderEarthFrame = renderFrame;
 
     return () => {
-      window.removeEventListener('resize',            refresh);
-      window.removeEventListener('orientationchange', refresh);
+      window.removeEventListener("resize", handleResize);
     };
-  }, { scope: mainRef });
+  }, []);
+
+  useGSAP(
+    () => {
+      ScrollTrigger.config({ ignoreMobileResize: true });
+      if (ScrollTrigger.isTouch === 1) ScrollTrigger.normalizeScroll(true);
+      if (!pinnedRef.current) return;
+
+      const touch = ScrollTrigger.isTouch === 1;
+
+      gsap.set(windowRef.current, {
+        left: "50%",
+        xPercent: -50,
+        yPercent: touch ? 125 : 60,
+        scale: touch ? 0.96 : 0.85,
+        pointerEvents: "none",
+        transformOrigin: "bottom center",
+      });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pinnedRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: touch ? 0.8 : 1,
+          invalidateOnRefresh: true,
+          refreshPriority: 1,
+          onUpdate: (self) => {
+            if ((window as any).renderEarthFrame) {
+              (window as any).renderEarthFrame(self.progress);
+            }
+          },
+        },
+      });
+
+      tl.to(
+        heroContentRef.current,
+        { opacity: 0, y: -80, duration: 0.8, ease: "power2.out" },
+        0,
+      )
+        .to(
+          windowRef.current,
+          {
+            yPercent: 0,
+            scale: 1,
+            pointerEvents: "auto",
+            duration: 1,
+            ease: "power2.out",
+          },
+          0,
+        )
+        .to(
+          windowRef.current,
+          {
+            width: "100%",
+            height: "100%",
+            borderRadius: 0,
+            duration: 1.2,
+            ease: "power3.inOut",
+          },
+          0.8,
+        );
+
+      const refresh = () => ScrollTrigger.refresh();
+      window.addEventListener("resize", refresh);
+      window.addEventListener("orientationchange", refresh);
+      ScrollTrigger.refresh();
+
+      return () => {
+        window.removeEventListener("resize", refresh);
+        window.removeEventListener("orientationchange", refresh);
+      };
+    },
+    { scope: mainRef },
+  );
 
   return (
     <main ref={mainRef} className="flex flex-col relative bg-[#050812]">
-
       {/* ── 1. Hero + Linux — 500vh scroll space ─────────────── */}
-      <div ref={pinnedRef} style={{ height: '500vh' }} className="relative z-20 w-full bg-black">
+      <div
+        ref={pinnedRef}
+        style={{ height: "500vh" }}
+        className="relative z-20 w-full bg-black"
+      >
         <div className="sticky top-0 h-screen w-full overflow-hidden touch-pan-y">
-          <div className="absolute inset-0 z-0">
-            <video autoPlay loop muted playsInline className="h-full w-full object-cover opacity-50">
-              <source src="/Earth.mp4" type="video/mp4" />
-            </video>
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <canvas
+              ref={canvasRef}
+              className="h-full w-full object-cover opacity-50"
+            />
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
           </div>
 
-          <div ref={heroContentRef} className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-40 text-center">
+          <div
+            ref={heroContentRef}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
+          >
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/5 px-4 py-2 backdrop-blur-md">
               <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
               <span className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400">
@@ -99,7 +218,9 @@ export function HomeClient() {
             </div>
             <h1 className="mb-6 text-6xl font-bold uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
               <span className="block text-white">Beauty Of</span>
-              <span className="block text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">Cloud.</span>
+              <span className="block text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
+                Cloud.
+              </span>
             </h1>
             <p className="max-w-xl font-mono text-base uppercase tracking-widest text-white/50 md:text-lg">
               Sri Lanka&apos;s premier inter-university cloud ideathon.
@@ -110,10 +231,14 @@ export function HomeClient() {
             ref={windowRef}
             className="absolute bottom-0 z-20 h-[56svh] w-[92vw] overflow-hidden rounded-t-2xl border border-white/10 border-b-0 shadow-[0_-20px_80px_rgba(0,0,0,0.9)] md:h-[60vh] md:w-[85vw]"
           >
-            <LinuxEnvironment />
+            {/* <LinuxEnvironment /> */}
+            <AboutNew />
           </div>
         </div>
       </div>
+
+      <MissionPillars />
+      <Timeline />
 
       {/*
         ── 2. Gallery zoom + PortalSection1 ─────────────────────────────────
@@ -123,7 +248,7 @@ export function HomeClient() {
 
         Current: TOTAL_SCROLL_MULTIPLIER = 1.5 + 1×1.0 = 2.5 → 250dvh
       */}
-      <div
+      {/* <div
         ref={galleryZoneRef}
         style={{ height: `${GALLERY_ZONE_DVH}dvh` }}
         className="relative z-30 w-full bg-black"
@@ -131,10 +256,10 @@ export function HomeClient() {
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           <Gallery triggerRef={galleryZoneRef} />
         </div>
-      </div>
+      </div> */}
 
       {/* ── 3. Normal page sections (no scroll tricks) ───────── */}
-      <AboutNew />
+      {/* <AboutNew /> */}
       {/* <PortalSection2 /> */}
       {/* <PortalSection3 /> */}
       <GalleryNew />

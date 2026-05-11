@@ -19,52 +19,40 @@ const SPONSORS = [
 
 export const Partners: React.FC = () => {
   return (
-    <section
-      id="partners"
-      className="py-24 bg-[#050812] relative overflow-hidden border-y border-white/5"
-    >
-      <div className="container mx-auto px-6 relative z-10 mb-16">
-        <div className="text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-blue-500 mb-4 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]"
-          >
-            Our Partners
-          </motion.h2>
-          <motion.div
-            initial={{ width: 0 }}
-            whileInView={{ width: '80px' }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="h-1 bg-blue-500 mx-auto rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)]"
-          />
-        </div>
+    <section id="partners" className="py-24 bg-[#050812] border-y border-white/5 overflow-hidden">
+      <div className="text-center mb-16">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-blue-500 mb-4"
+        >
+          Our Partners
+        </motion.h2>
+        <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" />
       </div>
 
-      {/* Infinite Marquee */}
-      <div className="relative flex overflow-hidden before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-40 before:bg-gradient-to-r before:from-[#050812] before:to-transparent after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-40 after:bg-gradient-to-l after:after:from-[#050812] after:to-transparent">
+      <div className="relative flex overflow-hidden">
         <motion.div
-          className="flex gap-20 items-center flex-none py-4"
+          className="flex gap-12 items-center flex-none"
           animate={{ x: ["0%", "-50%"] }}
           transition={{
-            duration: 40,
+            duration: 30,
             repeat: Infinity,
             ease: "linear",
           }}
         >
-          {/* We duplicate the sponsors array to create a seamless loop */}
+          {/* Duplicate for seamless loop */}
           {[...SPONSORS, ...SPONSORS].map((sponsor, idx) => (
             <div
               key={idx}
-              className="relative w-40 h-20 md:w-48 md:h-24 flex-shrink-0 group cursor-pointer"
+              className="relative w-40 h-20 md:w-56 md:h-28 flex-shrink-0 flex items-center justify-center grayscale brightness-75 hover:grayscale-0 hover:brightness-100 transition-all duration-500"
             >
               <Image
                 src={sponsor.image}
                 alt={sponsor.name}
                 fill
-                className="object-contain grayscale brightness-[0.6] contrast-[1.2] opacity-40 group-hover:grayscale-0 group-hover:brightness-100 group-hover:opacity-100 transition-all duration-500 scale-90 group-hover:scale-100"
+                className="object-contain scale-90"
               />
             </div>
           ))}

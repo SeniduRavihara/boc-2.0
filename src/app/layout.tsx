@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { GeistSans } from "geist/font/sans";
 import { JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { CustomCursor } from "@/components/ui/CustomCursor";
@@ -12,17 +11,7 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
 });
 
-const reglo = localFont({
-  src: "../../public/Reglo-Bold.otf",
-  variable: "--font-reglo",
-  display: "swap",
-});
 
-const uncut = localFont({
-  src: "../../public/UncutSans-Variable.ttf",
-  variable: "--font-uncut",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.beautyofcloud.com"),
@@ -61,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable} ${jetbrainsMono.variable} ${reglo.variable} ${uncut.variable} antialiased`}
+      className={`${jetbrainsMono.variable} antialiased`}
     >
       <body className="bg-background text-foreground selection:bg-accent selection:text-white">
         <div className="grain"></div>

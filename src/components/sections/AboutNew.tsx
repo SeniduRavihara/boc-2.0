@@ -1,118 +1,136 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import OrbitingCircles from '@/components/ui/orbiting-circles';
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+/* ─── data ─────────────────────────────────────────────────────────────────── */
 
-const CLOUD_ICONS = [
-  { name: 'Docker', img: '/service-icons/icons8-docker-144 2.webp', size: 50 },
-  { name: 'GCP', img: '/service-icons/icons8-google-cloud-144 2.webp', size: 40 },
-  { name: 'AWS', img: '/service-icons/aws 1.webp', size: 70 },
-  { name: 'Terraform', img: '/service-icons/icons8-terraform-144 2.webp', size: 45 },
-  { name: 'Azure', img: '/service-icons/icons8-azure-96 2.webp', size: 55 },
+const STATS = [
+  { value: "500+", label: "Registered Participants" },
+  { value: "3rd", label: "Annual Edition" },
+  { value: "20+", label: "Industry Partners" },
+  { value: "48H", label: "Competition Duration" },
 ];
 
-export function AboutNew() {
+/* ─── stat card ─────────────────────────────────────────────────────────────── */
+function StatCard({
+  value,
+  label,
+  index,
+}: {
+  value: string;
+  label: string;
+  index: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
   return (
-    <section id="about-new" className="w-full py-24 bg-[#050812] relative overflow-hidden border-r-4 border-blue-500/40">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left Column: Visual Orbital Animation */}
-          <div className="relative h-[600px] w-full flex items-center justify-center overflow-hidden order-2 lg:order-1">
-            {/* Center Piece */}
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="relative z-20 w-32 h-32 flex items-center justify-center"
-            >
-              <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl animate-pulse" />
-              <div className="relative w-full h-full bg-[#080c16] rounded-full border border-blue-500/30 flex items-center justify-center shadow-[0_0_50px_rgba(59,130,246,0.2)]">
-                <Image 
-                  src="/logo.png" 
-                  alt="BOC Logo" 
-                  width={60} 
-                  height={60} 
-                  className="object-contain animate-float"
-                />
-              </div>
-            </motion.div>
-
-            {/* Inner Circle */}
-            <OrbitingCircles radius={130} duration={25} delay={0}>
-              <OrbitIcon icon={CLOUD_ICONS[0]} />
-            </OrbitingCircles>
-            <OrbitingCircles radius={130} duration={25} delay={25 / 3} path={false}>
-              <OrbitIcon icon={CLOUD_ICONS[1]} />
-            </OrbitingCircles>
-            <OrbitingCircles radius={130} duration={25} delay={(2 * 25) / 3} path={false}>
-              <OrbitIcon icon={CLOUD_ICONS[2]} />
-            </OrbitingCircles>
-
-            {/* Outer Circle */}
-            <OrbitingCircles radius={220} duration={35} delay={0} reverse>
-              <OrbitIcon icon={CLOUD_ICONS[3]} />
-            </OrbitingCircles>
-            <OrbitingCircles radius={220} duration={35} delay={35 / 2} reverse path={false}>
-              <OrbitIcon icon={CLOUD_ICONS[4]} />
-            </OrbitingCircles>
-          </div>
-
-          {/* Right Column: Content */}
-          <div className="order-1 lg:order-2">
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <h4 className="text-blue-500 font-mono text-sm uppercase tracking-[0.3em] mb-4">
-                Redefining the Future
-              </h4>
-              <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-white mb-8 leading-none">
-                ABOUT <br />
-                <span className="text-blue-500">BOC 2.0</span>
-              </h2>
-              
-              <div className="space-y-6 text-slate-400 text-lg leading-relaxed max-w-xl">
-                <p>
-                  Beauty of Cloud 2.0 is more than just a competition; it&apos;s a gateway to mastering the infrastructure that powers the modern digital world.
-                </p>
-                <p>
-                  As the first and premier cloud computing competition in Sri Lanka, we provide a platform for undergraduates to showcase their skills, learn from industry experts, and push the boundaries of what&apos;s possible.
-                </p>
-              </div>
-
-              <div className="h-px bg-gradient-to-r from-blue-500/50 to-transparent mt-12" />
-            </motion.div>
-          </div>
-
-        </div>
-      </div>
-    </section>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="relative group flex flex-col items-center justify-center py-10 px-4 border border-blue-500/20 bg-[#080c16] overflow-hidden min-w-0"
+    >
+      <span className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-blue-500/60" />
+      <span className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-blue-500/60" />
+      <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 transition-all duration-500" />
+      <span className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tighter leading-none">
+        {value}
+      </span>
+      <span className="mt-3 text-xs font-mono uppercase tracking-[0.2em] text-slate-500 text-center">
+        {label}
+      </span>
+    </motion.div>
   );
 }
 
-function OrbitIcon({ icon }: { icon: typeof CLOUD_ICONS[0] }) {
+/* ─── main section ──────────────────────────────────────────────────────────── */
+export function AboutNew() {
+  const headingRef = useRef(null);
+  const headingView = useInView(headingRef, { once: true });
+
   return (
-    <div className="relative group">
-      <div className="absolute -inset-4 bg-blue-500/0 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all duration-500" />
+    <section
+      id="about-us"
+      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32"
+    >
+      {/* Background Pattern with Fade */}
       <div 
-        className="relative"
-        style={{ width: icon.size, height: icon.size }}
-      >
-        <Image
-          src={icon.img}
-          alt={icon.name}
-          fill
-          className="object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500"
-        />
+        className="absolute inset-0 bg-pattern-cube pointer-events-none" 
+        style={{ 
+          maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
+        }}
+      />
+      {/* Ambient glows */}
+      {/* <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/4 rounded-full blur-[140px] pointer-events-none translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none -translate-x-1/3 translate-y-1/3" /> */}
+
+      {/* Grid overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #3b82f6 1px, transparent 1px),
+            linear-gradient(to bottom, #3b82f6 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
+        {/* ── Section label + headline ── */}
+        <div ref={headingRef} className="mb-16 md:mb-20">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={headingView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            className="font-mono text-xs uppercase tracking-[0.35em] text-blue-500 mb-5"
+          >
+            Who We Are
+          </motion.p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-end">
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              animate={headingView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              /* FIX: start at text-4xl on mobile so it doesn't blow past viewport */
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black uppercase tracking-tighter text-white leading-none min-w-0"
+            >
+              ABOUT <br />
+              <span className="text-blue-500">BOC 2.0</span>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={headingView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="text-slate-400 text-base sm:text-lg leading-relaxed min-w-0"
+            >
+              Beauty of Cloud 2.0 is Sri Lanka&apos;s first and premier
+              undergraduate cloud computing competition — a platform where the
+              next generation of engineers design, deploy, and defend real cloud
+              infrastructure under pressure.
+            </motion.p>
+          </div>
+
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={headingView ? { scaleX: 1 } : {}}
+            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
+            className="h-px bg-gradient-to-r from-blue-500/60 via-blue-500/20 to-transparent mt-12 origin-left"
+          />
+        </div>
+
+        {/* ── Stats row ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-blue-500/10 mb-20 md:mb-24">
+          {STATS.map((s, i) => (
+            <StatCard key={s.label} {...s} index={i} />
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
