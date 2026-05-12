@@ -10,7 +10,8 @@ import {
   Trophy,
   ArrowUpRight,
   TrendingUp,
-  Activity
+  Activity,
+  Calendar
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 
@@ -50,6 +51,15 @@ const dashboardCards = [
     color: 'text-emerald-400',
     bg: 'bg-emerald-500/10',
     border: 'border-emerald-500/20'
+  },
+  { 
+    title: 'Schedule', 
+    description: 'Manage event timelines and sessions.', 
+    href: '/admin/schedule', 
+    icon: Calendar, 
+    color: 'text-orange-400',
+    bg: 'bg-orange-500/10',
+    border: 'border-orange-500/20'
   },
 ];
 
