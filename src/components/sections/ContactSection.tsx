@@ -26,7 +26,7 @@ const WhatsappIcon = ({ size = 18 }: { size?: number }) => (
 
 const CONTACTS = [
   {
-    name: "Waruna Udara Sampath",
+    name: "Waruna Udara",
     role: "Event Co-Chair",
     img: "/contact-us/warunaudara.webp",
     phone: "+94 70 174 3074",
@@ -165,7 +165,7 @@ export function ContactSection() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <h2 ref={titleRef} className="text-5xl md:text-7xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-6">
+          <h2 ref={titleRef} className="font-reglo text-5xl md:text-7xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-6">
             Contact Us
           </h2>
           <div className="flex justify-center">

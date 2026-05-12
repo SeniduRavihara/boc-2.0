@@ -58,7 +58,7 @@ export function MissionPillars() {
           viewport={{ once: true }}
           transition={{ duration: 1 }}
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] drop-shadow-2xl bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent">
+          <h2 className="font-reglo text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] drop-shadow-2xl text-white">
             To build Sri Lanka&apos;s next generation of cloud-native engineers by bridging academic learning and industry infrastructure.
           </h2>
           <p className="mt-8 text-slate-300 font-mono text-xs uppercase tracking-[0.4em] drop-shadow-lg">

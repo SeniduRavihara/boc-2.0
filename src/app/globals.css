@@ -18,11 +18,19 @@
   --color-aws: var(--aws-orange);
   --color-gcp: var(--gcp-blue);
   --color-accent: var(--accent);
-  --font-reglo: "Outfit", sans-serif;
+  --font-reglo: "Reglo Bold", sans-serif;
   --font-amazon: "Outfit", sans-serif;
   --font-sans: "Outfit", sans-serif;
   --font-outfit: "Outfit", sans-serif;
   --font-mono: var(--font-jetbrains-mono);
+}
+
+@font-face {
+  font-family: 'Reglo Bold';
+  src: url('/Reglo-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
