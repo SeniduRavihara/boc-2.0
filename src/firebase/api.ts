@@ -527,6 +527,20 @@ export const getSessions = async (): Promise<Session[]> => {
   }));
 };
 
+// 🔹 SUBSCRIBE TO SESSIONS (REAL-TIME)
+export const subscribeToSessions = (callback: (sessions: Session[]) => void) => {
+  const firestore = requireDb();
+  const sessionsRef = collection(firestore, SESSIONS_COLLECTION);
+  
+  return onSnapshot(sessionsRef, (snapshot) => {
+    const sessions = snapshot.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<Session, "id">),
+    }));
+    callback(sessions);
+  });
+};
+
 // 🔹 ADD SESSION
 export const createSession = async (data: Omit<Session, "id">) => {
   const firestore = requireDb();

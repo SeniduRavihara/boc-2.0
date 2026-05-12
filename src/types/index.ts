@@ -110,13 +110,11 @@ export interface QuizSubmission {
 
   // -------------------- timeline 
 
-export type SessionMode = string;
-
-export type SessionType = string;
+export type SessionMode = 'Online' | 'Physical' | 'Blocked';
 
 export interface Session {
   id: string;
-  type: SessionType;
+  type: string;
   ref: string;
   date: string;
   time: string;
