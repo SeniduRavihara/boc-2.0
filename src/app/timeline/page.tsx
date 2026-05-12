@@ -86,19 +86,6 @@ export default function TimelinePage() {
         <div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
       </div>
 
-      {/* Floating Admin Button */}
-      {isAdmin && (
-        <div className="fixed top-6 right-6 z-[60]">
-          <Link 
-            href="/admin/schedule"
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all text-xs font-black shadow-lg shadow-blue-600/20 group border border-blue-400/20"
-          >
-            <Settings size={14} className="group-hover:rotate-90 transition-transform duration-500" />
-            Management Center
-          </Link>
-        </div>
-      )}
-
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-32">
         {/* Header Section */}
         <div className="mb-16 sm:mb-24 text-center space-y-6 sm:space-y-8">
