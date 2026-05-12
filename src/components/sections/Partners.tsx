@@ -25,7 +25,7 @@ export const Partners: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-blue-500 mb-4"
+          className="text-4xl md:text-5xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-4"
         >
           Our Partners
         </motion.h2>

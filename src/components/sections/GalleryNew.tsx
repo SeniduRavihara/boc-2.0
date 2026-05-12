@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import Image from 'next/image';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 
 const ROW_1 = [
   '/gallery/535402715_122240866520212355_8124034634747307157_n 1.png',
@@ -23,7 +23,7 @@ function GalleryRow({
   x,
 }: {
   images: string[];
-  x: any; // MotionValue<string>
+  x: MotionValue<string>;
 }) {
   return (
     <motion.div
@@ -80,7 +80,7 @@ export function GalleryNew() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-blue-500 mb-6 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+            className="text-5xl md:text-7xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-6"
           >
             Gallery
           </motion.h2>

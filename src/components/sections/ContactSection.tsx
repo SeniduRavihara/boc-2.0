@@ -165,7 +165,7 @@ export function ContactSection() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <h2 ref={titleRef} className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-blue-500 mb-6 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+          <h2 ref={titleRef} className="text-5xl md:text-7xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-6">
             Contact Us
           </h2>
           <div className="flex justify-center">

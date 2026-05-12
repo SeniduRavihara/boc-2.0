@@ -60,7 +60,7 @@ export function Timeline() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-blue-500 drop-shadow-[0_0_30px_rgba(59,130,246,0.4)]"
+            className="text-4xl md:text-6xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent"
           >
             Event Timeline
           </motion.h2>

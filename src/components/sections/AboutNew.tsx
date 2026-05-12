@@ -97,10 +97,10 @@ export function AboutNew() {
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1 }}
               /* FIX: start at text-4xl on mobile so it doesn't blow past viewport */
-              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black uppercase tracking-tighter text-white leading-none min-w-0"
+              className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tighter leading-none min-w-0 bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent"
             >
-              ABOUT <br />
-              <span className="text-blue-500">BOC 2.0</span>
+              About <br />
+              <span>Boc 2.0</span>
             </motion.h2>
 
             <motion.p
