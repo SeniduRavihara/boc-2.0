@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import ShinyText from "@/components/ui/ShinyText";
 /* ─── data ─────────────────────────────────────────────────────────────────── */
 
 const STATS = [
@@ -96,11 +97,28 @@ export function AboutNew() {
               initial={{ opacity: 0, y: 30 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1 }}
-              /* FIX: start at text-4xl on mobile so it doesn't blow past viewport */
-              className="font-reglo text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tighter leading-none min-w-0 bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent"
+              className="font-reglo text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tighter leading-none min-w-0"
             >
-              About <br />
-              <span>Beauty of Cloud 2.0</span>
+              <ShinyText
+                text="About"
+                speed={2.2}
+                delay={0.6}
+                color="#0077FF"
+                shineColor="#ffffff"
+                spread={140}
+                direction="left"
+                className="block"
+              />
+              <ShinyText
+                text="Beauty of Cloud 2.0"
+                speed={2.2}
+                delay={0.9}
+                color="#0077FF"
+                shineColor="#ffffff"
+                spread={140}
+                direction="left"
+                className="block"
+              />
             </motion.h2>
 
             <motion.p

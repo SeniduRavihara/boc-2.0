@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import ShinyText from '@/components/ui/ShinyText';
 
 const EVENTS = [
   {
@@ -60,9 +61,17 @@ export function Timeline() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-reglo text-4xl md:text-6xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent"
+            className="font-reglo text-4xl md:text-6xl font-black tracking-tighter"
           >
-            Event Timeline
+            <ShinyText
+              text="Event Timeline"
+              speed={2}
+              delay={0.6}
+              color="#0077FF"
+              shineColor="#ffffff"
+              spread={140}
+              direction="left"
+            />
           </motion.h2>
           <div className="h-1 w-24 bg-blue-600 mx-auto mt-6 rounded-full" />
         </div>
@@ -75,10 +84,11 @@ export function Timeline() {
             {EVENTS.map((event, index) => (
               <div key={event.id} className="relative flex items-center md:justify-between group">
                 {/* Horizontal branch line for desktop */}
-                <div 
-                  className={`absolute top-1/2 w-8 h-px bg-blue-500/40 hidden md:block ${
-                    event.side === 'left' ? 'right-1/2' : 'left-1/2'
+                <div
+                  className={`absolute top-1/2 h-px bg-blue-500/50 hidden md:block ${
+                    event.side === 'left' ? 'right-[calc(50%+1rem)]' : 'left-[calc(50%+1rem)]'
                   }`}
+                  style={{ width: 'calc(5% - 1rem)' }}
                 />
 
                 {/* Number Box */}
@@ -102,7 +112,9 @@ export function Timeline() {
                     
                     <div className="relative z-10">
                       <span className="font-mono text-xs text-blue-500 uppercase tracking-widest block mb-2">{event.date}</span>
-                      <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-tight">{event.title}</h3>
+                      <h3 className="font-uncut text-xl md:text-2xl font-bold text-white mb-4 tracking-tight">
+                        {event.title}
+                      </h3>
                       <p className="font-uncut text-slate-400 text-sm md:text-base leading-relaxed">
                         {event.description}
                       </p>

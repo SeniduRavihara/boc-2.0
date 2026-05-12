@@ -220,9 +220,9 @@ export function HomeClient() {
               </span>
             </div>
             <h1 className="font-reglo mb-6 text-6xl font-black uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
-              <span className="block text-white">Beauty Of</span>
-              <span className="block text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
-                Cloud.
+              <span className="text-white">Beauty of Cloud </span>
+              <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
+                2.0
               </span>
             </h1>
             <p className="max-w-xl font-mono text-base uppercase tracking-widest text-white/50 md:text-lg">

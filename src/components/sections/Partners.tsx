@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import ShinyText from '@/components/ui/ShinyText';
 
 const SPONSORS = [
   { name: "SLT Mobitel", image: "/images/sponsers/SLT.png" },
@@ -25,9 +26,17 @@ export const Partners: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-reglo text-4xl md:text-5xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-4"
+          className="font-reglo text-4xl md:text-5xl font-black tracking-tighter mb-4"
         >
-          Our Partners
+          <ShinyText
+            text="Our Partners"
+            speed={2}
+            delay={0.7}
+            color="#0077FF"
+            shineColor="#ffffff"
+            spread={140}
+            direction="left"
+          />
         </motion.h2>
         <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" />
       </div>
