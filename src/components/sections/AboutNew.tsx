@@ -100,14 +100,14 @@ export function AboutNew() {
               className="font-reglo text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tighter leading-none min-w-0 bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent"
             >
               About <br />
-              <span>Boc 2.0</span>
+              <span>Beauty of Cloud 2.0</span>
             </motion.h2>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.25 }}
-              className="text-slate-400 text-base sm:text-lg leading-relaxed min-w-0"
+              className="font-uncut text-slate-400 text-base sm:text-lg leading-relaxed min-w-0"
             >
               Beauty of Cloud 2.0 is Sri Lanka&apos;s first and premier
               undergraduate cloud computing competition — a platform where the

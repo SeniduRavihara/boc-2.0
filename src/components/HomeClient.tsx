@@ -10,18 +10,20 @@ import { AboutNew } from "./sections/AboutNew";
 import { ContactSection } from "./sections/ContactSection";
 import { GalleryNew } from "./sections/GalleryNew";
 import { Partners } from "./sections/Partners";
-import { Gallery, GALLERY_ZONE_DVH } from "./ui/Gallery";
 import { MissionPillars } from "./sections/MissionPillars";
 import { Timeline } from "./sections/Timeline";
 
 gsap.registerPlugin(ScrollTrigger);
+
+type WindowWithEarthFrame = Window & {
+  renderEarthFrame?: (progress: number) => void;
+};
 
 export function HomeClient() {
   const mainRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef<HTMLDivElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
-  const galleryZoneRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
 
@@ -108,7 +110,7 @@ export function HomeClient() {
     handleResize();
 
     // Store render function for ScrollTrigger
-    (window as any).renderEarthFrame = renderFrame;
+    (window as WindowWithEarthFrame).renderEarthFrame = renderFrame;
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -141,8 +143,9 @@ export function HomeClient() {
           invalidateOnRefresh: true,
           refreshPriority: 1,
           onUpdate: (self) => {
-            if ((window as any).renderEarthFrame) {
-              (window as any).renderEarthFrame(self.progress);
+            const windowWithEarthFrame = window as WindowWithEarthFrame;
+            if (windowWithEarthFrame.renderEarthFrame) {
+              windowWithEarthFrame.renderEarthFrame(self.progress);
             }
           },
         },
@@ -216,7 +219,7 @@ export function HomeClient() {
                 System Online // Phase 2.0
               </span>
             </div>
-            <h1 className="mb-6 text-6xl font-black uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
+            <h1 className="font-reglo mb-6 text-6xl font-black uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
               <span className="block text-white">Beauty Of</span>
               <span className="block text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
                 Cloud.

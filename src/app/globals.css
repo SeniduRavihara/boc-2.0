@@ -19,7 +19,8 @@
   --color-gcp: var(--gcp-blue);
   --color-accent: var(--accent);
   --font-reglo: "Reglo Bold", sans-serif;
-  --font-amazon: "Outfit", sans-serif;
+  --font-amazon: "Amazon Ember", sans-serif;
+  --font-uncut: "Uncut Sans", sans-serif;
   --font-sans: "Outfit", sans-serif;
   --font-outfit: "Outfit", sans-serif;
   --font-mono: var(--font-jetbrains-mono);
@@ -29,6 +30,14 @@
   font-family: 'Reglo Bold';
   src: url('/Reglo-Bold.otf') format('opentype');
   font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Uncut Sans';
+  src: url('/UncutSans-Variable.ttf') format('truetype');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }

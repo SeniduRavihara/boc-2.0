@@ -103,7 +103,7 @@ export function Timeline() {
                     <div className="relative z-10">
                       <span className="font-mono text-xs text-blue-500 uppercase tracking-widest block mb-2">{event.date}</span>
                       <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-tight">{event.title}</h3>
-                      <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+                      <p className="font-uncut text-slate-400 text-sm md:text-base leading-relaxed">
                         {event.description}
                       </p>
                     </div>
