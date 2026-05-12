@@ -6,7 +6,6 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import { Card } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -68,7 +67,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function ContactSection() {
   const sectionRef = useRef(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const desktopCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const mobileCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [api, setApi] = useState<CarouselApi>();
@@ -126,18 +126,23 @@ export function ContactSection() {
       );
 
       // Card animations
-      gsap.from(cardsRef.current, {
-        opacity: 0,
-        y: 60,
-        scale: 0.9,
-        duration: 0.8,
-        ease: "back.out(1.2)",
-        stagger: 0.15,
-        scrollTrigger: {
-          trigger: ".cards-container",
-          start: "top 80%",
+      gsap.from(
+        [...mobileCardsRef.current, ...desktopCardsRef.current].filter(
+          (card): card is HTMLDivElement => card !== null
+        ),
+        {
+          opacity: 0,
+          y: 60,
+          scale: 0.9,
+          duration: 0.8,
+          ease: "back.out(1.2)",
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: ".cards-container",
+            start: "top 80%",
+          },
         },
-      });
+      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -169,99 +174,157 @@ export function ContactSection() {
         </div>
 
         <div className="cards-container relative w-full px-4 md:px-10">
-          <Carousel
-            setApi={setApi}
-            opts={{
-              align: "start",
-              loop: false,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-4 py-8">
-              {CONTACTS.map((contact, index) => (
-                <CarouselItem
-                  key={index}
-                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-                >
-                  <div
-                    ref={(el) => {
-                      cardsRef.current[index] = el;
-                    }}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                    className="h-full"
+          <div className="mx-auto flex max-w-md flex-col gap-6 md:hidden">
+            {CONTACTS.map((contact, index) => (
+              <ContactCard
+                key={contact.name}
+                contact={contact}
+                index={index}
+                hoveredIndex={hoveredIndex}
+                setHoveredIndex={setHoveredIndex}
+                refCallback={(el) => {
+                  mobileCardsRef.current[index] = el;
+                }}
+                className="w-full"
+              />
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <Carousel
+              setApi={setApi}
+              opts={{
+                align: "start",
+                loop: false,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4 py-8">
+                {CONTACTS.map((contact, index) => (
+                  <CarouselItem
+                    key={contact.name}
+                    className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                   >
-                    <div
-                      className={`relative h-full bg-[#080c16]/80 border rounded-3xl p-8 backdrop-blur-xl flex flex-col items-center transition-all duration-500 ${
-                        hoveredIndex === index
-                          ? "border-blue-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] translate-y-[-8px] bg-[#0a1225]"
-                          : "border-blue-500/30 shadow-none"
-                      }`}
-                    >
-                      {/* Profile Image Container */}
-                      <div className="relative w-32 h-32 mb-8 transition-transform duration-500" style={{ transform: hoveredIndex === index ? "scale(1.05)" : "scale(1)" }}>
-                        <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl transition-colors" style={{ backgroundColor: hoveredIndex === index ? "rgba(59,130,246,0.4)" : "rgba(59,130,246,0.2)" }} />
-                        <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[#0d152a] ring-2 ring-blue-500/30 group-hover:ring-blue-400/60 transition-all">
-                          <Image
-                            src={contact.img}
-                            alt={contact.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      </div>
+                    <ContactCard
+                      contact={contact}
+                      index={index}
+                      hoveredIndex={hoveredIndex}
+                      setHoveredIndex={setHoveredIndex}
+                      refCallback={(el) => {
+                        desktopCardsRef.current[index] = el;
+                      }}
+                      className="h-full"
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
 
-                      {/* Name and Role */}
-                      <h3 className={`text-xl font-bold mb-2 transition-colors text-center line-clamp-1 ${hoveredIndex === index ? "text-blue-400" : "text-white"}`}>
-                        {contact.name}
-                      </h3>
-                      <p className="text-slate-400 font-mono text-[10px] uppercase tracking-[0.25em] mb-8 text-center line-clamp-1">
-                        {contact.role}
-                      </p>
-
-                      {/* Social Actions */}
-                      <div className="flex items-center gap-4 mb-8">
-                        <SocialLink
-                          href={contact.linkedin}
-                          icon={<LinkedinIcon />}
-                          color="hover:text-[#0A66C2] hover:bg-[#0A66C2]/10"
-                        />
-                        <SocialLink
-                          href={contact.whatsapp}
-                          icon={<WhatsappIcon />}
-                          color="hover:text-[#25D366] hover:bg-[#25D366]/10"
-                        />
-                        <SocialLink
-                          href={contact.email}
-                          icon={<Mail size={18} />}
-                          color="hover:text-blue-400 hover:bg-blue-400/10"
-                        />
-                      </div>
-
-                      {/* Contact Info */}
-                      <div className="mt-auto pt-6 border-t border-white/5 w-full flex flex-col items-center gap-3">
-                        <PhoneContact phone={contact.phone} />
-                      </div>
-
-                      {/* Accent Detail */}
-                      <div className={`absolute top-4 right-4 w-1.5 h-1.5 rounded-full transition-colors ${hoveredIndex === index ? "bg-blue-500 animate-pulse" : "bg-blue-500/20"}`} />
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            
-            {/* Navigation Arrows - Only visible if scrolling is possible */}
-            {canScroll && (
-              <div className="flex justify-center mt-12 gap-4">
-                <CarouselPrevious className="static translate-y-0 bg-blue-600/10 border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition-all w-12 h-12" />
-                <CarouselNext className="static translate-y-0 bg-blue-600/10 border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition-all w-12 h-12" />
-              </div>
-            )}
-          </Carousel>
+              {canScroll && (
+                <div className="flex justify-center mt-12 gap-4">
+                  <CarouselPrevious className="static translate-y-0 bg-blue-600/10 border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition-all w-12 h-12" />
+                  <CarouselNext className="static translate-y-0 bg-blue-600/10 border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition-all w-12 h-12" />
+                </div>
+              )}
+            </Carousel>
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function ContactCard({
+  contact,
+  index,
+  hoveredIndex,
+  setHoveredIndex,
+  refCallback,
+  className = "",
+}: {
+  contact: (typeof CONTACTS)[number];
+  index: number;
+  hoveredIndex: number | null;
+  setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  refCallback: (el: HTMLDivElement | null) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      ref={refCallback}
+      onMouseEnter={() => setHoveredIndex(index)}
+      onMouseLeave={() => setHoveredIndex(null)}
+      className={className}
+    >
+      <div
+        className={`relative h-full bg-[#080c16]/80 border rounded-3xl p-8 backdrop-blur-xl flex flex-col items-center transition-all duration-500 ${
+          hoveredIndex === index
+            ? "border-blue-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] translate-y-[-8px] bg-[#0a1225]"
+            : "border-blue-500/30 shadow-none"
+        }`}
+      >
+        <div
+          className="relative w-32 h-32 mb-8 transition-transform duration-500"
+          style={{ transform: hoveredIndex === index ? "scale(1.05)" : "scale(1)" }}
+        >
+          <div
+            className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl transition-colors"
+            style={{
+              backgroundColor:
+                hoveredIndex === index
+                  ? "rgba(59,130,246,0.4)"
+                  : "rgba(59,130,246,0.2)",
+            }}
+          />
+          <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[#0d152a] ring-2 ring-blue-500/30 group-hover:ring-blue-400/60 transition-all">
+            <Image
+              src={contact.img}
+              alt={contact.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+
+        <h3
+          className={`text-xl font-bold mb-2 transition-colors text-center line-clamp-1 ${
+            hoveredIndex === index ? "text-blue-400" : "text-white"
+          }`}
+        >
+          {contact.name}
+        </h3>
+        <p className="text-slate-400 font-mono text-[10px] uppercase tracking-[0.25em] mb-8 text-center line-clamp-1">
+          {contact.role}
+        </p>
+
+        <div className="flex items-center gap-4 mb-8">
+          <SocialLink
+            href={contact.linkedin}
+            icon={<LinkedinIcon />}
+            color="hover:text-[#0A66C2] hover:bg-[#0A66C2]/10"
+          />
+          <SocialLink
+            href={contact.whatsapp}
+            icon={<WhatsappIcon />}
+            color="hover:text-[#25D366] hover:bg-[#25D366]/10"
+          />
+          <SocialLink
+            href={contact.email}
+            icon={<Mail size={18} />}
+            color="hover:text-blue-400 hover:bg-blue-400/10"
+          />
+        </div>
+
+        <div className="mt-auto pt-6 border-t border-white/5 w-full flex flex-col items-center gap-3">
+          <PhoneContact phone={contact.phone} />
+        </div>
+
+        <div
+          className={`absolute top-4 right-4 w-1.5 h-1.5 rounded-full transition-colors ${
+            hoveredIndex === index ? "bg-blue-500 animate-pulse" : "bg-blue-500/20"
+          }`}
+        />
+      </div>
+    </div>
   );
 }
 
