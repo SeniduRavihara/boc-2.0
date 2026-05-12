@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import ShinyText from '@/components/ui/ShinyText';
+import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const EVENTS = [
   {
@@ -63,15 +63,7 @@ export function Timeline() {
             viewport={{ once: true }}
             className="font-reglo text-4xl md:text-6xl font-black tracking-tighter"
           >
-            <ShinyText
-              text="Event Timeline"
-              speed={2}
-              delay={0.6}
-              color="#0077FF"
-              shineColor="#ffffff"
-              spread={140}
-              direction="left"
-            />
+            <GradientShinyTitle text="Event Timeline" speed={2} delay={0.6} />
           </motion.h2>
           <div className="h-1 w-24 bg-blue-600 mx-auto mt-6 rounded-full" />
         </div>

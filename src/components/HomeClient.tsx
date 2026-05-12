@@ -219,10 +219,18 @@ export function HomeClient() {
                 System Online // Phase 2.0
               </span>
             </div>
-            <h1 className="font-reglo mb-6 text-6xl font-black uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
-              <span className="text-white">Beauty of Cloud </span>
-              <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
-                2.0
+            <h1 className="font-reglo mb-6 font-black leading-[0.85]">
+              <span className="inline-flex whitespace-nowrap text-[clamp(1.72rem,7vw,3.2rem)] tracking-[-3px] md:hidden">
+                <span className="text-white">Beauty of Cloud </span>
+                <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
+                  2.0
+                </span>
+              </span>
+              <span className="hidden md:inline text-8xl tracking-tighter lg:text-[9rem]">
+                <span className="text-white">Beauty of Cloud </span>
+                <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
+                  2.0
+                </span>
               </span>
             </h1>
             <p className="max-w-xl font-mono text-base uppercase tracking-widest text-white/50 md:text-lg">

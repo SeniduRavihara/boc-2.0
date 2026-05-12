@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import ShinyText from '@/components/ui/ShinyText';
+import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const SPONSORS = [
   { name: "SLT Mobitel", image: "/images/sponsers/SLT.png" },
@@ -19,6 +19,8 @@ const SPONSORS = [
 ];
 
 export const Partners: React.FC = () => {
+  const [hoveredPartner, setHoveredPartner] = useState<number | null>(null);
+
   return (
     <section id="partners" className="py-24 bg-[#050812] border-y border-white/5 overflow-hidden">
       <div className="text-center mb-16">
@@ -26,17 +28,9 @@ export const Partners: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-reglo text-4xl md:text-5xl font-black tracking-tighter mb-4"
+          className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-4"
         >
-          <ShinyText
-            text="Our Partners"
-            speed={2}
-            delay={0.7}
-            color="#0077FF"
-            shineColor="#ffffff"
-            spread={140}
-            direction="left"
-          />
+          <GradientShinyTitle text="Our Partners" speed={2} delay={0.7} />
         </motion.h2>
         <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" />
       </div>
@@ -55,13 +49,21 @@ export const Partners: React.FC = () => {
           {[...SPONSORS, ...SPONSORS].map((sponsor, idx) => (
             <div
               key={idx}
-              className="relative w-40 h-20 md:w-56 md:h-28 flex-shrink-0 flex items-center justify-center grayscale brightness-75 hover:grayscale-0 hover:brightness-100 transition-all duration-500"
+              onMouseEnter={() => setHoveredPartner(idx)}
+              onMouseLeave={() => setHoveredPartner(null)}
+              className={`relative w-40 h-20 md:w-56 md:h-28 flex-shrink-0 flex items-center justify-center transition-all duration-500 ${
+                hoveredPartner === null
+                  ? 'grayscale-0 brightness-100 opacity-100'
+                  : hoveredPartner === idx
+                    ? 'grayscale-0 brightness-100 opacity-100 scale-105'
+                    : 'grayscale brightness-[0.45] opacity-45'
+              }`}
             >
               <Image
                 src={sponsor.image}
                 alt={sponsor.name}
                 fill
-                className="object-contain scale-90"
+                className="object-contain scale-90 transition-transform duration-500"
               />
             </div>
           ))}

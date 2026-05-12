@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
-import ShinyText from '@/components/ui/ShinyText';
+import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const ROW_1 = [
   '/gallery/535402715_122240866520212355_8124034634747307157_n 1.png',
@@ -83,15 +83,7 @@ export function GalleryNew() {
             viewport={{ once: true }}
             className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-6"
           >
-            <ShinyText
-              text="Gallery"
-              speed={2}
-              delay={0.5}
-              color="#0077FF"
-              shineColor="#ffffff"
-              spread={140}
-              direction="left"
-            />
+            <GradientShinyTitle text="Gallery" className="pr-3" speed={2} delay={0.5} />
           </motion.h2>
           <motion.div
             initial={{ width: 0 }}

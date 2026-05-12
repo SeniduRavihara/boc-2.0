@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
 import {
   Carousel,
   CarouselContent,
@@ -27,7 +28,7 @@ const WhatsappIcon = ({ size = 18 }: { size?: number }) => (
 const CONTACTS = [
   {
     name: "Waruna Udara",
-    role: "Event Co-Chair",
+    role: "Project Co-Chair",
     img: "/contact-us/warunaudara.webp",
     phone: "+94 70 174 3074",
     linkedin: "https://www.linkedin.com/in/waruna-udara/",
@@ -36,7 +37,7 @@ const CONTACTS = [
   },
   {
     name: "Nimesha Rathnayake",
-    role: "Event Co-Chair",
+    role: "Project Co-Chair",
     img: "/contact-us/Nimesga.webp",
     phone: "+94 77 488 8701",
     linkedin: "https://www.linkedin.com/in/nimesha-rathnayake-b95471344/",
@@ -45,7 +46,7 @@ const CONTACTS = [
   },
   {
     name: "Shanki Tharusha",
-    role: "Event Industry Relations Head",
+    role: " Industry Relations Head",
     img: "/contact-us/Shanki Tharusha_photo.webp",
     phone: "+94 76 346 9070",
     linkedin: "https://www.linkedin.com/in/shanki-tharusha-531144349/",
@@ -165,8 +166,8 @@ export function ContactSection() {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <h2 ref={titleRef} className="font-reglo text-5xl md:text-7xl font-black tracking-tighter bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent mb-6">
-            Contact Us
+          <h2 ref={titleRef} className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-6">
+            <GradientShinyTitle text="Contact Us" speed={2} delay={0.8} />
           </h2>
           <div className="flex justify-center">
             <div className="title-line h-1 w-24 bg-blue-600 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)]" />
