@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -17,9 +18,10 @@
   --color-aws: var(--aws-orange);
   --color-gcp: var(--gcp-blue);
   --color-accent: var(--accent);
-  --font-reglo: "Amazon Ember", sans-serif;
-  --font-amazon: "Amazon Ember", sans-serif;
-  --font-sans: "Amazon Ember", sans-serif;
+  --font-reglo: "Outfit", sans-serif;
+  --font-amazon: "Outfit", sans-serif;
+  --font-sans: "Outfit", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
   --font-mono: var(--font-jetbrains-mono);
 }
 
@@ -61,7 +63,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Amazon Ember', sans-serif;
+  font-family: 'Outfit', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }

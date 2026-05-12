@@ -1,49 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, MessageCircle, Phone } from "lucide-react";
-
-// Custom LinkedIn Icon for compatibility with legacy Lucide version
-const LinkedinIcon = ({ size = 24, ...props }: any) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    {...props}
-  >
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect x="2" y="9" width="4" height="12" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
-
-// Custom WhatsApp Icon
-const WhatsappIcon = ({ size = 24, ...props }: any) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    {...props}
-  >
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1z" />
-    <path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1z" />
-    <path d="M9 14h6" />
-  </svg>
-);
-
+import { Mail, Phone } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
+import { Card } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+// Custom Icons
+const LinkedinIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
+);
+
+const WhatsappIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1z" /><path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1z" /><path d="M9 14h6" /></svg>
+);
 
 const CONTACTS = [
   {
@@ -84,10 +63,89 @@ const CONTACTS = [
   },
 ];
 
+gsap.registerPlugin(ScrollTrigger);
+
 export function ContactSection() {
+  const sectionRef = useRef(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [api, setApi] = useState<CarouselApi>();
+  const [canScroll, setCanScroll] = useState(false);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const updateScroll = () => {
+      setCanScroll(api.canScrollPrev() || api.canScrollNext());
+    };
+
+    updateScroll();
+    api.on("select", updateScroll);
+    api.on("reInit", updateScroll);
+
+    return () => {
+      api.off("select", updateScroll);
+      api.off("reInit", updateScroll);
+    };
+  }, [api]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Title animation
+      gsap.fromTo(
+        titleRef.current,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: "top 85%",
+          },
+        }
+      );
+
+      // Line animation
+      gsap.fromTo(
+        ".title-line",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1.5,
+          ease: "power2.out",
+          delay: 0.3,
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: "top 85%",
+          },
+        }
+      );
+
+      // Card animations
+      gsap.from(cardsRef.current, {
+        opacity: 0,
+        y: 60,
+        scale: 0.9,
+        duration: 0.8,
+        ease: "back.out(1.2)",
+        stagger: 0.15,
+        scrollTrigger: {
+          trigger: ".cards-container",
+          start: "top 80%",
+        },
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <section
       id="contact-us"
+      ref={sectionRef}
       className="w-full py-24 bg-[#050812] relative overflow-hidden"
     >
       {/* Dynamic Background Elements */}
@@ -99,90 +157,107 @@ export function ContactSection() {
         />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-blue-500 mb-6 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]"
-          >
+          <h2 ref={titleRef} className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-blue-500 mb-6 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
             Contact Us
-          </motion.h2>
-          <motion.div
-            initial={{ width: 0 }}
-            whileInView={{ width: "120px" }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="h-1 bg-blue-500 mx-auto rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)]"
-          />
+          </h2>
+          <div className="flex justify-center">
+            <div className="title-line h-1 w-24 bg-blue-600 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)]" />
+          </div>
         </div>
 
-        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-8 md:pb-0 snap-x snap-mandatory scrollbar-hide">
-          {CONTACTS.map((contact, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
-              whileHover={{ y: -12, transition: { duration: 0.3 } }}
-              className="relative group h-full flex-shrink-0 w-[85%] md:w-auto snap-center"
-            >
-              {/* Card Glow Effect */}
-              <div className="absolute -inset-[1px] bg-gradient-to-b from-blue-500 to-transparent rounded-3xl opacity-20 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+        <div className="cards-container relative w-full px-4 md:px-10">
+          <Carousel
+            setApi={setApi}
+            opts={{
+              align: "start",
+              loop: false,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4 py-8">
+              {CONTACTS.map((contact, index) => (
+                <CarouselItem
+                  key={index}
+                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                >
+                  <div
+                    ref={(el) => {
+                      cardsRef.current[index] = el;
+                    }}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    className="h-full"
+                  >
+                    <div
+                      className={`relative h-full bg-[#080c16]/80 border rounded-3xl p-8 backdrop-blur-xl flex flex-col items-center transition-all duration-500 ${
+                        hoveredIndex === index
+                          ? "border-blue-500/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] translate-y-[-8px] bg-[#0a1225]"
+                          : "border-blue-500/30 shadow-none"
+                      }`}
+                    >
+                      {/* Profile Image Container */}
+                      <div className="relative w-32 h-32 mb-8 transition-transform duration-500" style={{ transform: hoveredIndex === index ? "scale(1.05)" : "scale(1)" }}>
+                        <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl transition-colors" style={{ backgroundColor: hoveredIndex === index ? "rgba(59,130,246,0.4)" : "rgba(59,130,246,0.2)" }} />
+                        <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[#0d152a] ring-2 ring-blue-500/30 group-hover:ring-blue-400/60 transition-all">
+                          <Image
+                            src={contact.img}
+                            alt={contact.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      </div>
 
-              <div className="relative h-full bg-[#080c16]/80 border border-blue-500/30 rounded-3xl p-8 backdrop-blur-xl flex flex-col items-center transition-all duration-500 group-hover:border-blue-400 group-hover:bg-[#0a1225] group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                {/* Profile Image Container */}
-                <div className="relative w-32 h-32 mb-8 group-hover:scale-105 transition-transform duration-500">
-                  <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/40 transition-colors" />
-                  <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[#0d152a] ring-2 ring-blue-500/30 group-hover:ring-blue-400/60 transition-all">
-                    <Image
-                      src={contact.img}
-                      alt={contact.name}
-                      fill
-                      className="object-cover"
-                    />
+                      {/* Name and Role */}
+                      <h3 className={`text-xl font-bold mb-2 transition-colors text-center line-clamp-1 ${hoveredIndex === index ? "text-blue-400" : "text-white"}`}>
+                        {contact.name}
+                      </h3>
+                      <p className="text-slate-400 font-mono text-[10px] uppercase tracking-[0.25em] mb-8 text-center line-clamp-1">
+                        {contact.role}
+                      </p>
+
+                      {/* Social Actions */}
+                      <div className="flex items-center gap-4 mb-8">
+                        <SocialLink
+                          href={contact.linkedin}
+                          icon={<LinkedinIcon />}
+                          color="hover:text-[#0A66C2] hover:bg-[#0A66C2]/10"
+                        />
+                        <SocialLink
+                          href={contact.whatsapp}
+                          icon={<WhatsappIcon />}
+                          color="hover:text-[#25D366] hover:bg-[#25D366]/10"
+                        />
+                        <SocialLink
+                          href={contact.email}
+                          icon={<Mail size={18} />}
+                          color="hover:text-blue-400 hover:bg-blue-400/10"
+                        />
+                      </div>
+
+                      {/* Contact Info */}
+                      <div className="mt-auto pt-6 border-t border-white/5 w-full flex flex-col items-center gap-3">
+                        <PhoneContact phone={contact.phone} />
+                      </div>
+
+                      {/* Accent Detail */}
+                      <div className={`absolute top-4 right-4 w-1.5 h-1.5 rounded-full transition-colors ${hoveredIndex === index ? "bg-blue-500 animate-pulse" : "bg-blue-500/20"}`} />
+                    </div>
                   </div>
-                </div>
-
-                {/* Name and Role */}
-                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors text-center">
-                  {contact.name}
-                </h3>
-                <p className="text-slate-400 font-mono text-[10px] uppercase tracking-[0.25em] mb-8 text-center">
-                  {contact.role}
-                </p>
-
-                {/* Social Actions */}
-                <div className="flex items-center gap-4 mb-8">
-                  <SocialLink
-                    href={contact.linkedin}
-                    icon={<LinkedinIcon size={18} />}
-                    color="hover:text-[#0A66C2] hover:bg-[#0A66C2]/10"
-                  />
-                  <SocialLink
-                    href={contact.whatsapp}
-                    icon={<WhatsappIcon size={18} />}
-                    color="hover:text-[#25D366] hover:bg-[#25D366]/10"
-                  />
-                  <SocialLink
-                    href={contact.email}
-                    icon={<Mail size={18} />}
-                    color="hover:text-blue-400 hover:bg-blue-400/10"
-                  />
-                </div>
-
-                {/* Contact Info */}
-                <div className="mt-auto pt-6 border-t border-white/5 w-full flex flex-col items-center gap-3">
-                  <PhoneContact phone={contact.phone} />
-                </div>
-
-                {/* Accent Detail */}
-                <div className="absolute top-4 right-4 w-1.5 h-1.5 rounded-full bg-blue-500/20 group-hover:bg-blue-500 animate-pulse" />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            
+            {/* Navigation Arrows - Only visible if scrolling is possible */}
+            {canScroll && (
+              <div className="flex justify-center mt-12 gap-4">
+                <CarouselPrevious className="static translate-y-0 bg-blue-600/10 border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition-all w-12 h-12" />
+                <CarouselNext className="static translate-y-0 bg-blue-600/10 border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition-all w-12 h-12" />
               </div>
-            </motion.div>
-          ))}
+            )}
+          </Carousel>
         </div>
       </div>
     </section>
@@ -211,20 +286,17 @@ function SocialLink({
 }
 
 function PhoneContact({ phone }: { phone: string }) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handlePhoneClick = (e: React.MouseEvent) => {
-    // Basic mobile detection
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (!isMobile) {
-      // Desktop: Copy to clipboard
       e.preventDefault();
       navigator.clipboard.writeText(phone);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-    // Mobile: default link behavior (tel:) will take over
   };
 
   return (
@@ -232,7 +304,7 @@ function PhoneContact({ phone }: { phone: string }) {
       <a
         href={`tel:${phone.replace(/\s/g, "")}`}
         onClick={handlePhoneClick}
-        className="flex items-center gap-2 text-white/40 group-hover:text-white transition-all hover:underline cursor-pointer decoration-blue-500 underline-offset-4"
+        className="flex items-center gap-2 text-white/40 hover:text-white transition-all hover:underline cursor-pointer decoration-blue-500 underline-offset-4"
       >
         <Phone size={14} className="text-blue-500" />
         <span className="font-mono text-sm font-semibold tracking-wider">

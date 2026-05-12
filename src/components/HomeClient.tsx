@@ -216,7 +216,7 @@ export function HomeClient() {
                 System Online // Phase 2.0
               </span>
             </div>
-            <h1 className="mb-6 text-6xl font-bold uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
+            <h1 className="mb-6 text-6xl font-black uppercase leading-[0.85] tracking-tighter md:text-8xl lg:text-[9rem]">
               <span className="block text-white">Beauty Of</span>
               <span className="block text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
                 Cloud.
