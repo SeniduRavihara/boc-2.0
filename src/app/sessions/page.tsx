@@ -21,7 +21,7 @@ const currentSession = {
 export default function PastSessionsPage() {
   return (
     <main className="min-h-screen bg-[#050812] flex flex-col relative overflow-hidden">
-      <Header />
+      {/* <Header /> */}
 
       {/* Background elements */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -97,9 +97,16 @@ export default function PastSessionsPage() {
               </div>
 
               <div className="pt-6 border-t border-white/10 mt-auto">
-                <button className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 transition-colors rounded-xl text-white text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                  <Video size={16} /> Watch on YouTube
-                </button>
+                <a 
+                  href={`https://www.youtube.com/watch?v=${currentSession.videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <button className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 transition-colors rounded-xl text-white text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                    <Video size={16} /> Watch on YouTube
+                  </button>
+                </a>
               </div>
             </div>
           </GlassCard>
@@ -124,7 +131,7 @@ export default function PastSessionsPage() {
         </motion.div>
       </div>
 
-      <Footer />
+      {/* <Footer /> */}
     </main>
   );
 }
