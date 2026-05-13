@@ -82,10 +82,9 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
         <Link href="/" className="group flex flex-col items-center gap-6 transition-all hover:opacity-90">
           <div className="relative h-28 md:h-44 w-auto aspect-square">
             <Image 
-              src="/email-and-header/boc.png" 
+              src="/email-and-header/boc.webp" 
               alt="Beauty of Cloud 2.0" 
               fill
-              unoptimized
               className="object-contain drop-shadow-[0_0_30px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform duration-500"
               priority
             />
@@ -116,11 +115,10 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
             <div className="flex flex-col items-center text-center px-4 group">
                <div className="relative w-56 h-auto flex items-center justify-center transition-all">
                   <Image 
-                    src="/email-and-header/ieee.png" 
+                    src="/email-and-header/ieee.webp" 
                     alt="IEEE Student Branch USJ" 
                     width={240} 
                     height={120} 
-                    unoptimized
                     className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,99,235,0.3)]"
                   />
                </div>
@@ -130,12 +128,11 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
             <div className="flex flex-col items-center text-center px-4 group">
                <div className="relative w-40 h-auto flex items-center justify-center transition-all">
                   <Image 
-                    src="/email-and-header/IEEE-CS.png" 
+                    src="/email-and-header/IEEE-CS.webp" 
                     alt="IEEE Computer Society USJ" 
                     width={240} 
                     height={120} 
-                    unoptimized
-                    className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(255,191,0,0.2)]"
+                    className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,191,0,0.2)]"
                   />
                </div>
             </div>
@@ -144,11 +141,10 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
             <div className="flex flex-col items-center text-center px-4 group">
                <div className="relative w-36 h-auto flex items-center justify-center transition-all">
                   <Image 
-                    src="/email-and-header/boc.png" 
+                    src="/email-and-header/boc.webp" 
                     alt="BOC 2.0" 
                     width={240} 
                     height={120} 
-                    unoptimized
                     className="object-contain opacity-90 group-hover:opacity-100 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] group-hover:drop-shadow-[0_0_20px_rgba(37,99,235,0.3)]" 
                   />
                </div>

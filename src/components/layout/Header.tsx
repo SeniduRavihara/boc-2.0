@@ -1,49 +1,123 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { usePathname } from 'next/navigation';
+import { Play, Menu, X } from "lucide-react";
+
+const NAV_LINKS = [
+  { name: "Home", href: "/" },
+  { name: "About Us", href: "/#about" },
+  { name: "Competition", href: "/#competition" },
+  { name: "Contact Us", href: "/#contact" },
+];
 
 export const Header: React.FC = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 left-0 w-full z-[100] px-6 md:px-12 py-4 md:py-6 flex justify-between items-center border-b border-white/5 bg-black/80">
-      <div className="flex items-center gap-6">
-        <motion.a 
-          href="/" 
-          className="relative w-56 h-12 md:w-72 md:h-16 block"
-          whileHover={{ scale: 1.05 }}
-        >
+    <nav 
+      className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 border-b ${
+        scrolled 
+          ? "py-3 bg-black/80 backdrop-blur-xl border-white/10" 
+          : "py-6 bg-transparent border-transparent"
+      }`}
+    >
+      {/* Background Mask/Gradient (Sri Lanka Business Pattern) */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-50 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(180deg,rgba(0,0,0,0.8)_0%,transparent_100%)]" />
+      </div>
+
+      <div className="container mx-auto px-6 max-w-7xl relative z-10 flex justify-between items-center">
+        {/* Logo Section */}
+        <Link href="/" className="relative w-40 h-10 md:w-48 md:h-12 flex items-center group">
           <Image 
-            src="/logo.png"
-            alt="Beauty of Cloud Logo"
+            src="/email-and-header/boc.webp"
+            alt="Beauty of Cloud"
             fill
-            className="object-contain"
+            className="object-contain transition-transform duration-500 group-hover:scale-105"
             priority
           />
-        </motion.a>
+        </Link>
+
+        {/* Desktop Navigation Links */}
+        <div className="hidden md:flex items-center gap-10">
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link 
+                key={link.name} 
+                href={link.href}
+                className={`text-sm font-bold tracking-tight transition-all duration-300 relative group ${
+                  isActive ? "text-blue-500" : "text-white/70 hover:text-white"
+                }`}
+              >
+                {link.name}
+                <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-500 transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"}`} />
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Right Action Section */}
+        <div className="flex items-center gap-6">
+          {/* Watch Button (From Screenshot) */}
+          <Link href="/sessions" className="group">
+            <motion.div 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] transition-all duration-300"
+            >
+              <Play size={18} fill="currentColor" />
+            </motion.div>
+          </Link>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="md:hidden text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
       </div>
 
-      <div className="hidden lg:flex gap-16 text-[10px] font-black uppercase tracking-[0.4em] font-mono">
-        <a href="#about" className="hover:text-accent transition-colors opacity-60 hover:opacity-100">— About</a>
-        <a href="#schedule" className="hover:text-accent transition-colors opacity-60 hover:opacity-100 italic">— Timeline</a>
-        <a href="#gallery" className="hover:text-accent transition-colors opacity-60 hover:opacity-100 italic">— Gallery</a>
-        <a href="#experience" className="hover:text-accent transition-colors opacity-60 hover:opacity-100 italic">— History</a>
-      </div>
-
-      <Link href="/register/compitition">
-        <motion.button 
-          className="group relative px-8 py-3 bg-white text-black text-[10px] font-black uppercase tracking-[0.3em] rounded-full overflow-hidden shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:shadow-[0_0_50px_rgba(59,130,246,0.5)] transition-shadow"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <span className="relative z-10 flex items-center gap-2">
-            Register Now <ChevronRight className="w-3 h-3" />
-          </span>
-          <div className="absolute inset-0 bg-blue-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-        </motion.button>
-      </Link>
+      {/* Mobile Navigation Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-black/95 backdrop-blur-2xl border-b border-white/10 overflow-hidden"
+          >
+            <div className="flex flex-col p-6 gap-6">
+              {NAV_LINKS.map((link) => (
+                <Link 
+                  key={link.name} 
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg font-bold text-white/80 hover:text-blue-500 transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

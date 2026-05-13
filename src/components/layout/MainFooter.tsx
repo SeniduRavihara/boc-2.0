@@ -104,7 +104,7 @@ const MainFooter: React.FC = () => {
               }}
             >
               <Image 
-                src="/email-and-header/boc.png" 
+                src="/email-and-header/boc.webp" 
                 alt="Beauty of Cloud" 
                 fill 
                 className="object-contain"
@@ -123,7 +123,7 @@ const MainFooter: React.FC = () => {
               }}
             >
               <Image 
-                src="/email-and-header/ieee.png" 
+                src="/email-and-header/ieee.webp" 
                 alt="IEEE USJ" 
                 fill 
                 className="object-contain"
@@ -142,7 +142,7 @@ const MainFooter: React.FC = () => {
               }}
             >
               <Image 
-                src="/email-and-header/IEEE-CS.png" 
+                src="/email-and-header/IEEE-CS.webp" 
                 alt="IEEE CS USJ" 
                 fill 
                 className="object-contain"
