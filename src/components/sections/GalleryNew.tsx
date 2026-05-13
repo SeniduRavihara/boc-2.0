@@ -83,7 +83,7 @@ export function GalleryNew() {
             viewport={{ once: true }}
             className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-6"
           >
-            <GradientShinyTitle text="Gallery" className="pr-3" speed={2} delay={0.5} />
+            <GradientShinyTitle text="Gallery" className="px-4 pb-1" speed={2} delay={0.5} />
           </motion.h2>
           <motion.div
             initial={{ width: 0 }}

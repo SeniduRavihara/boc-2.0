@@ -10,6 +10,7 @@ interface ShinyTextProps {
   className?: string;
   color?: string;
   shineColor?: string;
+  baseGradient?: string;
   spread?: number;
   yoyo?: boolean;
   pauseOnHover?: boolean;
@@ -24,6 +25,7 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   className = '',
   color = '#b5b5b5',
   shineColor = '#ffffff',
+  baseGradient,
   spread = 120,
   yoyo = false,
   pauseOnHover = false,
@@ -100,7 +102,11 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   }, [direction]);
 
   // Transform: p=0 -> 150% (shine off right), p=100 -> -50% (shine off left)
-  const backgroundPosition = useTransform(progress, p => `${150 - p * 2}% center`);
+  const backgroundPosition = useTransform(progress, p =>
+    baseGradient
+      ? `${150 - p * 2}% center, center center`
+      : `${150 - p * 2}% center`
+  );
 
   const handleMouseEnter = useCallback(() => {
     if (pauseOnHover) setIsPaused(true);
@@ -111,8 +117,11 @@ const ShinyText: React.FC<ShinyTextProps> = ({
   }, [pauseOnHover]);
 
   const gradientStyle: React.CSSProperties = {
-    backgroundImage: `linear-gradient(${spread}deg, ${color} 0%, ${color} 35%, ${shineColor} 50%, ${color} 65%, ${color} 100%)`,
-    backgroundSize: '200% auto',
+    backgroundImage: baseGradient
+      ? `linear-gradient(${spread}deg, transparent 0%, transparent 38%, ${shineColor} 50%, transparent 62%, transparent 100%), ${baseGradient}`
+      : `linear-gradient(${spread}deg, ${color} 0%, ${color} 35%, ${shineColor} 50%, ${color} 65%, ${color} 100%)`,
+    backgroundSize: baseGradient ? '200% 100%, 100% 100%' : '200% auto',
+    backgroundRepeat: 'no-repeat',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
     WebkitTextFillColor: 'transparent'

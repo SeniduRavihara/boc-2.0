@@ -468,10 +468,10 @@ body {
 
 @keyframes orbit {
   from {
-    transform: rotate(0deg) translateY(calc(var(--radius) * 1px)) rotate(0deg);
+    transform: rotate(calc(var(--angle, 0) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle, 0) * -1deg));
   }
   to {
-    transform: rotate(360deg) translateY(calc(var(--radius) * 1px)) rotate(-360deg);
+    transform: rotate(calc(360deg + (var(--angle, 0) * 1deg))) translateY(calc(var(--radius) * 1px)) rotate(calc(-360deg - (var(--angle, 0) * 1deg)));
   }
 }
 

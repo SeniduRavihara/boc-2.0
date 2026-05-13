@@ -194,10 +194,10 @@ export function HomeClient() {
 
   return (
     <main ref={mainRef} className="flex flex-col relative bg-[#050812]">
-      {/* ── 1. Hero + Linux — 500vh scroll space ─────────────── */}
+      {/* ── 1. Hero + Linux — condensed pinned reveal ─────────────── */}
       <div
         ref={pinnedRef}
-        style={{ height: "500vh" }}
+        style={{ height: "300vh" }}
         className="relative z-20 w-full bg-black"
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden touch-pan-y">
@@ -220,7 +220,7 @@ export function HomeClient() {
               </span>
             </div>
             <h1 className="font-reglo mb-6 font-black leading-[0.85]">
-              <span className="inline-flex whitespace-nowrap text-[clamp(1.72rem,7vw,3.2rem)] tracking-[-3px] md:hidden">
+              <span className="inline-flex whitespace-nowrap text-[1.35rem] tracking-normal min-[380px]:text-[1.6rem] sm:text-[2.1rem] md:hidden">
                 <span className="text-white">Beauty of Cloud </span>
                 <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
                   2.0

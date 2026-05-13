@@ -16,20 +16,16 @@ export function GradientShinyTitle({
   shineColor?: string;
 }) {
   return (
-    <span className={`relative inline-block ${className}`}>
-      <span className="bg-[linear-gradient(180deg,#0077FF_0%,#00336E_100%)] bg-clip-text text-transparent">
-        {text}
-      </span>
-      <ShinyText
-        text={text}
-        speed={speed}
-        delay={delay}
-        color="rgba(0,119,255,0)"
-        shineColor={shineColor}
-        spread={140}
-        direction="left"
-        className="pointer-events-none absolute inset-0"
-      />
-    </span>
+    <ShinyText
+      text={text}
+      speed={speed}
+      delay={delay}
+      color="#0077FF"
+      shineColor={shineColor}
+      baseGradient="linear-gradient(180deg,#0077FF 0%,#00336E 100%)"
+      spread={140}
+      direction="left"
+      className={`inline-block ${className}`}
+    />
   );
 }
