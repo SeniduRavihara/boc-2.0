@@ -1,9 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { OrbitingCircles } from "@/components/ui/OrbitingCircles";
 import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
 /* ─── data ─────────────────────────────────────────────────────────────────── */
 
@@ -12,15 +10,6 @@ const STATS = [
   { value: "3rd", label: "Annual Edition" },
   { value: "20+", label: "Industry Partners" },
   { value: "48H", label: "Competition Duration" },
-];
-
-const ORBIT_LOGOS = [
-  { src: "/orbiting-logos/aws.png", alt: "AWS" },
-  { src: "/orbiting-logos/azure.png", alt: "Azure" },
-  { src: "/orbiting-logos/gcp.png", alt: "Google Cloud" },
-  { src: "/orbiting-logos/docker.png", alt: "Docker" },
-  { src: "/orbiting-logos/k8s.png", alt: "Kubernetes" },
-  { src: "/orbiting-logos/terraform.png", alt: "Terraform" },
 ];
 
 /* ─── stat card ─────────────────────────────────────────────────────────────── */
@@ -57,14 +46,6 @@ function StatCard({
   );
 }
 
-function OrbitLogo({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="relative h-full w-full rounded-full border border-blue-400/20 bg-[#07101f]/90 p-2 shadow-[0_0_28px_rgba(0,119,255,0.24)] backdrop-blur-md">
-      <Image src={src} alt={alt} fill className="object-contain p-2" sizes="72px" />
-    </div>
-  );
-}
-
 /* ─── main section ──────────────────────────────────────────────────────────── */
 export function AboutNew() {
   const headingRef = useRef(null);
@@ -73,7 +54,7 @@ export function AboutNew() {
   return (
     <section
       id="about-us"
-      className="w-full min-h-screen bg-[#050812] relative overflow-hidden py-24 md:py-32"
+      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32"
     >
       {/* Background Pattern with Fade */}
       <div 
@@ -98,34 +79,6 @@ export function AboutNew() {
           backgroundSize: "60px 60px",
         }}
       />
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-64 overflow-hidden md:h-80">
-        <div className="absolute inset-x-0 bottom-[-224px] h-[448px] md:bottom-[-310px] md:h-[620px]">
-          <div className="relative flex h-full w-full items-center justify-center">
-            <div className="absolute inset-x-0 top-0 z-20 h-20 bg-gradient-to-b from-[#050812] via-[#050812]/70 to-transparent" />
-            <OrbitingCircles iconSize={58} radius={154} speed={0.9} className="md:hidden">
-              {ORBIT_LOGOS.slice(0, 5).map((logo) => (
-                <OrbitLogo key={logo.src} {...logo} />
-              ))}
-            </OrbitingCircles>
-            <OrbitingCircles iconSize={72} radius={224} speed={0.85} className="hidden md:flex">
-              {ORBIT_LOGOS.map((logo) => (
-                <OrbitLogo key={logo.src} {...logo} />
-              ))}
-            </OrbitingCircles>
-            <OrbitingCircles iconSize={44} radius={92} reverse speed={1.5} className="md:hidden">
-              {ORBIT_LOGOS.slice(1, 5).map((logo) => (
-                <OrbitLogo key={logo.src} {...logo} />
-              ))}
-            </OrbitingCircles>
-            <OrbitingCircles iconSize={52} radius={140} reverse speed={1.6} className="hidden md:flex">
-              {ORBIT_LOGOS.slice(1, 5).map((logo) => (
-                <OrbitLogo key={logo.src} {...logo} />
-              ))}
-            </OrbitingCircles>
-          </div>
-        </div>
-      </div>
 
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
         {/* ── Section label + headline ── */}
