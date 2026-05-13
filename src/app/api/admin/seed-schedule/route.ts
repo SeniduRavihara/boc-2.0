@@ -23,7 +23,10 @@ const sessions = [
 
 export async function GET() {
   try {
-    const colRef = collection(db, 'sessions');
+    if (!db) {
+      throw new Error('Firestore is not initialized. Check your environment variables.');
+    }
+    const colRef = collection(db!, 'sessions');
     
     // Clear existing sessions
     const snapshot = await getDocs(colRef);
