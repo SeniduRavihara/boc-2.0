@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Play, Calendar, Clock, Video, User } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/sections/Footer';
+import MainFooter from '@/components/layout/MainFooter';
 
 // Video placeholder
 const currentSession = {
@@ -131,7 +131,7 @@ export default function PastSessionsPage() {
         </motion.div>
       </div>
 
-      {/* <Footer /> */}
+      <MainFooter />
     </main>
   );
 }

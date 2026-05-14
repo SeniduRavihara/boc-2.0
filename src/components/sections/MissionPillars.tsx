@@ -22,10 +22,10 @@ export function MissionPillars() {
           {/* Desktop BG */}
           <div className="hidden md:block absolute inset-0">
             <Image
-              src="/background_img.webp"
+              src="/falling_background.png"
               alt="Mission Background"
               fill
-              className="object-cover"
+              className="object-cover object-bottom"
               style={{ opacity: BG_CONFIG.desktop.opacity }}
               priority
             />
@@ -36,10 +36,10 @@ export function MissionPillars() {
             style={{ top: `${BG_CONFIG.mobile.top}px` }}
           >
             <Image
-              src="/background_img.webp"
+              src="/falling_background.png"
               alt="Mission Background"
               fill
-              className="object-cover"
+              className="object-cover object-bottom"
               style={{ opacity: BG_CONFIG.mobile.opacity }}
               priority
             />

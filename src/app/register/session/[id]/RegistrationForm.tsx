@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { SESSIONS } from '@/constants/sessions';
 
 export default function RegisterForm({ sessionId }: { sessionId: string }) {
     const searchParams = useSearchParams();
@@ -281,7 +282,9 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                         <div className="h-1 w-1 rounded-full bg-white/20" />
                         <span className="text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">Protocol V2.0</span>
                     </div>
-                    <h2 className="text-lg md:text-3xl font-black text-white tracking-tight uppercase leading-tight">Getting into the cloud with AWS</h2>
+                    <h2 className="text-lg md:text-3xl font-black text-white tracking-tight uppercase leading-tight">
+                        {SESSIONS.find(s => s.id === sessionId)?.topic || "Getting into the cloud"}
+                    </h2>
                 </div>
             </div>
 

@@ -302,9 +302,7 @@ export default function AdminRegistrationsPage() {
                                                         <div className="flex flex-col">
                                                             <span className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors uppercase tracking-tight">{reg.name}</span>
                                                             <span className="text-[10px] text-slate-500 font-mono">
-                                                                {reg.sessionRegistrationTimes?.[activeSession] 
-                                                                    ? new Date(reg.sessionRegistrationTimes[activeSession].toDate()).toLocaleString()
-                                                                    : reg.createdAt ? new Date(reg.createdAt.toDate()).toLocaleString() : 'N/A'}
+                                                                {reg.email}
                                                             </span>
                                                         </div>
                                                     </td>

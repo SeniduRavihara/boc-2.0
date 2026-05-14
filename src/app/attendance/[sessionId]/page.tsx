@@ -16,6 +16,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import MainFooter from '@/components/layout/MainFooter';
 import { checkUserRegistration, markAttendance, checkAttendanceExists, getGlobalSettings } from '@/firebase/api';
 import { Registration } from '@/types';
 
@@ -354,12 +355,8 @@ export default function AttendancePage() {
           )}
         </AnimatePresence>
 
-        <footer className="mt-12 text-center opacity-30">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">
-            Beauty of Cloud · Node-Attendance-Secure
-          </p>
-        </footer>
       </div>
+      <MainFooter />
     </div>
   );
 }

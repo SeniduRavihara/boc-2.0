@@ -17,11 +17,11 @@ export default async function Home({ searchParams }: PageProps) {
     const isAuthorized = revealHomeQuery === revealPassword;
     
     if (!isAuthorized) {
-      redirect('/register/session/1');
+      redirect('/register/session/2');
     }
   } else {
     // If NO password is set in ENV, we ALWAYS redirect to register
-    redirect('/register/session/1');
+    redirect('/register/session/2');
   }
 
   return <HomeClient />;

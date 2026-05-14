@@ -16,6 +16,7 @@ import {
   Timer
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import MainFooter from '@/components/layout/MainFooter';
 import { db } from '@/firebase/config';
 import { doc, onSnapshot, serverTimestamp, collection, query, where, orderBy } from 'firebase/firestore';
 import { checkUserRegistration, joinQuiz, submitQuizAnswer, getQuizById } from '@/firebase/api';
@@ -358,44 +359,47 @@ export default function UserQuizPage() {
   // 1. Join State
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
-        <GlassCard className="w-full max-w-md p-8 border-slate-800/50">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-400">
-              <Zap size={32} />
-            </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Join the Quiz</h1>
-            <p className="text-slate-500 text-sm">Enter the email you used for registration.</p>
-          </div>
-
-          <form onSubmit={handleJoin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Email Address</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500/50 transition-all font-medium"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className={`p-3 rounded-lg flex items-center gap-2 text-xs font-medium ${error.includes('Redirecting') ? 'bg-blue-500/10 text-blue-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                {error.includes('Redirecting') ? <Clock size={14} /> : <AlertCircle size={14} />}
-                {error}
+      <div className="min-h-screen bg-[#030712] text-slate-200 flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <GlassCard className="w-full max-w-md p-8 border-slate-800/50">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-400">
+                <Zap size={32} />
               </div>
-            )}
+              <h1 className="text-2xl font-bold text-white mb-2">Join the Quiz</h1>
+              <p className="text-slate-500 text-sm">Enter the email you used for registration.</p>
+            </div>
 
-            <button 
-              disabled={checkingEmail}
-              className="w-full h-12 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all disabled:opacity-50"
-            >
-              {checkingEmail ? <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> : <>Join Quiz <ArrowRight size={18} /></>}
-            </button>
-          </form>
-        </GlassCard>
+            <form onSubmit={handleJoin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Email Address</label>
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500/50 transition-all font-medium"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className={`p-3 rounded-lg flex items-center gap-2 text-xs font-medium ${error.includes('Redirecting') ? 'bg-blue-500/10 text-blue-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                  {error.includes('Redirecting') ? <Clock size={14} /> : <AlertCircle size={14} />}
+                  {error}
+                </div>
+              )}
+
+              <button 
+                disabled={checkingEmail}
+                className="w-full h-12 bg-white text-black rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all disabled:opacity-50"
+              >
+                {checkingEmail ? <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" /> : <>Join Quiz <ArrowRight size={18} /></>}
+              </button>
+            </form>
+          </GlassCard>
+        </div>
+        <MainFooter />
       </div>
     );
   }
@@ -403,43 +407,46 @@ export default function UserQuizPage() {
   // 2. Waiting Room
   if (quiz.status === 'idle' || quiz.status === 'registering') {
     return (
-      <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
-        <div className="max-w-xl w-full">
-          <GlassCard className="p-10 border-slate-800/50 text-center">
-            <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ repeat: Infinity, duration: 4 }}
-              className="w-20 h-20 bg-purple-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 text-purple-400"
-            >
-              <Users size={40} />
-            </motion.div>
-            <h2 className="text-3xl font-bold text-white mb-2">You're In, {user.name.split(' ')[0]}!</h2>
-            <p className="text-slate-500 mb-8">
-              {quiz.status === 'idle' ? "Waiting for the admin to open registration." : "The quiz will start soon. Stay on this page!"}
-            </p>
+      <div className="min-h-screen bg-[#030712] text-slate-200 flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-xl w-full">
+            <GlassCard className="p-10 border-slate-800/50 text-center">
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ repeat: Infinity, duration: 4 }}
+                className="w-20 h-20 bg-purple-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 text-purple-400"
+              >
+                <Users size={40} />
+              </motion.div>
+              <h2 className="text-3xl font-bold text-white mb-2">You're In, {user.name.split(' ')[0]}!</h2>
+              <p className="text-slate-500 mb-8">
+                {quiz.status === 'idle' ? "Waiting for the admin to open registration." : "The quiz will start soon. Stay on this page!"}
+              </p>
 
-            <div className="p-4 bg-slate-950/30 rounded-xl border border-slate-800/50 text-left mb-8">
-              <div className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Quiz Information</div>
-              <div className="text-sm font-medium text-slate-300">{quiz.title}</div>
-              <div className="mt-3 flex gap-4">
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <Clock size={14} /> {quiz.questions.length} Questions
-                </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <Zap size={14} /> {quiz.defaultQuestionTime}s per Q
+              <div className="p-4 bg-slate-950/30 rounded-xl border border-slate-800/50 text-left mb-8">
+                <div className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Quiz Information</div>
+                <div className="text-sm font-medium text-slate-300">{quiz.title}</div>
+                <div className="mt-3 flex gap-4">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <Clock size={14} /> {quiz.questions.length} Questions
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <Zap size={14} /> {quiz.defaultQuestionTime}s per Q
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold animate-pulse text-sm">
-              <CheckCircle2 size={16} /> Ready to start...
-            </div>
-          </GlassCard>
-          
-          <button onClick={handleLogout} className="mt-6 flex items-center gap-2 mx-auto text-slate-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
-            <LogOut size={14} /> Log out as {user.email}
-          </button>
+              <div className="flex items-center justify-center gap-2 text-emerald-400 font-bold animate-pulse text-sm">
+                <CheckCircle2 size={16} /> Ready to start...
+              </div>
+            </GlassCard>
+            
+            <button onClick={handleLogout} className="mt-6 flex items-center gap-2 mx-auto text-slate-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
+              <LogOut size={14} /> Log out as {user.email}
+            </button>
+          </div>
         </div>
+        <MainFooter />
       </div>
     );
   }
@@ -447,36 +454,39 @@ export default function UserQuizPage() {
   // 3. Finished State (Global or Local)
   if (quiz.status === 'finished' || (localQuestionIndex !== null && localQuestionIndex >= quiz.questions.length)) {
     return (
-      <div className="min-h-screen bg-[#030712] text-slate-200 flex items-center justify-center p-6">
-        <div className="max-w-md w-full">
-          <GlassCard className="p-10 border-slate-800/50 text-center">
-            <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-500">
-              <Trophy size={48} />
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Quiz Finished!</h2>
-            <p className="text-slate-500 mb-8">Excellent effort, {user.name.split(' ')[0]}!</p>
+      <div className="min-h-screen bg-[#030712] text-slate-200 flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full">
+            <GlassCard className="p-10 border-slate-800/50 text-center">
+              <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-500">
+                <Trophy size={48} />
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-2">Quiz Finished!</h2>
+              <p className="text-slate-500 mb-8">Excellent effort, {user.name.split(' ')[0]}!</p>
 
-            <div className="grid grid-cols-2 gap-4 mb-10">
-              <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Final Score</div>
-                <div className="text-2xl font-bold text-white font-mono">{score}</div>
+              <div className="grid grid-cols-2 gap-4 mb-10">
+                <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Final Score</div>
+                  <div className="text-2xl font-bold text-white font-mono">{score}</div>
+                </div>
+                <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Rank</div>
+                  <div className="text-2xl font-bold text-emerald-400 font-mono">#{rank || '--'}</div>
+                </div>
               </div>
-              <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800/50">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Rank</div>
-                <div className="text-2xl font-bold text-emerald-400 font-mono">#{rank || '--'}</div>
-              </div>
-            </div>
 
-            <div className="pt-4 border-t border-slate-800/50 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">
-                Quiz Participation Complete
-              </p>
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-bold text-xs">
-                🎉 Attendance Marked Successfully
+              <div className="pt-4 border-t border-slate-800/50 text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">
+                  Quiz Participation Complete
+                </p>
+                <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-400 font-bold text-xs">
+                  🎉 Attendance Marked Successfully
+                </div>
               </div>
-            </div>
-          </GlassCard>
+            </GlassCard>
+          </div>
         </div>
+        <MainFooter />
       </div>
     );
   }
@@ -518,33 +528,62 @@ export default function UserQuizPage() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeQuestionIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
             >
-              <GlassCard className="p-5 md:p-8 border-slate-800/50 mb-8">
-                <h2 className="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 leading-tight">
-                  {quiz.questions[activeQuestionIndex].text}
+              {/* Question Card */}
+              <GlassCard className="p-8 md:p-12 border-slate-800/50 mb-8 relative overflow-hidden">
+                {/* Progress Bar */}
+                <div className="absolute top-0 left-0 h-1 bg-slate-800 w-full">
+                  <motion.div 
+                    className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((activeQuestionIndex + 1) / quiz.questions.length) * 100}%` }}
+                  />
+                </div>
+
+                <div className="flex justify-between items-center mb-10">
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 font-black text-lg border border-blue-500/20">
+                      {activeQuestionIndex + 1}
+                    </span>
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-0.5">Question</div>
+                      <div className="text-xs font-bold text-slate-300">of {quiz.questions.length}</div>
+                    </div>
+                  </div>
+
+                  <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl border ${(activeTimeLeft || 0) < 5 ? 'bg-rose-500/10 border-rose-500/20 text-rose-400 animate-pulse' : 'bg-slate-950/40 border-slate-800 text-white'}`}>
+                    <Timer size={20} />
+                    <span className="text-2xl font-black font-mono">{activeTimeLeft ?? 0}s</span>
+                  </div>
+                </div>
+
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-12 leading-tight">
+                  {currentQuestion.text}
                 </h2>
 
-                <div className="space-y-4">
-                  {quiz.questions[activeQuestionIndex].options.map((option, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                  {currentQuestion.options.map((option, idx) => (
                     <button
-                      key={index}
+                      key={idx}
                       disabled={isSubmitted || activeTimeLeft === 0}
-                      onClick={() => setSelectedOption(index)}
-                      className={`w-full p-4 md:p-5 rounded-2xl border text-left font-medium transition-all flex items-center justify-between group ${
-                        selectedOption === index 
-                          ? 'bg-blue-500/20 border-blue-500/50 text-white ring-1 ring-blue-500/30' 
-                          : 'bg-slate-950/30 border-slate-800 text-slate-400 hover:border-slate-700'
-                      } ${isSubmitted ? 'opacity-80' : ''}`}
+                      onClick={() => setSelectedOption(idx)}
+                      className={`group relative p-6 rounded-2xl border text-left transition-all duration-300 ${
+                        selectedOption === idx 
+                          ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_30px_rgba(37,99,235,0.3)]' 
+                          : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-600 hover:bg-slate-900/60'
+                      }`}
                     >
-                      <span>{option}</span>
-                      <div className={`h-6 w-6 rounded-full border flex items-center justify-center transition-all ${
-                        selectedOption === index ? 'bg-blue-500 border-blue-400' : 'border-slate-800'
-                      }`}>
-                        {selectedOption === index && <div className="h-2 w-2 bg-white rounded-full" />}
+                      <div className="flex items-center gap-4">
+                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm border transition-colors ${
+                          selectedOption === idx ? 'bg-white text-blue-600 border-white' : 'bg-slate-900 text-slate-500 border-slate-700 group-hover:border-slate-500'
+                        }`}>
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <span className="font-medium text-lg">{option}</span>
                       </div>
                     </button>
                   ))}
@@ -571,6 +610,7 @@ export default function UserQuizPage() {
             </motion.div>
           </AnimatePresence>
         </div>
+        <MainFooter />
       </div>
     );
   }

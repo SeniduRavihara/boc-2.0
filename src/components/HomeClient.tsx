@@ -9,9 +9,9 @@ import MainFooter from "@/components/layout/MainFooter";
 import { AboutNew } from "./sections/AboutNew";
 import { ContactSection } from "./sections/ContactSection";
 import { CTASection } from "./sections/CTASection";
+import { FallingScene } from "./sections/FallingScene";
 import { GalleryNew } from "./sections/GalleryNew";
 import { Partners } from "./sections/Partners";
-import { MissionPillars } from "./sections/MissionPillars";
 import { Timeline } from "./sections/Timeline";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -243,7 +243,8 @@ export function HomeClient() {
         </div>
       </div>
 
-      <MissionPillars />
+      <FallingScene />
+      {/* <MissionPillars /> */}
       <Timeline />
 
       {/*
