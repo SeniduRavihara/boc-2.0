@@ -8,6 +8,7 @@ import React, { useEffect, useRef } from "react";
 import MainFooter from "@/components/layout/MainFooter";
 import { AboutNew } from "./sections/AboutNew";
 import { ContactSection } from "./sections/ContactSection";
+import { CTASection } from "./sections/CTASection";
 import { GalleryNew } from "./sections/GalleryNew";
 import { Partners } from "./sections/Partners";
 import { MissionPillars } from "./sections/MissionPillars";
@@ -213,12 +214,6 @@ export function HomeClient() {
             ref={heroContentRef}
             className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
           >
-            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/5 px-4 py-2 backdrop-blur-md">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-              <span className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400">
-                System Online // Phase 2.0
-              </span>
-            </div>
             <h1 className="font-reglo mb-6 font-black leading-[0.85]">
               <span className="inline-flex whitespace-nowrap text-[1.35rem] tracking-normal min-[380px]:text-[1.6rem] sm:text-[2.1rem] md:hidden">
                 <span className="text-white">Beauty of Cloud </span>
@@ -276,6 +271,7 @@ export function HomeClient() {
       <GalleryNew />
       <Partners />
       <ContactSection />
+      <CTASection />
 
       {/* <Footer /> */}
       <MainFooter />

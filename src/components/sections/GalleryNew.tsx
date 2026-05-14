@@ -107,25 +107,14 @@ export function GalleryNew() {
 
       <div className="container mx-auto px-4 md:px-6 relative z-10 mb-20">
         <div className="flex flex-col items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/5 px-4 py-2 mb-6"
-          >
-            <span className="h-2 w-2 rounded-full bg-blue-500" />
-            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400">
-              Visual Archive
-            </span>
-          </motion.div>
           
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-reglo text-6xl md:text-8xl lg:text-8xl font-black uppercase tracking-tighter mb-8 text-center"
+            className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-8 text-center"
           >
-            <GradientShinyTitle text="Moments In Cloud." className="px-4 pb-1" speed={2} delay={0.5} />
+            <GradientShinyTitle text="Moments In Cloud." speed={2} delay={0.5} />
           </motion.h2>
           
           <motion.div
