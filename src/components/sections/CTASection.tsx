@@ -38,6 +38,13 @@ export function CTASection() {
     let nextX = x.get() + vx.current * dt;
     let nextY = y.get() + vy.current * dt;
 
+    if (isNaN(nextX) || isNaN(nextY)) {
+      nextX = 0;
+      nextY = 0;
+      vx.current = 0;
+      vy.current = 0;
+    }
+
     // Calculate bounds based on offset (ignores transform translates)
     const minX = -ballRef.current.offsetLeft; 
     const maxX = constraintsRef.current.clientWidth - ballRef.current.offsetLeft - ballRef.current.clientWidth;
@@ -109,8 +116,6 @@ export function CTASection() {
         ref={ballRef}
         style={{ x, y }}
         drag
-        dragConstraints={constraintsRef}
-        dragElastic={0}
         dragMomentum={false} // Disable framer's internal momentum so our physics loop takes over
         onDragStart={() => {
           isDragging.current = true;
