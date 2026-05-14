@@ -16,12 +16,15 @@ export function CTASection() {
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  const rotate = useMotionValue(0);
   const vx = useRef(0);
   const vy = useRef(0);
+  const omega = useRef(0); // angular velocity
   const isDragging = useRef(false);
+  const [hasStarted, setHasStarted] = React.useState(false);
 
   useAnimationFrame((t, delta) => {
-    if (isDragging.current) return;
+    if (!hasStarted || isDragging.current) return;
     if (!constraintsRef.current || !ballRef.current) return;
 
     // Normalize delta to 60fps (16.66ms per frame)
@@ -30,6 +33,9 @@ export function CTASection() {
 
     // Apply gravity
     vy.current += 0.8 * dt;
+
+    // Apply air friction to spin
+    omega.current *= Math.pow(0.99, dt);
 
     // Apply air friction
     vx.current *= Math.pow(0.99, dt);
@@ -55,19 +61,25 @@ export function CTASection() {
     if (nextX <= minX) {
       nextX = minX;
       vx.current *= -0.7; // Bounce left wall
+      omega.current -= vy.current * 0.2; // Wall friction induces spin
     } else if (nextX >= maxX) {
       nextX = maxX;
       vx.current *= -0.7; // Bounce right wall
+      omega.current += vy.current * 0.2; // Wall friction induces spin
     }
 
     // Y axis collision
     if (nextY <= minY) {
       nextY = minY;
       vy.current *= -0.7; // Bounce ceiling
+      omega.current *= 0.8;
     } else if (nextY >= maxY) {
       nextY = maxY;
       vy.current *= -0.6; // Bounce floor
       vx.current *= Math.pow(0.95, dt); // Floor friction
+      
+      // Rolling on the floor links linear velocity to angular velocity
+      omega.current = vx.current * 2;
       
       // Settle if velocity is very small
       if (Math.abs(vy.current) < 1.5) {
@@ -78,10 +90,17 @@ export function CTASection() {
 
     x.set(nextX);
     y.set(nextY);
+    rotate.set(rotate.get() + omega.current * dt);
   });
 
   return (
     <section ref={constraintsRef} className="relative w-full overflow-hidden bg-[#050812] border-y border-white/5">
+      {/* Trigger for the physics drop */}
+      <motion.div 
+        onViewportEnter={() => setHasStarted(true)}
+        className="absolute inset-0 pointer-events-none"
+      />
+
       {/* Background Layer */}
       <div className="absolute inset-0 z-0">
         <Grainient
@@ -114,22 +133,25 @@ export function CTASection() {
       {/* Interactive Physics Ball */}
       <motion.div
         ref={ballRef}
-        style={{ x, y }}
+        style={{ x, y, rotate, touchAction: "none" }}
         drag
         dragMomentum={false} // Disable framer's internal momentum so our physics loop takes over
         onDragStart={() => {
           isDragging.current = true;
           vx.current = 0;
           vy.current = 0;
+          omega.current = 0;
         }}
         onDragEnd={(e, info) => {
           isDragging.current = false;
           // Convert info.velocity (px/s) to px/frame (at 60fps)
           vx.current = info.velocity.x / 60;
           vy.current = info.velocity.y / 60;
+          // Give it some initial spin based on horizontal throw
+          omega.current = vx.current * 1.5;
         }}
         whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-        className="absolute z-50 cursor-grab w-24 h-24 md:w-32 md:h-32 left-8 md:left-24 top-12"
+        className="absolute z-50 cursor-grab w-24 h-24 md:w-32 md:h-32 left-[calc(50%-48px)] md:left-[calc(50%-64px)] top-0"
       >
         <Image 
           src="/Group.webp" 
