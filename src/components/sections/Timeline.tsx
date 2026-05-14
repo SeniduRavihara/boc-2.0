@@ -260,7 +260,7 @@ function TimelineCard({ event, index }: { event: TimelineEvent; index: number })
 
 export function Timeline() {
   return (
-    <section id="timeline" className="py-32 bg-[#050812] relative overflow-hidden">
+    <section id="timeline" className="py-32 bg-[#050812] relative overflow-hidden bg-dot-pattern">
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 -left-24 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px]" />
@@ -313,6 +313,10 @@ export function Timeline() {
       </div>
 
       <style jsx>{`
+        .bg-dot-pattern {
+          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+          background-size: 24px 24px;
+        }
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
