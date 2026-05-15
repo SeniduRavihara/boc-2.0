@@ -281,6 +281,7 @@ function ContactCard({
               src={contact.img}
               alt={contact.name}
               fill
+              sizes="(max-width: 768px) 128px, 128px"
               className="object-cover"
             />
           </div>

@@ -83,7 +83,7 @@ function GalleryMarquee({ images, baseVelocity = 5 }: MarqueeProps) {
                   fill
                   className="object-cover grayscale brightness-75 md:brightness-50 group-hover:grayscale-0 group-hover:brightness-110 transition-all duration-700 md:group-hover:scale-105"
                   sizes="(max-width: 768px) 80vw, 35vw"
-                  quality={70}
+                  quality={75}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>

@@ -9,10 +9,12 @@ import Link from "next/link";
 import Magnet from "@/components/ui/Magnet";
 import Grainient from "@/components/ui/Grainient";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export function CTASection() {
   const constraintsRef = useRef<HTMLElement>(null);
   const ballRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
@@ -208,6 +210,9 @@ export function CTASection() {
           // Give it some initial spin based on horizontal throw
           omega.current = vx.current * 1.5;
         }}
+        onTap={() => {
+          router.push("/register/session/2");
+        }}
         whileDrag={{ scale: 1.1, cursor: "grabbing" }}
         className="absolute z-50 cursor-grab touch-none select-none w-24 h-24 md:w-32 md:h-32 left-[calc(50%-48px)] md:left-[calc(50%-64px)] top-0"
       >
@@ -215,6 +220,7 @@ export function CTASection() {
           src="/Group.webp" 
           alt="Interactive Object" 
           fill
+          sizes="(max-width: 768px) 128px, 128px"
           className="object-contain drop-shadow-[0_0_20px_rgba(59,130,246,0.3)] pointer-events-none"
           priority
         />
@@ -243,7 +249,7 @@ export function CTASection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/register">
+              <Link href="/register/session/2">
                 <Magnet padding={150} magnetStrength={12}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}

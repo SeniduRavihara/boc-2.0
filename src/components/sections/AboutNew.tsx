@@ -145,6 +145,7 @@ export function AboutNew() {
                 width={120}
                 height={120}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
             </div>
 
@@ -162,6 +163,7 @@ export function AboutNew() {
                 width={28}
                 height={28}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/icons8-azure-96 3.webp"
@@ -169,6 +171,7 @@ export function AboutNew() {
                 width={28}
                 height={28}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/icons8-google-cloud-144 2.webp"
@@ -176,6 +179,7 @@ export function AboutNew() {
                 width={30}
                 height={30}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
             </OrbitingCircles>
 
@@ -194,6 +198,7 @@ export function AboutNew() {
                 width={35}
                 height={35}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/kubanaties.webp"
@@ -201,6 +206,7 @@ export function AboutNew() {
                 width={35}
                 height={35}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/icons8-terraform-144 2.webp"
@@ -208,6 +214,7 @@ export function AboutNew() {
                 width={35}
                 height={35}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/github_logo.webp"
@@ -215,6 +222,7 @@ export function AboutNew() {
                 width={35}
                 height={35}
                 className="object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
             </OrbitingCircles>
           </motion.div>

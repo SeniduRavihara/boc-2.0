@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 
 import MainFooter from "@/components/layout/MainFooter";
 import { AboutNew } from "./sections/AboutNew";
@@ -212,25 +213,32 @@ export function HomeClient() {
 
           <div
             ref={heroContentRef}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-40 text-center"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center"
           >
             <h1 className="font-reglo mb-6 font-black leading-[0.85]">
-              <span className="block text-[2.5rem] leading-[0.9] tracking-tighter min-[380px]:text-[3rem] sm:text-[4rem] md:hidden">
-                <span className="text-white block sm:inline">Beauty of Cloud </span>
+              <span className="block text-[4rem] leading-[0.85] tracking-tighter min-[380px]:text-[4.5rem] sm:text-[5.5rem] md:hidden">
+                <span className="text-white block sm:inline">Beauty of Cloud</span>
+                <span className="hidden sm:inline"> </span>
                 <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
                   2.0
                 </span>
               </span>
               <span className="hidden md:inline text-8xl tracking-tighter lg:text-[9rem]">
-                <span className="text-white">Beauty of Cloud </span>
+                <span className="text-white">Beauty of Cloud</span>
+                <span className="hidden sm:inline"> </span>
                 <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
                   2.0
                 </span>
               </span>
             </h1>
-            <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4">
+            <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4 mb-8">
               Sri Lanka&apos;s premier inter-university cloud ideathon.
             </p>
+            <Link href="/register/session/2">
+              <button className="px-8 py-3.5 rounded-full bg-white text-black font-bold tracking-widest uppercase text-xs sm:text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                Register for Session 2
+              </button>
+            </Link>
           </div>
 
           <div
