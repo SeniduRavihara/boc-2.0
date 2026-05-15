@@ -88,7 +88,7 @@ export function CTASection() {
     
     // Dynamic floor based on tilt angle
     // Visual floor is removed, so we bounce exactly at the bottom border
-    const floorVisualOffset = -15; 
+    const floorVisualOffset = -10; 
     const baseMaxY = constraintsRef.current.clientHeight - ballRef.current.offsetTop - ballRef.current.clientHeight - floorVisualOffset;
     
     const containerCenterX = constraintsRef.current.clientWidth / 2;

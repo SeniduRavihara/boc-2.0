@@ -48,13 +48,25 @@ export function FallingScene() {
           className="absolute inset-x-0 top-0 z-0 w-full"
           style={{ y: bgY }}
         >
+          {/* Desktop Background */}
           <Image
             src="/falling_background.webp"
             alt="Cloud sky background"
             width={1080}
             height={1920}
-            className="w-full h-auto"
-            style={{ display: 'block', minHeight: '220vh' }}
+            className="hidden md:block w-full h-auto object-cover"
+            style={{ minHeight: '220vh' }}
+            priority
+            unoptimized
+          />
+          {/* Mobile Background */}
+          <Image
+            src="/falling_background_mobile.webp"
+            alt="Cloud sky background mobile"
+            width={720}
+            height={1280}
+            className="block md:hidden w-full h-auto object-cover"
+            style={{ minHeight: '220vh' }}
             priority
             unoptimized
           />
@@ -90,7 +102,7 @@ export function FallingScene() {
         {/* ── Falling person ── */}
         <div className="absolute inset-0 z-20 flex items-center justify-center overflow-visible">
           <motion.div
-            className="relative w-[50vw] max-w-[650px]"
+            className="relative w-[85vw] md:w-[50vw] max-w-[650px]"
             style={{
               y: personY,
               rotate: personRotate,
@@ -104,7 +116,7 @@ export function FallingScene() {
               alt="Falling person"
               fill
               className="object-contain"
-              sizes="(max-width: 768px) 70vw, 650px"
+              sizes="(max-width: 768px) 85vw, 650px"
             />
           </motion.div>
         </div>

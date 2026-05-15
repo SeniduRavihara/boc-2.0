@@ -68,21 +68,22 @@ function GalleryMarquee({ images, baseVelocity = 5 }: MarqueeProps) {
   });
 
   return (
-    <div className="flex overflow-hidden whitespace-nowrap flex-nowrap mb-6">
-      <motion.div className="flex whitespace-nowrap flex-nowrap gap-6" style={{ x }}>
+    <div className="flex overflow-hidden whitespace-nowrap flex-nowrap mb-6 transform-gpu">
+      <motion.div className="flex whitespace-nowrap flex-nowrap gap-6 will-change-transform" style={{ x }}>
         {[1, 2, 3, 4].map((set) => (
           <React.Fragment key={set}>
             {images.map((src, idx) => (
               <div
                 key={`${set}-${idx}`}
-                className="relative flex-shrink-0 w-[80vw] md:w-[35vw] aspect-[16/10] rounded-3xl overflow-hidden border border-white/10 bg-white/5 group shadow-2xl"
+                className="relative flex-shrink-0 w-[80vw] md:w-[35vw] aspect-[16/10] rounded-3xl overflow-hidden border border-white/10 bg-white/5 group md:shadow-2xl transform-gpu"
               >
                 <Image
                   src={src}
                   alt={`Gallery Image ${idx + 1}`}
                   fill
-                  className="object-cover grayscale brightness-50 group-hover:grayscale-0 group-hover:brightness-110 transition-all duration-700 group-hover:scale-105"
+                  className="object-cover grayscale brightness-75 md:brightness-50 group-hover:grayscale-0 group-hover:brightness-110 transition-all duration-700 md:group-hover:scale-105"
                   sizes="(max-width: 768px) 80vw, 35vw"
+                  quality={70}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>

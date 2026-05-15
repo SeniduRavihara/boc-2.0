@@ -19,8 +19,6 @@ const SPONSORS = [
 ];
 
 export const Partners: React.FC = () => {
-  const [hoveredPartner, setHoveredPartner] = useState<number | null>(null);
-
   return (
     <section id="partners" className="py-24 bg-[#050812] border-y border-white/5 overflow-hidden">
       <div className="text-center mb-16">
@@ -35,9 +33,9 @@ export const Partners: React.FC = () => {
         <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" />
       </div>
 
-      <div className="relative flex overflow-hidden">
+      <div className="relative flex overflow-hidden transform-gpu">
         <motion.div
-          className="flex gap-12 items-center flex-none"
+          className="flex gap-12 items-center flex-none will-change-transform transform-gpu group"
           animate={{ x: ["0%", "-50%"] }}
           transition={{
             duration: 30,
@@ -49,20 +47,13 @@ export const Partners: React.FC = () => {
           {[...SPONSORS, ...SPONSORS].map((sponsor, idx) => (
             <div
               key={idx}
-              onMouseEnter={() => setHoveredPartner(idx)}
-              onMouseLeave={() => setHoveredPartner(null)}
-              className={`relative w-40 h-20 md:w-56 md:h-28 flex-shrink-0 flex items-center justify-center transition-all duration-500 ${
-                hoveredPartner === null
-                  ? 'grayscale-0 brightness-100 opacity-100'
-                  : hoveredPartner === idx
-                    ? 'grayscale-0 brightness-100 opacity-100 scale-105'
-                    : 'grayscale brightness-[0.45] opacity-45'
-              }`}
+              className="relative w-40 h-20 md:w-56 md:h-28 flex-shrink-0 flex items-center justify-center transition-all duration-500 md:group-hover:grayscale md:group-hover:brightness-[0.45] md:group-hover:opacity-45 md:hover:!grayscale-0 md:hover:!brightness-100 md:hover:!opacity-100 md:hover:scale-105"
             >
               <Image
                 src={sponsor.image}
                 alt={sponsor.name}
                 fill
+                sizes="(max-width: 768px) 160px, 224px"
                 className="object-contain scale-90 transition-transform duration-500"
               />
             </div>

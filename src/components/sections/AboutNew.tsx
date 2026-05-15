@@ -47,6 +47,9 @@ function StatCard({
 }
 
 /* ─── main section ──────────────────────────────────────────────────────────── */
+import { OrbitingCircles } from "@/components/ui/orbiting-circles";
+import Image from "next/image";
+
 export function AboutNew() {
   const headingRef = useRef(null);
   const headingView = useInView(headingRef, { once: true });
@@ -64,9 +67,6 @@ export function AboutNew() {
           WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
         }}
       />
-      {/* Ambient glows */}
-      {/* <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/4 rounded-full blur-[140px] pointer-events-none translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none -translate-x-1/3 translate-y-1/3" /> */}
 
       {/* Grid overlay */}
       <div
@@ -81,27 +81,28 @@ export function AboutNew() {
       />
 
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
-        {/* ── Section label + headline ── */}
-        <div ref={headingRef} className="mb-16 md:mb-20">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={headingView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="font-mono text-xs uppercase tracking-[0.35em] text-blue-500 mb-5"
-          >
-            Who We Are
-          </motion.p>
+        <div ref={headingRef} className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          
+          {/* ── Left Column: Text ── */}
+          <div className="flex flex-col relative z-20">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={headingView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5 }}
+              className="font-mono text-xs uppercase tracking-[0.35em] text-blue-500 mb-5"
+            >
+              Who We Are
+            </motion.p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-end">
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-reglo text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black tracking-tighter leading-none min-w-0"
+              className="font-reglo text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[1.1] mb-6 min-w-0"
             >
               <GradientShinyTitle text="About" className="block" speed={2.2} delay={0.6} />
               <GradientShinyTitle
-                text="Beauty of Cloud 2.0"
+                text="Beauty of Cloud"
                 className="block"
                 speed={2.2}
                 delay={0.9}
@@ -112,7 +113,7 @@ export function AboutNew() {
               initial={{ opacity: 0, y: 20 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.25 }}
-              className="font-uncut text-slate-400 text-base sm:text-lg leading-relaxed min-w-0"
+              className="font-uncut text-slate-400 text-lg sm:text-xl leading-relaxed min-w-0"
             >
               Beauty of Cloud 2.0 is Sri Lanka&apos;s first and premier
               undergraduate cloud computing competition — a platform where the
@@ -121,19 +122,34 @@ export function AboutNew() {
             </motion.p>
           </div>
 
+          {/* ── Right Column: Orbiting Visuals ── */}
           <motion.div
-            initial={{ scaleX: 0 }}
-            animate={headingView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-            className="h-px bg-gradient-to-r from-blue-500/60 via-blue-500/20 to-transparent mt-12 origin-left"
-          />
-        </div>
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={headingView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 1, delay: 0.4, type: "spring" }}
+            className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden"
+          >
+            {/* Center Core */}
+            <span className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-blue-400 to-blue-700 bg-clip-text text-center text-6xl font-black leading-none text-transparent drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]">
+              BOC
+            </span>
 
-        {/* ── Stats row ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-blue-500/10 mb-20 md:mb-24">
-          {STATS.map((s, i) => (
-            <StatCard key={s.label} {...s} index={i} />
-          ))}
+            {/* Inner Orbit */}
+            <OrbitingCircles duration={20} delay={0} radius={100} iconSize={50} className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+              <Image src="/service-icons/aws 1.webp" alt="AWS" width={28} height={28} className="object-contain" />
+              <Image src="/service-icons/icons8-azure-96 2.webp" alt="Azure" width={28} height={28} className="object-contain" />
+              <Image src="/service-icons/icons8-docker-144 2.webp" alt="Docker" width={30} height={30} className="object-contain" />
+            </OrbitingCircles>
+
+            {/* Outer Orbit */}
+            <OrbitingCircles radius={180} duration={30} delay={10} reverse iconSize={60} className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+              <Image src="/service-icons/icons8-google-cloud-144 2.webp" alt="GCP" width={35} height={35} className="object-contain" />
+              <Image src="/service-icons/icons8-terraform-144 2.webp" alt="Terraform" width={35} height={35} className="object-contain" />
+              <Image src="/service-icons/aws 3.webp" alt="AWS" width={35} height={35} className="object-contain" />
+              <Image src="/service-icons/icons8-azure-96 3.webp" alt="Azure" width={35} height={35} className="object-contain" />
+            </OrbitingCircles>
+          </motion.div>
+
         </div>
       </div>
     </section>
