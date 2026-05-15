@@ -66,7 +66,7 @@ export function Timeline() {
           <div className="min-w-[1000px] md:min-w-full relative h-[450px]">
             
             {/* 1. MAIN TRACK (Y = 280px) */}
-            <div className="absolute top-[280px] left-[5%] right-[5%] h-[3px] border-t-[3px] border-dashed border-[#1E90FF]/40" />
+            <div className="absolute top-[280px] left-[5%] right-[5%] h-[3px] border-t-[3px] border-dashed border-[#1E90FF]/80" />
 
             {/* 2. BRANCH TRACK (Y = 120px) */}
             {/* React Flow style SmoothStep curve coming up from M1 to the branch line */}
@@ -81,14 +81,14 @@ export function Timeline() {
                 stroke="#1E90FF" 
                 strokeWidth="3" 
                 strokeDasharray="5 5" 
-                strokeOpacity="0.8"
+                strokeOpacity="0.4"
                 vectorEffect="non-scaling-stroke"
               />
             </svg>
             
             {/* The horizontal top branch line fading out */}
             <div 
-              className="absolute top-[120px] left-[15%] w-[55%] h-[3px] border-t-[3px] border-dashed border-[#1E90FF]/80"
+              className="absolute top-[120px] left-[15%] w-[55%] h-[3px] border-t-[3px] border-dashed border-[#1E90FF]/40"
               style={{ maskImage: "linear-gradient(to right, black 85%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 85%, transparent 100%)" }}
             />
 
@@ -156,25 +156,25 @@ export function Timeline() {
         <div className="md:hidden relative w-full h-[1050px] mt-4">
           
           {/* 1. MAIN TRACK (Left = 45%) */}
-          <div className="absolute left-[45%] top-[40px] bottom-[40px] w-[3px] border-l-[3px] border-dashed border-[#1E90FF]/40 -translate-x-[1.5px]" />
+          <div className="absolute left-[45%] top-0 bottom-[40px] w-[3px] border-l-[3px] border-dashed border-[#1E90FF]/80 -translate-x-[1.5px]" />
 
           {/* 2. BRANCH TRACK (Starts at 45%, goes right) */}
           {/* React Flow style SmoothStep curve from M1 to the right */}
           <svg className="absolute top-[40px] left-[45%] w-[42px] h-[40px] pointer-events-none overflow-visible" viewBox="0 0 42 40">
             <path 
-              d="M 0 0 L 20 0 Q 42 0 42 20 L 42 40" 
+              d="M 0 0 C 0 20, 42 20, 42 40" 
               fill="none" 
               stroke="#1E90FF" 
               strokeWidth="3" 
               strokeDasharray="5 5" 
-              strokeOpacity="0.8"
+              strokeOpacity="0.4"
               vectorEffect="non-scaling-stroke"
             />
           </svg>
           
           {/* Vertical branch line fading down */}
           <div 
-            className="absolute top-[80px] left-[calc(45%+42px)] w-[3px] h-[400px] border-l-[3px] border-dashed border-[#1E90FF]/80 -translate-x-[1.5px]"
+            className="absolute top-[80px] left-[calc(45%+42px)] w-[3px] h-[400px] border-l-[3px] border-dashed border-[#1E90FF]/40 -translate-x-[1.5px]"
             style={{ maskImage: "linear-gradient(to bottom, black 85%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 85%, transparent 100%)" }}
           />
 
