@@ -1,8 +1,8 @@
 "use client";
 
+import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
 /* ─── data ─────────────────────────────────────────────────────────────────── */
 
 const STATS = [
@@ -60,11 +60,12 @@ export function AboutNew() {
       className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32"
     >
       {/* Background Pattern with Fade */}
-      <div 
-        className="absolute inset-0 bg-pattern-cube pointer-events-none" 
-        style={{ 
-          maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
+      <div
+        className="absolute inset-0 bg-pattern-cube pointer-events-none"
+        style={{
+          maskImage: "linear-gradient(to bottom, black 0%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, black 0%, transparent 100%)",
         }}
       />
 
@@ -81,8 +82,10 @@ export function AboutNew() {
       />
 
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
-        <div ref={headingRef} className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          
+        <div
+          ref={headingRef}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center"
+        >
           {/* ── Left Column: Text ── */}
           <div className="flex flex-col relative z-20">
             <motion.p
@@ -100,7 +103,12 @@ export function AboutNew() {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-reglo text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[1.1] mb-6 min-w-0"
             >
-              <GradientShinyTitle text="About" className="block" speed={2.2} delay={0.6} />
+              <GradientShinyTitle
+                text="About"
+                className="block"
+                speed={2.2}
+                delay={0.6}
+              />
               <GradientShinyTitle
                 text="Beauty of Cloud"
                 className="block"
@@ -130,26 +138,86 @@ export function AboutNew() {
             className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden"
           >
             {/* Center Core */}
-            <span className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-blue-400 to-blue-700 bg-clip-text text-center text-6xl font-black leading-none text-transparent drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]">
-              BOC
-            </span>
+            <div className="relative z-10 flex items-center justify-center pointer-events-none drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]">
+              <Image
+                src="/logo.png"
+                alt="BOC Logo"
+                width={120}
+                height={120}
+                className="object-contain"
+              />
+            </div>
 
-            {/* Inner Orbit */}
-            <OrbitingCircles duration={20} delay={0} radius={100} iconSize={50} className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-              <Image src="/service-icons/aws 1.webp" alt="AWS" width={28} height={28} className="object-contain" />
-              <Image src="/service-icons/icons8-azure-96 2.webp" alt="Azure" width={28} height={28} className="object-contain" />
-              <Image src="/service-icons/icons8-docker-144 2.webp" alt="Docker" width={30} height={30} className="object-contain" />
+            {/* Inner Orbit (Cloud Providers) */}
+            <OrbitingCircles
+              duration={20}
+              delay={0}
+              radius={100}
+              iconSize={50}
+              className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+            >
+              <Image
+                src="/service-icons/aws 1.webp"
+                alt="AWS"
+                width={28}
+                height={28}
+                className="object-contain"
+              />
+              <Image
+                src="/service-icons/icons8-azure-96 3.webp"
+                alt="Azure"
+                width={28}
+                height={28}
+                className="object-contain"
+              />
+              <Image
+                src="/service-icons/icons8-google-cloud-144 2.webp"
+                alt="GCP"
+                width={30}
+                height={30}
+                className="object-contain"
+              />
             </OrbitingCircles>
 
-            {/* Outer Orbit */}
-            <OrbitingCircles radius={180} duration={30} delay={10} reverse iconSize={60} className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]">
-              <Image src="/service-icons/icons8-google-cloud-144 2.webp" alt="GCP" width={35} height={35} className="object-contain" />
-              <Image src="/service-icons/icons8-terraform-144 2.webp" alt="Terraform" width={35} height={35} className="object-contain" />
-              <Image src="/service-icons/aws 3.webp" alt="AWS" width={35} height={35} className="object-contain" />
-              <Image src="/service-icons/icons8-azure-96 3.webp" alt="Azure" width={35} height={35} className="object-contain" />
+            {/* Outer Orbit (DevOps Tools) */}
+            <OrbitingCircles
+              radius={180}
+              duration={30}
+              delay={10}
+              reverse
+              iconSize={60}
+              className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+            >
+              <Image
+                src="/service-icons/icons8-docker-144 2.webp"
+                alt="Docker"
+                width={35}
+                height={35}
+                className="object-contain"
+              />
+              <Image
+                src="/service-icons/kubanaties.webp"
+                alt="Kubernetes"
+                width={35}
+                height={35}
+                className="object-contain"
+              />
+              <Image
+                src="/service-icons/icons8-terraform-144 2.webp"
+                alt="Terraform"
+                width={35}
+                height={35}
+                className="object-contain"
+              />
+              <Image
+                src="/service-icons/github_logo.webp"
+                alt="GitHub"
+                width={35}
+                height={35}
+                className="object-contain"
+              />
             </OrbitingCircles>
           </motion.div>
-
         </div>
       </div>
     </section>
