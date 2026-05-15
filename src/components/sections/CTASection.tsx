@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
+import { motion, useMotionValue, useAnimationFrame, useScroll, useVelocity, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { BackgroundBeams } from "@/components/ui/BackgroundBeams";
 import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
@@ -13,6 +13,33 @@ import Image from "next/image";
 export function CTASection() {
   const constraintsRef = useRef<HTMLElement>(null);
   const ballRef = useRef<HTMLDivElement>(null);
+
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  
+  // Persistent angle state that holds the tilt even after scrolling stops
+  const targetAngle = useMotionValue(0);
+  
+  // Angle effect removed as requested
+  /*
+  useMotionValueEvent(scrollVelocity, "change", (latest) => {
+    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1000;
+    // Use very small tilt angles to make the slant subtle and barely noticeable
+    const maxAngle = screenWidth < 768 ? 2 : screenWidth < 1200 ? 1 : 0.5;
+
+    // If scrolling down significantly, lock tilt to right
+    if (latest > 150) {
+      targetAngle.set(maxAngle);
+    } 
+    // If scrolling up significantly, lock tilt to left
+    else if (latest < -150) {
+      targetAngle.set(-maxAngle);
+    }
+  });
+  */
+
+  // Smoothly animate the transitions between locked states
+  const tiltAngle = useSpring(targetAngle, { damping: 40, stiffness: 200 });
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -31,8 +58,11 @@ export function CTASection() {
     const dt = delta / 16.66;
     if (dt > 3) return; // Prevent huge jumps when tab is inactive
 
-    // Apply gravity
-    vy.current += 0.8 * dt;
+    const angleRad = tiltAngle.get() * (Math.PI / 180);
+
+    // Apply gravity (tilted)
+    vx.current += 0.8 * Math.sin(angleRad) * dt; 
+    vy.current += 0.8 * Math.cos(angleRad) * dt; 
 
     // Apply air friction to spin
     omega.current *= Math.pow(0.99, dt);
@@ -55,7 +85,17 @@ export function CTASection() {
     const minX = -ballRef.current.offsetLeft; 
     const maxX = constraintsRef.current.clientWidth - ballRef.current.offsetLeft - ballRef.current.clientWidth;
     const minY = -ballRef.current.offsetTop;
-    const maxY = constraintsRef.current.clientHeight - ballRef.current.offsetTop - ballRef.current.clientHeight;
+    
+    // Dynamic floor based on tilt angle
+    // Visual floor is removed, so we bounce exactly at the bottom border
+    const floorVisualOffset = -15; 
+    const baseMaxY = constraintsRef.current.clientHeight - ballRef.current.offsetTop - ballRef.current.clientHeight - floorVisualOffset;
+    
+    const containerCenterX = constraintsRef.current.clientWidth / 2;
+    const ballAbsX = ballRef.current.offsetLeft + nextX + ballRef.current.clientWidth / 2;
+    
+    // The tilted block rotates around its center, so the slope applies from the center.
+    const dynamicMaxY = baseMaxY + (ballAbsX - containerCenterX) * Math.tan(angleRad);
 
     // X axis collision
     if (nextX <= minX) {
@@ -73,18 +113,19 @@ export function CTASection() {
       nextY = minY;
       vy.current *= -0.7; // Bounce ceiling
       omega.current *= 0.8;
-    } else if (nextY >= maxY) {
-      nextY = maxY;
+    } else if (nextY >= dynamicMaxY) {
+      nextY = dynamicMaxY;
       vy.current *= -0.6; // Bounce floor
       vx.current *= Math.pow(0.95, dt); // Floor friction
       
       // Rolling on the floor links linear velocity to angular velocity
       omega.current = vx.current * 2;
       
-      // Settle if velocity is very small
-      if (Math.abs(vy.current) < 1.5) {
+      // Settle if velocity is very small and tilt is low
+      if (Math.abs(vy.current) < 1.5 && Math.abs(vx.current) < 1 && Math.abs(angleRad) < 0.01) {
         vy.current = 0;
-        nextY = maxY;
+        vx.current = 0;
+        nextY = dynamicMaxY;
       }
     }
 
@@ -94,11 +135,18 @@ export function CTASection() {
   });
 
   return (
-    <section ref={constraintsRef} className="relative w-full overflow-hidden bg-[#050812] border-y border-white/5">
+    <section ref={constraintsRef} className="relative w-full overflow-hidden bg-[#050812] border-t border-white/5">
+      
+      {/* Visual Tilted Footer Extension */}
+      {/* <motion.div 
+        className="absolute bottom-[-80px] left-[-10%] w-[120%] h-[150px] bg-[#001a3d] border-t border-white/10 origin-center z-10"
+        style={{ rotate: tiltAngle }}
+      /> */}
+
       {/* Trigger for the physics drop */}
       <motion.div 
         onViewportEnter={() => setHasStarted(true)}
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-20"
       />
 
       {/* Background Layer */}
@@ -133,7 +181,7 @@ export function CTASection() {
       {/* Interactive Physics Ball */}
       <motion.div
         ref={ballRef}
-        style={{ x, y, rotate, touchAction: "none" }}
+        style={{ x, y, rotate }}
         drag
         dragMomentum={false} // Disable framer's internal momentum so our physics loop takes over
         onDragStart={() => {
@@ -141,9 +189,19 @@ export function CTASection() {
           vx.current = 0;
           vy.current = 0;
           omega.current = 0;
+          // Bulletproof mobile scroll lock while dragging
+          if (typeof document !== "undefined") {
+            document.body.style.overflow = "hidden";
+            document.body.style.touchAction = "none";
+          }
         }}
         onDragEnd={(e, info) => {
           isDragging.current = false;
+          // Restore scrolling
+          if (typeof document !== "undefined") {
+            document.body.style.overflow = "";
+            document.body.style.touchAction = "";
+          }
           // Convert info.velocity (px/s) to px/frame (at 60fps)
           vx.current = info.velocity.x / 60;
           vy.current = info.velocity.y / 60;
@@ -151,7 +209,7 @@ export function CTASection() {
           omega.current = vx.current * 1.5;
         }}
         whileDrag={{ scale: 1.1, cursor: "grabbing" }}
-        className="absolute z-50 cursor-grab w-24 h-24 md:w-32 md:h-32 left-[calc(50%-48px)] md:left-[calc(50%-64px)] top-0"
+        className="absolute z-50 cursor-grab touch-none select-none w-24 h-24 md:w-32 md:h-32 left-[calc(50%-48px)] md:left-[calc(50%-64px)] top-0"
       >
         <Image 
           src="/Group.webp" 

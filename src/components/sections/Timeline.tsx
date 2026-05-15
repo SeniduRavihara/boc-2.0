@@ -1,332 +1,241 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
-import { Calendar, MapPin, Clock, ChevronDown, ChevronUp, Laptop, Users, Rocket, Trophy, BookOpen, AlertCircle } from 'lucide-react';
 
-interface Session {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  type: string;
-  mode: string;
-  desc: string;
-}
-
-interface TimelineEvent {
-  id: string;
-  title: string;
-  date: string;
-  description: string;
-  icon: React.ReactNode;
-  sessions?: Session[];
-  side: 'left' | 'right';
-  color: string;
-}
-
-const SESSIONS: Session[] = [
-  { id: 'S1', title: 'Cloud Fundamentals & AWS Core Services', date: 'Apr 26', time: '19:00', type: 'AWS', mode: 'Online', desc: 'IAM, EC2, S3, VPC' },
-  { id: 'S2', title: 'Cloud Compute & Networking', date: 'May 7', time: '19:00', type: 'GCP', mode: 'Online', desc: 'GCE, Cloud Run, VPC, Load Balancing' },
-  { id: 'S3', title: 'Serverless & Cloud-Native Architecture', date: 'May 16', time: '10:00', type: 'AWS', mode: 'Physical', desc: 'Lambda, API Gateway, Containers' },
-  { id: 'S4', title: 'Cloud Data & Storage Solutions', date: 'May 23', time: '10:00', type: 'GCP', mode: 'Physical', desc: 'BigQuery, Cloud Storage, Databases' },
-  { id: 'S5', title: 'DevOps, SRE & Platform Engineering', date: 'Jun 2', time: '19:00', type: 'AWS', mode: 'Online', desc: 'CI/CD, IaC, Observability' },
-  { id: 'S6', title: 'Cloud Security & Production Best Practices', date: 'Jun 7', time: '10:00', type: 'GCP', mode: 'Physical', desc: 'IAM, Monitoring, Cost' },
+const MILESTONES = [
+  { id: 'M1', title: "Workshop\nSeries Start", date: "2026.04.26", left: "10%", mobileTop: 40 },
+  { id: 'M2', title: "Registrations\nOpen", date: "2026.05.15", left: "30%", mobileTop: 310 },
+  { id: 'M3', title: "Problem Statement\nRelease", date: "2026.05.24", left: "50%", mobileTop: 520 },
+  { id: 'M4', title: "Competition\nRounds (R1 Ends)", date: "2026.07.20", left: "70%", mobileTop: 720 },
+  { id: 'M5', title: "Grand\nFinale", date: "2026.08.02", left: "90%", mobileTop: 920 },
 ];
 
-const DMZ_EVENTS: Session[] = [
-  { id: 'D1', title: 'Office Hours', date: 'Jul 2', time: '19:00', type: 'Q&A', mode: 'Online', desc: 'Optional async Q&A on quizizz(wayground)' },
-  { id: 'D2', title: 'Architecture Review', date: 'Jul 9', time: '19:00', type: 'Review', mode: 'Online', desc: 'Drop drafts in #arch-review with knowledge partners' },
-  { id: 'D3', title: 'Cloud Article series', date: 'Jul 16', time: '19:00', type: 'Article', mode: 'Online', desc: 'Weekly deep-dives into advanced cloud topics' },
+const SESSIONS = [
+  { id: 'S1', title: "Session 1:\nCloud Fundamentals", date: "2026.04.26", left: "20%", mobileTop: 130 },
+  { id: 'S2', title: "Session 2:\nCloud Compute", date: "2026.05.07", left: "40%", mobileTop: 220 },
+  { id: 'S3', title: "Upcoming\nSessions...", date: "TBA", left: "60%", isGhost: true, mobileTop: 400 },
 ];
-
-const TIMELINE_EVENTS: TimelineEvent[] = [
-  {
-    id: 'workshops',
-    title: 'Skill Up Workshop Series',
-    date: 'Apr 26 – Jun 7',
-    description: '6 intensive sessions transitioning from Cloud fundamentals to production best practices.',
-    icon: <BookOpen className="w-5 h-5" />,
-    sessions: SESSIONS,
-    side: 'right',
-    color: '#3b82f6'
-  },
-  {
-    id: 'reg',
-    title: 'Team Registrations Open',
-    date: 'May 8',
-    description: 'Form your crew (up to 4 members) and claim your spot. (2-week window)',
-    icon: <Users className="w-5 h-5" />,
-    side: 'left',
-    color: '#60a5fa'
-  },
-  {
-    id: 'ps1',
-    title: 'Problem Statement Release',
-    date: 'May 24',
-    description: 'Round 1 architecture challenge drops. The battle officially begins.',
-    icon: <Rocket className="w-5 h-5" />,
-    side: 'right',
-    color: '#10b981'
-  },
-  {
-    id: 'exam',
-    title: 'Exam Blackout',
-    date: 'Jun 29',
-    description: 'No workshops. Focus on your university exams while brainstorming async.',
-    icon: <AlertCircle className="w-5 h-5" />,
-    side: 'left',
-    color: '#64748b'
-  },
-  {
-    id: 'dmz',
-    title: 'DMZ (The Knowledge Hub)',
-    date: 'Jul 2 – Jul 16',
-    description: 'Light activity period: Office hours, architecture reviews, and technical articles.',
-    icon: <Laptop className="w-5 h-5" />,
-    sessions: DMZ_EVENTS,
-    side: 'right',
-    color: '#a855f7'
-  },
-  {
-    id: 'r1',
-    title: 'Round 1 Submission',
-    date: 'Jul 20',
-    description: 'Deadline for Architecture & Proposal Submission. Show us your cloud-native vision.',
-    icon: <Rocket className="w-5 h-5" />,
-    side: 'left',
-    color: '#f43f5e'
-  },
-  {
-    id: 'r1r',
-    title: 'Shortlist Announcement',
-    date: 'Jul 23',
-    description: 'Round 1 results are out. Top teams move to the live prototype defense.',
-    icon: <Users className="w-5 h-5" />,
-    side: 'right',
-    color: '#fbbf24'
-  },
-  {
-    id: 'r2',
-    title: 'Live Prototype Demo',
-    date: 'Jul 26',
-    description: 'Shortlisted teams present their working prototypes live to the industry panel.',
-    icon: <Laptop className="w-5 h-5" />,
-    side: 'left',
-    color: '#f97316'
-  },
-  {
-    id: 'finale',
-    title: 'Grand Finale',
-    date: 'Aug 2',
-    description: 'Final pitches, judging, and the prestigious Awarding Ceremony.',
-    icon: <Trophy className="w-5 h-5" />,
-    side: 'right',
-    color: '#eab308'
-  }
-];
-
-function TimelineCard({ event, index }: { event: TimelineEvent; index: number }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const hasSessions = event.sessions && event.sessions.length > 0;
-
-  return (
-    <div className={`relative flex items-center md:justify-between group w-full ${event.side === 'left' ? 'md:flex-row-reverse' : ''}`}>
-      {/* Horizontal branch line for desktop */}
-      <div
-        className={`absolute top-1/2 h-px bg-blue-500/20 hidden md:block ${
-          event.side === 'left' ? 'left-[calc(50%+1.5rem)]' : 'right-[calc(50%+1.5rem)]'
-        }`}
-        style={{ width: 'calc(45% - 5rem)' }}
-      />
-
-      {/* Icon Node */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-20 hidden md:flex items-center justify-center">
-        <div 
-          className="w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-500 bg-[#050812]"
-          style={{ 
-            borderColor: `${event.color}40`,
-            boxShadow: `0 0 20px ${event.color}20`
-          }}
-        >
-          <div style={{ color: event.color }}>
-            {event.icon}
-          </div>
-        </div>
-      </div>
-
-      {/* Content Card */}
-      <div className={`w-full md:w-[45%] ${event.side === 'left' ? 'md:text-right' : 'md:text-left'}`}>
-        <motion.div
-          initial={{ opacity: 0, x: event.side === 'left' ? 30 : -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: index * 0.05 }}
-          className="p-6 bg-white/[0.02] border border-white/10 rounded-2xl hover:border-white/20 transition-all duration-300 relative overflow-hidden group/card"
-          onClick={() => hasSessions && setIsExpanded(!isExpanded)}
-          style={{ cursor: hasSessions ? 'pointer' : 'default' }}
-        >
-          {/* Accent glow */}
-          <div 
-            className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover/card:opacity-20 transition-opacity duration-500"
-            style={{ background: event.color }}
-          />
-          
-          <div className="relative z-10">
-            <div className={`flex items-center gap-3 mb-3 ${event.side === 'left' ? 'md:flex-row-reverse' : ''}`}>
-              <span 
-                className="font-mono text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded border border-white/5 bg-white/5"
-                style={{ color: event.color }}
-              >
-                {event.date}
-              </span>
-              {hasSessions && (
-                <span className="text-[10px] text-white/40 uppercase tracking-widest font-black">
-                  {event.sessions?.length} Events
-                </span>
-              )}
-            </div>
-
-            <h3 className="font-reglo text-xl md:text-2xl text-white mb-2 tracking-tight group-hover/card:text-blue-400 transition-colors">
-              {event.title}
-            </h3>
-            
-            <p className="font-uncut text-slate-400 text-sm leading-relaxed mb-4">
-              {event.description}
-            </p>
-
-            {hasSessions && (
-              <div className={`flex items-center gap-2 text-xs font-mono text-blue-500 mt-2 ${event.side === 'left' ? 'md:justify-end' : ''}`}>
-                <span>{isExpanded ? 'Hide Schedule' : 'View Full Schedule'}</span>
-                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </div>
-            )}
-          </div>
-
-          <AnimatePresence>
-            {isExpanded && hasSessions && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: "circOut" }}
-                className="overflow-hidden"
-              >
-                <div className="mt-6 space-y-3 pt-6 border-t border-white/10">
-                  {event.sessions?.map((session, sIdx) => (
-                    <motion.div
-                      key={session.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: sIdx * 0.05 }}
-                      className="p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">
-                          {session.id}
-                        </span>
-                        <div className="flex gap-3 items-center text-[10px] text-white/40 font-mono">
-                          <span className="flex items-center gap-1"><Calendar size={10} /> {session.date}</span>
-                          <span className="flex items-center gap-1"><Clock size={10} /> {session.time}</span>
-                        </div>
-                      </div>
-                      <h4 className="text-sm font-bold text-white mb-1">{session.title}</h4>
-                      <p className="text-[11px] text-slate-500 mb-2">{session.desc}</p>
-                      <div className="flex gap-4 items-center mt-2">
-                        <span className="text-[10px] text-white/30 flex items-center gap-1 uppercase tracking-tighter">
-                          <MapPin size={10} /> {session.mode}
-                        </span>
-                        <span className="text-[10px] text-white/30 flex items-center gap-1 uppercase tracking-tighter">
-                          <Laptop size={10} /> {session.type}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Mobile Icon */}
-          <div className="md:hidden absolute top-6 right-6" style={{ color: event.color }}>
-            {event.icon}
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
-}
 
 export function Timeline() {
   return (
-    <section id="timeline" className="py-32 bg-[#050812] relative overflow-hidden bg-dot-pattern">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 -left-24 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 -right-24 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[120px]" />
-      </div>
+    <section id="competition" className="relative w-full bg-[#050812] py-24 md:py-32 overflow-hidden border-y border-white/5">
+      {/* Background glow effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(30,144,255,0.15),transparent_60%)] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-32">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block mb-4 px-4 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/5 backdrop-blur-sm"
-          >
-            <span className="text-[10px] font-mono font-bold text-blue-500 uppercase tracking-[0.3em]">
-              Roadmap 2026
-            </span>
-          </motion.div>
-          <motion.h2
+      <div className="container mx-auto px-6 max-w-7xl relative z-10">
+        
+        {/* Header */}
+        <div className="flex flex-col items-center max-w-4xl mx-auto mb-16 md:mb-24">
+          <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-reglo text-5xl md:text-7xl font-black tracking-tighter"
+            className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-8 text-center uppercase"
           >
-            <GradientShinyTitle text="The Journey" speed={2} delay={0.6} />
+            <GradientShinyTitle text="Event Timeline" speed={2} delay={0.1} />
           </motion.h2>
-          <p className="mt-6 text-slate-400 font-uncut max-w-xl mx-auto">
-            From technical mastery to the grand stage. Follow the path of the next generation of cloud-native engineers.
-          </p>
+
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: '120px' }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="h-1 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] mb-8"
+          />
+
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-white/70 text-sm md:text-base lg:text-lg leading-relaxed md:leading-loose font-mono text-center"
+          >
+            Beauty of Cloud 2.0 is the second edition of Sri Lanka&apos;s first inter-university student-led
+            cloud computing workshop series and competition. This edition expands to a structured
+            4-month program with 6 progressive sessions, and a competitive architectural cloud
+            solution challenge.
+          </motion.p>
         </div>
 
-        <div className="relative">
-          {/* Vertical Center Line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/0 via-blue-500/20 to-blue-500/0 -translate-x-1/2 hidden md:block" />
+        {/* ========================================================= */}
+        {/* DESKTOP TIMELINE GRAPHIC (Hidden on Mobile)               */}
+        {/* ========================================================= */}
+        <div className="hidden md:block relative w-full max-w-6xl mx-auto overflow-x-auto overflow-y-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="min-w-[1000px] md:min-w-full relative h-[450px]">
+            
+            {/* 1. MAIN TRACK (Y = 280px) */}
+            <div className="absolute top-[280px] left-[5%] right-[5%] h-[3px] border-t-[3px] border-dashed border-[#1E90FF]/40" />
 
-          <div className="space-y-12 md:space-y-24">
-            {TIMELINE_EVENTS.map((event, index) => (
-              <TimelineCard key={event.id} event={event} index={index} />
+            {/* 2. BRANCH TRACK (Y = 120px) */}
+            {/* React Flow style SmoothStep curve coming up from M1 to the branch line */}
+            <svg 
+              className="absolute top-[120px] left-[10%] w-[5%] h-[160px] pointer-events-none overflow-visible translate-y-[1.5px]" 
+              viewBox="0 0 100 160" 
+              preserveAspectRatio="none"
+            >
+              <path 
+                d="M 0 160 L 0 50 Q 0 0 50 0 L 100 0" 
+                fill="none" 
+                stroke="#1E90FF" 
+                strokeWidth="3" 
+                strokeDasharray="5 5" 
+                strokeOpacity="0.8"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+            
+            {/* The horizontal top branch line fading out */}
+            <div 
+              className="absolute top-[120px] left-[15%] w-[55%] h-[3px] border-t-[3px] border-dashed border-[#1E90FF]/80"
+              style={{ maskImage: "linear-gradient(to right, black 85%, transparent 100%)", WebkitMaskImage: "linear-gradient(to right, black 85%, transparent 100%)" }}
+            />
+
+            {/* 3. SESSION NODES (Top Branch) */}
+            {SESSIONS.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.4, delay: index * 0.15 }}
+                className={`absolute top-[120px] -translate-x-1/2 flex flex-col items-center w-[160px] group ${item.isGhost ? 'opacity-50' : ''}`}
+                style={{ left: item.left }}
+              >
+                {/* Text Above the Dot */}
+                <div className="absolute bottom-[20px] text-center w-full">
+                  <h3 className="text-white font-bold text-[13px] md:text-sm leading-tight mb-2 group-hover:text-[#1E90FF] transition-colors whitespace-pre-line">{item.title}</h3>
+                  <p className="text-[#1E90FF] font-mono text-[10px] md:text-xs tracking-widest font-semibold bg-[#1E90FF]/10 inline-block px-2 py-1 rounded-full border border-[#1E90FF]/20 group-hover:border-[#1E90FF]/50 transition-colors">
+                    {item.date}
+                  </p>
+                </div>
+                
+                {/* Commit Dot */}
+                <div className="absolute top-0 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050812] border-[3px] border-[#1E90FF] shadow-[0_0_15px_rgba(30,144,255,0.6)] group-hover:scale-125 transition-transform duration-300" />
+              </motion.div>
+            ))}
+
+            {/* 4. MILESTONE PINS (Main Track) */}
+            {MILESTONES.map((item, index) => (
+              <motion.div 
+                key={item.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="absolute top-[256px] -translate-x-1/2 flex flex-col items-center w-[160px] group"
+                style={{ left: item.left }}
+              >
+                {/* Pin Icon (Y=256 aligns its visual center (24px down) with Y=280 main track) */}
+                <div className="relative z-10 transition-transform duration-300 group-hover:-translate-y-2 group-hover:scale-110 mb-2">
+                  <svg viewBox="0 0 24 24" className="w-14 h-14 md:w-16 md:h-16 text-[#1E90FF] drop-shadow-[0_0_15px_rgba(30,144,255,0.6)]" fill="currentColor">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    <circle cx="12" cy="9" r="3.5" fill="#050812" />
+                  </svg>
+                </div>
+                
+                {/* Text Below */}
+                <div className="text-center mt-2">
+                  <h3 className="text-white font-bold text-[13px] md:text-base lg:text-lg leading-tight md:leading-snug whitespace-pre-line mb-3 group-hover:text-[#1E90FF] transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="text-white/80 font-mono text-[11px] md:text-sm tracking-widest font-semibold bg-white/5 inline-block px-3 py-1 rounded-full border border-white/10 group-hover:border-[#1E90FF]/30 transition-colors duration-300">
+                    {item.date}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
 
-        {/* Final CTA/Finish decoration */}
-        <div className="mt-32 text-center">
-          <div className="w-16 h-16 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center mx-auto mb-8 animate-spin-slow">
-            <Trophy className="w-8 h-8 text-white/20" />
-          </div>
-          <p className="font-mono text-[10px] text-white/20 uppercase tracking-[0.5em]">End of Roadmap</p>
-        </div>
-      </div>
 
-      <style jsx>{`
-        .bg-dot-pattern {
-          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
-          background-size: 24px 24px;
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 12s linear infinite;
-        }
-      `}</style>
+        {/* ========================================================= */}
+        {/* MOBILE TIMELINE GRAPHIC (Vertical, Hidden on Desktop)     */}
+        {/* ========================================================= */}
+        <div className="md:hidden relative w-full h-[1050px] mt-4">
+          
+          {/* 1. MAIN TRACK (Left = 45%) */}
+          <div className="absolute left-[45%] top-[40px] bottom-[40px] w-[3px] border-l-[3px] border-dashed border-[#1E90FF]/40 -translate-x-[1.5px]" />
+
+          {/* 2. BRANCH TRACK (Starts at 45%, goes right) */}
+          {/* React Flow style SmoothStep curve from M1 to the right */}
+          <svg className="absolute top-[40px] left-[45%] w-[42px] h-[40px] pointer-events-none overflow-visible" viewBox="0 0 42 40">
+            <path 
+              d="M 0 0 L 20 0 Q 42 0 42 20 L 42 40" 
+              fill="none" 
+              stroke="#1E90FF" 
+              strokeWidth="3" 
+              strokeDasharray="5 5" 
+              strokeOpacity="0.8"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+          
+          {/* Vertical branch line fading down */}
+          <div 
+            className="absolute top-[80px] left-[calc(45%+42px)] w-[3px] h-[400px] border-l-[3px] border-dashed border-[#1E90FF]/80 -translate-x-[1.5px]"
+            style={{ maskImage: "linear-gradient(to bottom, black 85%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 85%, transparent 100%)" }}
+          />
+
+          {/* 3. SESSION NODES (Branch Track) */}
+          {SESSIONS.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4, delay: index * 0.15 }}
+              className={`absolute left-[calc(45%+42px)] w-[calc(55%-42px)] flex items-start group ${item.isGhost ? 'opacity-50' : ''}`}
+              style={{ top: item.mobileTop, transform: 'translateY(-8px)' }}
+            >
+              {/* Commit Dot (Centered on branch line) */}
+              <div className="shrink-0 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050812] border-[2.5px] border-[#1E90FF] shadow-[0_0_10px_rgba(30,144,255,0.6)] group-hover:scale-125 transition-transform duration-300 z-10 mt-[2px]" />
+              
+              {/* Text to the RIGHT */}
+              <div className="pr-4 pl-1">
+                <h3 className="text-white font-bold text-[12px] leading-tight mb-1.5 group-hover:text-[#1E90FF] transition-colors whitespace-pre-line">{item.title}</h3>
+                <p className="text-[#1E90FF] font-mono text-[9px] tracking-widest font-semibold bg-[#1E90FF]/10 inline-block px-2 py-0.5 rounded-full border border-[#1E90FF]/20">
+                  {item.date}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+
+          {/* 4. MILESTONE PINS (Main Track) */}
+          {MILESTONES.map((item, index) => (
+            <motion.div 
+              key={item.id}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="absolute left-0 w-full flex items-start justify-end pr-[55%] group"
+              style={{ top: item.mobileTop, transform: 'translateY(-8px)' }}
+            >
+              {/* Text to the LEFT */}
+              <div className="pr-[20px] md:pr-[24px] text-right flex flex-col items-end">
+                <h3 className="text-white font-bold text-[13px] sm:text-[14px] leading-tight mb-1.5 group-hover:text-[#1E90FF] transition-colors duration-300 whitespace-pre-line">
+                  {item.title}
+                </h3>
+                <p className="text-white/80 font-mono text-[10px] tracking-widest font-semibold bg-white/5 inline-block px-2 py-0.5 rounded-full border border-white/10">
+                  {item.date}
+                </p>
+              </div>
+
+              {/* Pin Icon (Centered on left=45%) */}
+              <div className="absolute left-[45%] -translate-x-1/2 z-10 transition-transform duration-300 group-hover:scale-110 mt-[-7px]">
+                <svg viewBox="0 0 24 24" className="w-10 h-10 sm:w-12 sm:h-12 text-[#1E90FF] drop-shadow-[0_0_15px_rgba(30,144,255,0.6)]" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                  <circle cx="12" cy="9" r="3.5" fill="#050812" />
+                </svg>
+              </div>
+            </motion.div>
+          ))}
+
+        </div>
+
+      </div>
     </section>
   );
 }
-
-export default Timeline;

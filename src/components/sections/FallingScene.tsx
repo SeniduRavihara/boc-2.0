@@ -100,7 +100,7 @@ export function FallingScene() {
             }}
           >
             <Image
-              src="/falling_person.png"
+              src="/falling_person1.webp"
               alt="Falling person"
               fill
               className="object-contain"

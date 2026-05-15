@@ -275,7 +275,7 @@ export function HomeClient() {
       <CTASection />
 
       {/* <Footer /> */}
-      <MainFooter />
+      <MainFooter hideTopStyling={true} />
     </main>
   );
 }

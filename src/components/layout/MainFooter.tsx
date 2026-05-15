@@ -37,7 +37,11 @@ const YoutubeIcon = (props: any) => (
   </svg>
 );
 
-const MainFooter: React.FC = () => {
+interface MainFooterProps {
+  hideTopStyling?: boolean;
+}
+
+const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
   const currentYear = new Date().getFullYear();
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
@@ -85,9 +89,11 @@ const MainFooter: React.FC = () => {
 
 
   return (
-    <footer className="relative w-full overflow-hidden bg-[#001a3d] border-t border-white/5 py-8 md:py-10">
+    <footer className={`relative w-full overflow-hidden bg-[#001a3d] ${hideTopStyling ? '' : 'border-t border-white/5'} py-8 md:py-10`}>
       {/* Background Gradient Effect */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-full bg-[radial-gradient(50%_50%_at_50%_0%,rgba(43,137,243,0.1)_0%,transparent_100%)] pointer-events-none" />
+      {!hideTopStyling && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-full bg-[radial-gradient(50%_50%_at_50%_0%,rgba(43,137,243,0.1)_0%,transparent_100%)] pointer-events-none" />
+      )}
       
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
         {/* Top Section: Logos Only (Stacked on mobile, 3 columns on desktop) */}
