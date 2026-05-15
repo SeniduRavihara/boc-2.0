@@ -33,6 +33,7 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
               src="/email-and-header/boc.webp" 
               alt="Beauty of Cloud 2.0" 
               fill
+              sizes="(max-width: 768px) 112px, 176px"
               className="object-contain drop-shadow-[0_0_30px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform duration-500"
               priority
             />

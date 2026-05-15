@@ -13,6 +13,7 @@ import { CTASection } from "./sections/CTASection";
 import { FallingScene } from "./sections/FallingScene";
 import { GalleryNew } from "./sections/GalleryNew";
 import { Partners } from "./sections/Partners";
+import { PrizePool } from "./sections/PrizePool";
 import { Timeline } from "./sections/Timeline";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -254,6 +255,7 @@ export function HomeClient() {
       <FallingScene />
       {/* <MissionPillars /> */}
       <Timeline />
+      <PrizePool />
 
       {/*
         ── 2. Gallery zoom + PortalSection1 ─────────────────────────────────

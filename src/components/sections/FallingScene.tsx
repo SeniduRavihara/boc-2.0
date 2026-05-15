@@ -56,8 +56,6 @@ export function FallingScene() {
             height={1920}
             className="hidden md:block w-full h-auto object-cover"
             style={{ minHeight: '220vh' }}
-            priority
-            unoptimized
           />
           {/* Mobile Background */}
           <Image
@@ -67,8 +65,6 @@ export function FallingScene() {
             height={1280}
             className="block md:hidden w-full h-auto object-cover"
             style={{ minHeight: '220vh' }}
-            priority
-            unoptimized
           />
         </motion.div>
 

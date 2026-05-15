@@ -84,10 +84,10 @@ export function AboutNew() {
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
         <div
           ref={headingRef}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative"
         >
           {/* ── Left Column: Text ── */}
-          <div className="flex flex-col relative z-20">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left relative z-20">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
@@ -96,7 +96,7 @@ export function AboutNew() {
             >
               Who We Are
             </motion.p>
-
+ 
             <motion.h2
               initial={{ opacity: 0, y: 30 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
@@ -104,7 +104,7 @@ export function AboutNew() {
               className="font-reglo text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[1.1] mb-6 min-w-0"
             >
               <GradientShinyTitle
-                text="About"
+                text="About "
                 className="block"
                 speed={2.2}
                 delay={0.6}
@@ -117,11 +117,19 @@ export function AboutNew() {
               />
             </motion.h2>
 
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: "120px" }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="h-1 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] mb-8"
+            />
+ 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.25 }}
-              className="font-uncut text-slate-400 text-lg sm:text-xl leading-relaxed min-w-0"
+              className="font-uncut text-slate-400 text-lg sm:text-xl leading-relaxed min-w-0 max-w-2xl lg:max-w-none"
             >
               Beauty of Cloud 2.0 is Sri Lanka&apos;s first and premier
               undergraduate cloud computing competition — a platform where the

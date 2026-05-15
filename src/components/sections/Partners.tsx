@@ -30,7 +30,14 @@ export const Partners: React.FC = () => {
         >
           <GradientShinyTitle text="Our Partners" speed={2} delay={0.7} />
         </motion.h2>
-        <div className="h-1 w-20 bg-blue-500 mx-auto rounded-full" />
+
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: "120px" }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+          className="h-1 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] mx-auto"
+        />
       </div>
 
       <div className="relative flex overflow-hidden transform-gpu">

@@ -113,6 +113,7 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
                 src="/email-and-header/boc.webp" 
                 alt="Beauty of Cloud" 
                 fill 
+                sizes="(max-width: 768px) 256px, 192px"
                 className="object-contain"
               />
             </div>
@@ -132,6 +133,7 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
                 src="/email-and-header/ieee.webp" 
                 alt="IEEE USJ" 
                 fill 
+                sizes="(max-width: 768px) 256px, 256px"
                 className="object-contain"
               />
             </div>
@@ -151,6 +153,7 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
                 src="/email-and-header/IEEE-CS.webp" 
                 alt="IEEE CS USJ" 
                 fill 
+                sizes="(max-width: 768px) 256px, 288px"
                 className="object-contain"
               />
             </div>

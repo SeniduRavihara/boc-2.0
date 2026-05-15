@@ -47,6 +47,7 @@ export const Header: React.FC = () => {
             src="/email-and-header/boc.webp"
             alt="Beauty of Cloud"
             fill
+            sizes="(max-width: 768px) 160px, 192px"
             className="object-contain transition-transform duration-500 group-hover:scale-105"
             priority
           />
