@@ -255,7 +255,7 @@ export function HomeClient() {
       <FallingScene />
       {/* <MissionPillars /> */}
       <Timeline />
-      <PrizePool />
+      {/* <PrizePool /> */}
 
       {/*
         ── 2. Gallery zoom + PortalSection1 ─────────────────────────────────
@@ -280,7 +280,7 @@ export function HomeClient() {
       {/* <PortalSection2 /> */}
       {/* <PortalSection3 /> */}
       <GalleryNew />
-      <Partners />
+      {/* <Partners /> */}
       <ContactSection />
       <CTASection />
 
