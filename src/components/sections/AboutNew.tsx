@@ -163,7 +163,6 @@ export function AboutNew() {
               delay={0}
               radius={100}
               iconSize={50}
-              className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
             >
               <Image
                 src="/service-icons/aws 1.webp"
@@ -198,7 +197,6 @@ export function AboutNew() {
               delay={10}
               reverse
               iconSize={60}
-              className="border-blue-500/20 bg-black/60 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
             >
               <Image
                 src="/service-icons/icons8-docker-144 2.webp"

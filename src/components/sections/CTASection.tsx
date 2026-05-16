@@ -210,9 +210,9 @@ export function CTASection() {
           // Give it some initial spin based on horizontal throw
           omega.current = vx.current * 1.5;
         }}
-        onTap={() => {
-          router.push("/register/session/2");
-        }}
+        // onTap={() => {
+        //   router.push("/register/session/2");
+        // }}
         whileDrag={{ scale: 1.1, cursor: "grabbing" }}
         className="absolute z-50 cursor-grab touch-none select-none w-24 h-24 md:w-32 md:h-32 left-[calc(50%-48px)] md:left-[calc(50%-64px)] top-0"
       >
