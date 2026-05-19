@@ -120,6 +120,7 @@ export interface QuizSubmission {
    time: string;
    mode: SessionMode;
    title: string;
+   meetingUrl?: string;
  }
  
  export interface CompetitionTeamMember {

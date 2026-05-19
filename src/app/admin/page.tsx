@@ -13,9 +13,16 @@ import {
   Activity,
   Calendar,
   UserPlus,
-  Award
+  Award,
+  Link2,
+  Copy,
+  Check,
+  ExternalLink,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+
 
 const dashboardCards = [
   { 
@@ -84,6 +91,42 @@ const dashboardCards = [
 ];
 
 export default function AdminDashboardPage() {
+  const [sessionNum, setSessionNum] = React.useState("1");
+  const [zoomUrl, setZoomUrl] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [generatedLink, setGeneratedLink] = React.useState("");
+  const [copied, setCopied] = React.useState(false);
+  const [message, setMessage] = React.useState<{type: 'success' | 'error', text: string} | null>(null);
+
+  const handleUpdateZoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!zoomUrl.trim()) return;
+
+    try {
+      setIsSubmitting(true);
+      setMessage(null);
+      
+      // Generate attendance link using current origin with meetingUrl as query parameter
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://boc.ieeeusj.lk';
+      const attendanceLink = `${origin}/attendance/${sessionNum}?meetingUrl=${encodeURIComponent(zoomUrl.trim())}`;
+      setGeneratedLink(attendanceLink);
+      
+      setMessage({ type: 'success', text: `Stateless shareable URL generated successfully!` });
+    } catch (err: any) {
+      console.error(err);
+      setMessage({ type: 'error', text: 'Failed to generate URL. Please try again.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!generatedLink) return;
+    navigator.clipboard.writeText(generatedLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="p-8 md:p-12 space-y-12">
       {/* Welcome Header */}
@@ -141,12 +184,110 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Secondary Tools section could go here */}
-      <div className="pt-8 opacity-50">
-        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-4">Internal Monitoring</h3>
-        <div className="h-64 bg-slate-900/20 border border-slate-900 border-dashed rounded-3xl flex items-center justify-center">
-          <p className="text-slate-700 text-sm font-bold">TELEMETRY DATA UNAVAILABLE</p>
+      {/* Secondary Tools - Interactive Zoom Link Uplink */}
+      <div className="pt-8 space-y-6">
+        <div>
+          <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2">Quick Access Tools</h3>
+          <h4 className="text-2xl font-black text-white uppercase tracking-tight">Attendance Link Generator</h4>
         </div>
+
+        <GlassCard className="p-8 md:p-12 border-slate-800/50 max-w-4xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          
+          <form onSubmit={handleUpdateZoom} className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Session Number</label>
+              <select
+                value={sessionNum}
+                onChange={(e) => setSessionNum(e.target.value)}
+                className="w-full h-14 bg-slate-950/50 border border-slate-800 rounded-2xl px-4 text-white outline-none focus:border-blue-500/50 focus:bg-slate-900/50 transition-all font-bold appearance-none cursor-pointer"
+              >
+                <option value="1">Session 1</option>
+                <option value="2">Session 2</option>
+                <option value="3">Session 3</option>
+                <option value="4">Session 4</option>
+                <option value="5">Session 5</option>
+                <option value="6">Session 6</option>
+              </select>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Paste Zoom / Meeting URL</label>
+              <div className="relative">
+                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                <input 
+                  type="url"
+                  placeholder="https://zoom.us/j/..."
+                  value={zoomUrl}
+                  onChange={(e) => setZoomUrl(e.target.value)}
+                  className="w-full h-14 bg-slate-950/50 border border-slate-800 rounded-2xl pl-12 pr-6 text-white outline-none focus:border-blue-500/50 focus:bg-slate-900/50 transition-all font-medium"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <button 
+                type="submit"
+                disabled={isSubmitting || !zoomUrl.trim()}
+                className="w-full h-14 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <>Generate Link</>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Messages & Shareable link rendering */}
+          {message && (
+            <div className={`mt-6 p-4 rounded-2xl border text-xs font-bold flex items-center gap-2 ${
+              message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+            }`}>
+              <CheckCircle2 size={14} className="shrink-0" />
+              {message.text}
+            </div>
+          )}
+
+          {generatedLink && (
+            <div className="mt-8 pt-8 border-t border-slate-900 space-y-4">
+              <div>
+                <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Shareable Student Attendance Portal Link</h5>
+                <p className="text-slate-400 text-xs mt-1">Provide this link to students. They will be auto-marked and redirected straight to the Zoom meeting.</p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch gap-4">
+                <div className="flex-1 bg-slate-950/50 border border-slate-900 rounded-2xl px-6 py-4 flex items-center text-blue-400 font-mono text-sm break-all">
+                  {generatedLink}
+                </div>
+
+                <div className="flex gap-2 shrink-0">
+                  <button 
+                    onClick={handleCopyLink}
+                    className="px-6 py-4 bg-slate-800 hover:bg-slate-700 transition-colors text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2"
+                  >
+                    {copied ? (
+                      <><Check size={16} className="text-emerald-400" /> Copied</>
+                    ) : (
+                      <><Copy size={16} /> Copy Link</>
+                    )}
+                  </button>
+
+                  <a 
+                    href={generatedLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-colors text-slate-400 hover:text-white rounded-2xl flex items-center justify-center"
+                  >
+                    <ExternalLink size={18} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+        </GlassCard>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { addRegistration, checkRegistrationExists, checkUserRegistration } from '@/firebase/api';
+import { addRegistration, checkRegistrationExists, checkUserRegistration, markAttendance, checkAttendanceExists } from '@/firebase/api';
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -126,9 +126,59 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
             // 1. Check if already registered for THIS session
             const alreadyInSession = await checkRegistrationExists(emailToUse, sessionId);
+
+            // Helper: after registration is done, handle redirect
+            // If came from attendance page: mark attendance + go directly to meeting URL
+            const handlePostRegistration = async (userObj: any) => {
+                localStorage.setItem('last_registered_user', JSON.stringify(userObj));
+                localStorage.setItem('quiz_user_general', JSON.stringify(userObj));
+
+                const searchParamsObj = new URLSearchParams(window.location.search);
+                const redirectUrl = searchParamsObj.get('redirect');
+
+                if (redirectUrl) {
+                    try {
+                        const redirectParsed = new URL(redirectUrl, window.location.origin);
+                        const meetingUrl = redirectParsed.searchParams.get('meetingUrl');
+                        const isFromAttendance = redirectParsed.pathname.startsWith('/attendance/');
+
+                        if (isFromAttendance) {
+                            // Mark attendance directly here — don't bounce back to attendance page
+                            const alreadyMarked = await checkAttendanceExists(emailToUse, sessionId);
+                            if (!alreadyMarked) {
+                                await markAttendance({
+                                    sessionId,
+                                    email: emailToUse,
+                                    userName: userObj.name || '',
+                                    organization: userObj.organization || '',
+                                });
+                            }
+                            setStatus('success');
+                            if (meetingUrl) {
+                                setTimeout(() => { window.location.href = meetingUrl; }, 1500);
+                            }
+                            return;
+                        }
+                    } catch (parseErr) {
+                        console.error('Failed to parse redirect URL', parseErr);
+                    }
+                    // Non-attendance redirect
+                    setStatus('success');
+                    setTimeout(() => { window.location.href = redirectUrl; }, 3500);
+                    return;
+                }
+
+                // No redirect — go to WhatsApp
+                setStatus('success');
+                setTimeout(() => {
+                    window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
+                }, 3500);
+            };
+
             if (alreadyInSession) {
-                setErrorMessage("You're already registered for this session!");
-                setStatus("error");
+                // Already registered: fetch full profile and handle post-registration flow
+                const existingUser = await checkUserRegistration(emailToUse);
+                await handlePostRegistration(existingUser || { email: emailToUse, name: '', organization: '' });
                 return;
             }
 
@@ -143,39 +193,23 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 
                 finalUser = {
                     ...returningUser,
-                    sessionId, // Explicitly pass current sessionId
+                    sessionId,
                     sessionIds: updatedSessions
                 };
                 
                 await addRegistration(finalUser);
             } else {
-                // 3. Totally new user
+                // Totally new user
                 await addRegistration({
                     ...form,
-                    sessionId, // Explicitly pass current sessionId
+                    sessionId,
                     sessionIds: [sessionId]
                 });
                 finalUser = form;
             }
 
-            // Save to localStorage
-            localStorage.setItem('last_registered_user', JSON.stringify(finalUser));
-            localStorage.setItem('quiz_user_general', JSON.stringify(finalUser));
-
-            await new Promise(r => setTimeout(r, 1500));
-            setStatus("success");
-
-            // Redirect logic
-            const searchParams = new URLSearchParams(window.location.search);
-            const redirectUrl = searchParams.get('redirect');
-
-            setTimeout(() => {
-                if (redirectUrl) {
-                    window.location.href = redirectUrl;
-                } else {
-                    window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
-                }
-            }, 3500);
+            await new Promise(r => setTimeout(r, 1000));
+            await handlePostRegistration(finalUser);
 
         } catch (error: any) {
             console.error("Error registering user", error);
@@ -226,14 +260,28 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                             <CheckCircle2 className="w-10 h-10 text-green-500" />
                                         </div>
                                         <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Success!</h3>
-                                        <p className="text-slate-400 text-sm font-medium mb-8">{errorMessage || `Your registration for Session ${sessionId} has been confirmed. Redirecting you to the official WhatsApp group...`}</p>
-                                        <div className="flex flex-col gap-3">
-                                            <a 
-                                                href="https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"
-                                                className="w-full py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-                                            >
-                                                Join WhatsApp Group
-                                            </a>
+                                        <p className="text-slate-400 text-sm font-medium mb-8">
+                                            {errorMessage || (searchParams.get('redirect') 
+                                                ? `Your registration for Session ${sessionId} has been confirmed. Returning you to the portal to join...` 
+                                                : `Your registration for Session ${sessionId} has been confirmed. Redirecting you to the official WhatsApp group...`
+                                            )}
+                                        </p>
+                                        <div className="flex flex-col gap-3 font-mono">
+                                            {searchParams.get('redirect') ? (
+                                                <a 
+                                                    href={searchParams.get('redirect') || undefined}
+                                                    className="w-full py-5 px-6 bg-blue-600 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-blue-500 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+                                                >
+                                                    Uplink to Attendance Portal
+                                                </a>
+                                            ) : (
+                                                <a 
+                                                    href="https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"
+                                                    className="w-full py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                                                >
+                                                    Join WhatsApp Group
+                                                </a>
+                                            )}
                                             <button 
                                                 onClick={() => setStatus(null)}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
@@ -349,6 +397,18 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                             </div>
                                         )}
                                     </div>
+                                    
+                                    {(() => {
+                                        const prevNum = parseInt(sessionId) - 1;
+                                        if (!isNaN(prevNum) && prevNum >= 1) {
+                                            return (
+                                                <p className="text-xs text-slate-400 mt-2">
+                                                    💡 Enter the email you used to register for <strong>Session {prevNum}</strong> if you registered for it!
+                                                </p>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
 
                                     <button
                                         type="button"
@@ -362,7 +422,29 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                             <>Proceed <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>→</motion.span></>
                                         )}
                                     </button>
-                                    <p className="text-slate-500 text-sm italic mt-4">We'll check if you've attended previous sessions to save you time.</p>
+
+                                    {(() => {
+                                        const prevNum = parseInt(sessionId) - 1;
+                                        if (!isNaN(prevNum) && prevNum >= 1) {
+                                            return (
+                                                <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
+                                                    <p className="text-slate-500 text-xs font-bold">
+                                                        Not registered for Session {prevNum}?
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setStep('new')}
+                                                        className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all"
+                                                    >
+                                                        Register directly for Session {sessionId}
+                                                    </button>
+                                                </div>
+                                            );
+                                        }
+                                        return (
+                                            <p className="text-slate-500 text-sm italic mt-4">We'll check if you've attended previous sessions to save you time.</p>
+                                        );
+                                    })()}
                                 </div>
                             </motion.div>
                         )}

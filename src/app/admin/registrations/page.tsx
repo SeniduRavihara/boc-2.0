@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings, getAttendanceByUser, deleteRegistration } from "@/firebase/api";
 import { Registration } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2 } from "lucide-react";
+import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, Trash2 } from "lucide-react";
 
 import { SESSIONS } from "@/constants/sessions";
 
@@ -102,6 +102,18 @@ export default function AdminRegistrationsPage() {
             alert("Failed to delete registration.");
         }
         setIsDeleting(false);
+    };
+
+    const handleDirectDelete = async (id: string, name: string) => {
+        if (window.confirm(`Are you sure you want to delete registration for ${name}?`)) {
+            try {
+                await deleteRegistration(id);
+                fetchData(activeSession);
+            } catch (err) {
+                console.error("Error deleting registration:", err);
+                alert("Failed to delete registration.");
+            }
+        }
     };
 
     const exportToCSV = () => {
@@ -329,10 +341,18 @@ export default function AdminRegistrationsPage() {
                                                             )}
                                                         </div>
                                                     </td>
-                                                    <td className="px-8 py-6 text-right">
+                                                    <td className="px-8 py-6 text-right flex items-center justify-end gap-2">
+                                                        <button 
+                                                            onClick={() => handleDirectDelete(reg.id, reg.name)}
+                                                            className="p-2 hover:bg-rose-500/10 rounded-lg text-slate-500 hover:text-rose-500 transition-all"
+                                                            title="Delete Profile"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
                                                         <button 
                                                             onClick={() => setSelectedRegistration(reg)}
                                                             className="p-2 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white transition-all group/btn"
+                                                            title="View Profile"
                                                         >
                                                             <ChevronRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                                                         </button>
