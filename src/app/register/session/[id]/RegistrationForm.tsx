@@ -315,7 +315,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             {/* Form Banner */}
             <div className="mb-12 w-full overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[16/9] md:aspect-[5/1]">
                 <Image 
-                    src="/hero-visual.png" 
+                    src="/images/image3.webp" 
                     alt="Session Banner" 
                     fill 
                     priority
@@ -323,13 +323,27 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 />
                 <div className="absolute inset-0 bg-blue-950/40 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
-                <div className="absolute bottom-4 md:bottom-8 left-6 md:left-10 right-6 md:right-10">
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className="inline-flex rounded-full border border-blue-400/50 bg-blue-600/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-400 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                
+                {/* Wall-E Mascot Overlay */}
+                <div className="absolute right-4 md:right-12 bottom-0 top-0 w-[30%] md:w-[20%] pointer-events-none z-10 flex items-end justify-end">
+                    <div className="relative w-full h-[95%] md:h-[115%] transition-transform duration-700 hover:scale-105">
+                        <Image
+                            src="/images/walle.png"
+                            alt="Wall-E Mascot"
+                            fill
+                            priority
+                            className="object-contain object-bottom"
+                        />
+                    </div>
+                </div>
+
+                <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-10 right-[35%] md:right-10 z-20">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mb-1.5 sm:mb-2">
+                        <span className="inline-flex self-start rounded-lg border border-blue-400/50 bg-blue-600/20 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-blue-400 backdrop-blur-md">
                             Cloud Excellence
                         </span>
-                        <div className="h-1 w-1 rounded-full bg-white/20" />
-                        <span className="text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">Protocol V2.0</span>
+                        <div className="hidden sm:block h-1 w-1 rounded-full bg-white/20" />
+                        <span className="text-[8px] sm:text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">Protocol V2.0</span>
                     </div>
                     <h2 className="text-lg md:text-3xl font-black text-white tracking-tight uppercase leading-tight">
                         {SESSIONS.find(s => s.id === sessionId)?.topic || "Getting into the cloud"}
@@ -352,7 +366,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                 : `Fill this form out to register yourselves for the BOC Workshop Series.`}
                           </p>
                        </div>
-                       <div className="px-6 py-3 bg-blue-500/20 border border-blue-400/40 rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(59,130,246,0.3)] group transition-all hover:scale-105">
+                       <div className="px-6 py-3 bg-blue-500/20 border border-blue-400/40 rounded-lg backdrop-blur-md group transition-all hover:scale-105">
                           <span className="text-xs font-black text-blue-400 uppercase tracking-[0.3em]">Session: {sessionId}</span>
                        </div>
                     </div>

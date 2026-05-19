@@ -228,7 +228,7 @@ export default function CompetitionForm() {
             {/* Form Banner — Glass & Modern */}
             <div className="mb-6 md:mb-12 w-full overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[16/9] md:aspect-[5/1]">
                 <Image 
-                    src="/hero-visual.png" 
+                    src="/images/image3.webp" 
                     alt="Ideathon Banner" 
                     fill 
                     priority
@@ -236,13 +236,27 @@ export default function CompetitionForm() {
                 />
                 <div className="absolute inset-0 bg-purple-950/40 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent" />
-                <div className="absolute bottom-3 md:bottom-8 left-4 md:left-10 right-4 md:right-10">
-                    <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
-                        <span className="inline-flex rounded-full border border-purple-400/50 bg-purple-600/20 px-2.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-purple-400 backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                
+                {/* Wall-E Mascot Overlay */}
+                <div className="absolute right-4 md:right-12 bottom-0 top-0 w-[30%] md:w-[20%] pointer-events-none z-10 flex items-end justify-end">
+                    <div className="relative w-full h-[95%] md:h-[115%] transition-transform duration-700 hover:scale-105">
+                        <Image
+                            src="/images/walle.png"
+                            alt="Wall-E Mascot"
+                            fill
+                            priority
+                            className="object-contain object-bottom"
+                        />
+                    </div>
+                </div>
+
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-10 right-[35%] md:right-10 z-20">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mb-1.5 sm:mb-2">
+                        <span className="inline-flex self-start rounded-lg border border-purple-400/50 bg-purple-600/20 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-purple-400 backdrop-blur-md">
                             Ideathon Phase
                         </span>
-                        <div className="h-1 w-1 rounded-full bg-white/20" />
-                        <span className="text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">SEC-REG-2.0</span>
+                        <div className="hidden sm:block h-1 w-1 rounded-full bg-white/20" />
+                        <span className="text-[8px] sm:text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">SEC-REG-2.0</span>
                     </div>
                     <h2 className="text-sm md:text-3xl font-black text-white tracking-tight uppercase leading-tight">
                         Cloud Challenge Team Registration
@@ -264,7 +278,7 @@ export default function CompetitionForm() {
                               Form your dream team of 1 to 4 members to brainstorm, design and pitch breakthrough cloud computing architectures.
                           </p>
                        </div>
-                       <div className="px-4 py-2 md:px-6 md:py-3 bg-purple-500/20 border border-purple-400/40 rounded-xl md:rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all hover:scale-105">
+                       <div className="px-4 py-2 md:px-6 md:py-3 bg-purple-500/20 border border-purple-400/40 rounded-lg backdrop-blur-md transition-all hover:scale-105">
                           <span className="text-[10px] md:text-xs font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-1.5">
                              <Award size={12} /> Phase 1
                           </span>
