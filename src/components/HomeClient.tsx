@@ -45,9 +45,11 @@ export function HomeClient() {
 
   /* ── Earth Image Sequence Preloading ──────────────── */
   useEffect(() => {
-    const loadedImages: HTMLImageElement[] = [];
-    let loadedCount = 0;
     const totalFrames = 120;
+    // Pre-allocate array of size 120 with null
+    const loadedImages: HTMLImageElement[] = new Array(totalFrames).fill(null);
+    imagesRef.current = loadedImages;
+
     let firstFrameLoaded = false;
     let timerDone = false;
 
@@ -62,24 +64,41 @@ export function HomeClient() {
       checkHideLoader();
     }, 3000);
 
-    for (let i = 1; i <= totalFrames; i++) {
-      const img = new Image();
-      const frameNum = String(i).padStart(3, "0");
-      img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
-      img.onload = () => {
-        loadedCount++;
-        if (i === 1) {
-          firstFrameLoaded = true;
-          checkHideLoader();
-        }
-        if (loadedCount === totalFrames) {
-          // Initial render
-          renderFrame(0);
-        }
-      };
-      loadedImages.push(img);
+    // Load the first frame immediately for fast FCP/LCP
+    const firstImg = new Image();
+    firstImg.src = `/Earth-splits/ezgif-frame-001.webp`;
+    firstImg.onload = () => {
+      loadedImages[0] = firstImg;
+      firstFrameLoaded = true;
+      renderFrame(0);
+      checkHideLoader();
+    };
+
+    // Helper to load the rest of the frames
+    const loadRemainingFrames = () => {
+      for (let i = 2; i <= totalFrames; i++) {
+        const img = new Image();
+        const frameNum = String(i).padStart(3, "0");
+        img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
+        img.onload = () => {
+          loadedImages[i - 1] = img;
+        };
+      }
+    };
+
+    // Defer loading remaining frames until after hydration is done and network is idle
+    let idleId: number | undefined;
+    let timeoutId: NodeJS.Timeout | undefined;
+
+    if (typeof window !== "undefined") {
+      if ("requestIdleCallback" in window) {
+        idleId = (window as any).requestIdleCallback(() => {
+          timeoutId = setTimeout(loadRemainingFrames, 1000);
+        });
+      } else {
+        timeoutId = setTimeout(loadRemainingFrames, 1500);
+      }
     }
-    imagesRef.current = loadedImages;
 
     function renderFrame(progress: number) {
       const canvas = canvasRef.current;
@@ -91,7 +110,17 @@ export function HomeClient() {
         Math.floor(progress * totalFrames),
         totalFrames - 1,
       );
-      const img = imagesRef.current[frameIndex];
+
+      // Find the closest loaded frame to prevent flickering while loading
+      let img = imagesRef.current[frameIndex];
+      if (!img) {
+        for (let j = frameIndex - 1; j >= 0; j--) {
+          if (imagesRef.current[j]) {
+            img = imagesRef.current[j];
+            break;
+          }
+        }
+      }
       if (!img) return;
 
       // Cover scaling logic
@@ -137,6 +166,12 @@ export function HomeClient() {
     return () => {
       window.removeEventListener("resize", handleResize);
       clearTimeout(timer);
+      if (idleId && "cancelIdleCallback" in window) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, []);
 
