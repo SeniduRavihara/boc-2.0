@@ -16,7 +16,7 @@ import {
   type Firestore
 } from "firebase/firestore";
 import { db } from "./config";
-import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session } from "@/types";
+import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session, CompetitionTeam } from "@/types";
 
 const TASKS_COLLECTION = "tasks";
 const TEAM_MEMBERS_COLLECTION = "team_members";
@@ -32,6 +32,7 @@ const ATTENDANCE_COLLECTION = "session_attendance";
 const QUIZ_PARTICIPANTS_COLLECTION = "quiz_participants";
 const SETTINGS_COLLECTION = "settings";
 const SESSIONS_COLLECTION = "sessions";
+const COMPETITION_TEAMS_COLLECTION = "competition_teams";
 
 // Helper: ensures Firestore is initialized before any API call.
 function requireDb(): Firestore {
@@ -263,6 +264,61 @@ export const deleteRegistration = async (id: string) => {
   const firestore = requireDb();
   const registrationRef = doc(firestore, REGISTRATIONS_COLLECTION, id);
   return await deleteDoc(registrationRef);
+};
+
+// --- Competition Teams ---
+
+export const addCompetitionTeam = async (team: Omit<CompetitionTeam, "id" | "createdAt">) => {
+  const firestore = requireDb();
+  const teamsRef = collection(firestore, COMPETITION_TEAMS_COLLECTION);
+  
+  const normalizedEmails = team.allEmails.map(email => email.toLowerCase().trim());
+  const normalizedMembers = team.members.map(member => ({
+    ...member,
+    email: member.email.toLowerCase().trim()
+  }));
+
+  return await addDoc(teamsRef, {
+    ...team,
+    leaderEmail: team.leaderEmail.toLowerCase().trim(),
+    members: normalizedMembers,
+    allEmails: normalizedEmails,
+    teamNameLowercase: team.teamName.toLowerCase().trim(),
+    createdAt: serverTimestamp()
+  });
+};
+
+export const checkEmailRegisteredInCompetition = async (email: string): Promise<boolean> => {
+  const firestore = requireDb();
+  const teamsRef = collection(firestore, COMPETITION_TEAMS_COLLECTION);
+  const q = query(teamsRef, where("allEmails", "array-contains", email.toLowerCase().trim()));
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty;
+};
+
+export const checkTeamNameExists = async (teamName: string): Promise<boolean> => {
+  const firestore = requireDb();
+  const teamsRef = collection(firestore, COMPETITION_TEAMS_COLLECTION);
+  const q = query(teamsRef, where("teamNameLowercase", "==", teamName.toLowerCase().trim()));
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty;
+};
+
+export const getCompetitionTeams = async (): Promise<CompetitionTeam[]> => {
+  const firestore = requireDb();
+  const teamsRef = collection(firestore, COMPETITION_TEAMS_COLLECTION);
+  const q = query(teamsRef, orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as CompetitionTeam));
+};
+
+export const deleteCompetitionTeam = async (id: string) => {
+  const firestore = requireDb();
+  const teamRef = doc(firestore, COMPETITION_TEAMS_COLLECTION, id);
+  return await deleteDoc(teamRef);
 };
 
 // --- Attendance ---

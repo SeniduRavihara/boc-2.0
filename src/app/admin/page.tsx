@@ -11,16 +11,27 @@ import {
   ArrowUpRight,
   TrendingUp,
   Activity,
-  Calendar
+  Calendar,
+  UserPlus,
+  Award
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 
 const dashboardCards = [
   { 
-    title: 'Task Tracking', 
-    description: 'Manage development tasks and team progress.', 
-    href: '/admin/task-tracking', 
-    icon: CheckSquare, 
+    title: 'Ideathon Teams', 
+    description: 'Manage registered competition teams and members.', 
+    href: '/admin/teams', 
+    icon: Award, 
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10',
+    border: 'border-purple-500/20'
+  },
+  { 
+    title: 'Registrations', 
+    description: 'Monitor delegate profiles and registrations.', 
+    href: '/admin/registrations', 
+    icon: UserPlus, 
     color: 'text-blue-400',
     bg: 'bg-blue-500/10',
     border: 'border-blue-500/20'
@@ -30,9 +41,9 @@ const dashboardCards = [
     description: 'Create and organize interactive competitions.', 
     href: '/admin/quiz', 
     icon: Trophy, 
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/20'
+    color: 'text-yellow-400',
+    bg: 'bg-yellow-500/10',
+    border: 'border-yellow-500/20'
   },
   { 
     title: 'Email Tool', 
@@ -60,6 +71,15 @@ const dashboardCards = [
     color: 'text-orange-400',
     bg: 'bg-orange-500/10',
     border: 'border-orange-500/20'
+  },
+  { 
+    title: 'Task Tracking', 
+    description: 'Manage development tasks and team progress.', 
+    href: '/admin/task-tracking', 
+    icon: CheckSquare, 
+    color: 'text-slate-400',
+    bg: 'bg-slate-500/10',
+    border: 'border-slate-500/20'
   },
 ];
 

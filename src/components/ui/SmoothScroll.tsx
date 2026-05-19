@@ -12,10 +12,10 @@ interface SmoothScrollProps {
 
 export function SmoothScroll({ children }: SmoothScrollProps) {
   const pathname = usePathname();
-  const isAdmin = pathname?.startsWith('/admin');
+  const shouldDisable = pathname?.startsWith('/admin') || pathname === '/sessions';
 
   useEffect(() => {
-    if (isAdmin) return;
+    if (shouldDisable) return;
 
     // Register GSAP plugins
     gsap.registerPlugin(ScrollTrigger);
@@ -48,7 +48,7 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       lenis.destroy();
       gsap.ticker.remove(updateLenis);
     };
-  }, []);
+  }, [pathname, shouldDisable]);
 
   return <>{children}</>;
 }

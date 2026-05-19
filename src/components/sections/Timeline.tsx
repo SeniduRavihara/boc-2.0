@@ -6,15 +6,15 @@ import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const MILESTONES = [
   { id: 'M1', title: "Workshop\nSeries Start", date: "2026.04.26", left: "10%", mobileTop: 40 },
-  { id: 'M2', title: "Registrations\nOpen", date: "2026.05.15", left: "30%", mobileTop: 310 },
+  { id: 'M2', title: "Ideathon Registrations\nOpen", date: "2026.05.23", left: "30%", mobileTop: 310 },
   { id: 'M3', title: "Problem Statement\nRelease", date: "2026.05.24", left: "50%", mobileTop: 520 },
   { id: 'M4', title: "Competition\nRounds (R1 Ends)", date: "2026.07.20", left: "70%", mobileTop: 720 },
   { id: 'M5', title: "Grand\nFinale", date: "2026.08.02", left: "90%", mobileTop: 920 },
 ];
 
 const SESSIONS = [
-  { id: 'S1', title: "Session 1:\nCloud Fundamentals", date: "2026.04.26", left: "20%", mobileTop: 130 },
-  { id: 'S2', title: "Session 2:\nCloud Compute", date: "2026.05.07", left: "40%", mobileTop: 220 },
+  { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130 },
+  { id: 'S2', title: "Session 2:\nCloud Compute & Networking on GCP", date: "2026.05.23", left: "40%", mobileTop: 220 },
   { id: 'S3', title: "Upcoming\nSessions...", date: "TBA", left: "60%", isGhost: true, mobileTop: 400 },
 ];
 

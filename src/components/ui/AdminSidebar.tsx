@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Monitor,
   UserPlus,
-  Calendar
+  Calendar,
+  Award
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ const navItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Schedule Manager', href: '/admin/schedule', icon: Calendar },
   { name: 'Registrations', href: '/admin/registrations', icon: UserPlus },
+  { name: 'Ideathon Teams', href: '/admin/teams', icon: Award },
   { name: 'Live Leaderboard', href: '/admin/leaderboard', icon: Trophy },
   { name: 'Quiz Management', href: '/admin/quiz', icon: Monitor },
   { name: 'Task Tracking', href: '/admin/task-tracking', icon: CheckSquare },

@@ -3,6 +3,8 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import Link from 'next/link';
+import { Download, Users } from 'lucide-react';
 
 export function FallingScene() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -123,15 +125,31 @@ export function FallingScene() {
           style={{ opacity: textOpacity }}
         >
           <motion.div
-            className="max-w-[1000px] mx-auto px-6 text-center"
+            className="max-w-[1000px] mx-auto px-6 text-center pointer-events-auto"
             style={{ y: textY }}
           >
             <h2 className="font-reglo text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] drop-shadow-2xl text-white">
               To build Sri Lanka&apos;s next generation of cloud-native engineers by bridging academic learning and industry infrastructure.
             </h2>
-            <p className="mt-6 text-slate-300 font-mono text-xs uppercase tracking-[0.4em] drop-shadow-lg">
+            <p className="mt-6 text-slate-300 font-mono text-xs uppercase tracking-[0.4em] drop-shadow-lg mb-10">
               Founded under IEEE Student Branch - University of Sri Jayewardenepura
             </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/register/compitition">
+                <button className="w-full sm:w-auto px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2">
+                  <Users size={14} /> Team Registration
+                </button>
+              </Link>
+              
+              <a 
+                href="/Delegate_Booklet.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
+              >
+                <Download size={14} /> Download Delegate Booklet
+              </a>
+            </div>
           </motion.div>
         </motion.div>
 

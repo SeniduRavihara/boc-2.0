@@ -109,15 +109,34 @@ export interface QuizSubmission {
 
 
   // -------------------- timeline 
+ 
+ export type SessionMode = 'Online' | 'Physical' | 'Blocked';
+ 
+ export interface Session {
+   id: string;
+   type: string;
+   ref: string;
+   date: string;
+   time: string;
+   mode: SessionMode;
+   title: string;
+ }
+ 
+ export interface CompetitionTeamMember {
+   name: string;
+   email: string;
+   phone?: string;
+ }
+ 
+ export interface CompetitionTeam {
+   id?: string;
+   teamName: string;
+   university: string;
+   leaderName: string;
+   leaderEmail: string;
+   leaderPhone: string;
+   members: CompetitionTeamMember[];
+   allEmails: string[]; // Flat list of all emails for easy duplication checking
+   createdAt?: any;
+ }
 
-export type SessionMode = 'Online' | 'Physical' | 'Blocked';
-
-export interface Session {
-  id: string;
-  type: string;
-  ref: string;
-  date: string;
-  time: string;
-  mode: SessionMode;
-  title: string;
-}
