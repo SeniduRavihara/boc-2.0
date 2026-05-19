@@ -8,7 +8,7 @@ export const TerminalContent: React.FC = () => {
     { type: 'info', text: '──────────────────────────────────' },
     { type: 'success', text: 'ABOUT BEAUTY OF CLOUD 2.0' },
     { type: 'out', text: 'Sri Lanka\'s first student-led inter-university' },
-    { type: 'out', text: 'cloud ideathon is back for its second edition!' },
+    { type: 'out', text: 'cloud championship is back for its second edition!' },
     { type: 'out', text: '' },
     { type: 'info', text: 'Theme: Cloud Innovation for Sustainable Future' },
     { type: 'info', text: 'Focus: Scalable solutions for real-world problems.' },
@@ -40,20 +40,20 @@ export const TerminalContent: React.FC = () => {
       } else if (cmd === 'help') {
         newHistory.push(
           { type: 'out', text: 'Available commands:' },
-          { type: 'out', text: '  help       - Show this message' },
-          { type: 'out', text: '  clear      - Clear the terminal screen' },
-          { type: 'out', text: '  ls         - List directory contents' },
-          { type: 'out', text: '  whoami     - Print current user' },
-          { type: 'out', text: '  date       - Print current date and time' },
-          { type: 'out', text: '  neofetch   - System information' },
-          { type: 'out', text: '  ideathon   - Start the ideathon sequence' }
+          { type: 'out', text: '  help         - Show this message' },
+          { type: 'out', text: '  clear        - Clear the terminal screen' },
+          { type: 'out', text: '  ls           - List directory contents' },
+          { type: 'out', text: '  whoami       - Print current user' },
+          { type: 'out', text: '  date         - Print current date and time' },
+          { type: 'out', text: '  neofetch     - System information' },
+          { type: 'out', text: '  championship - Start the championship sequence' }
         );
       } else if (cmd === 'ls') {
         newHistory.push(
           { type: 'out', text: 'drwxr-xr-x  boc  boc   4096 Apr 21 21:43 .' },
           { type: 'out', text: 'drwxr-xr-x  boc  boc   4096 Apr 21 19:00 ..' },
           { type: 'out', text: '-rwxr-xr-x  boc  boc  12883 Apr 21 21:43 \x1b[92mbeautyofcloud-2/\x1b[0m' },
-          { type: 'out', text: '-rw-r--r--  boc  boc   2048 Apr 20 09:15 \x1b[93mideathon-plan.md\x1b[0m' }
+          { type: 'out', text: '-rw-r--r--  boc  boc   2048 Apr 20 09:15 \x1b[93mchampionship-plan.md\x1b[0m' }
         );
       } else if (cmd === 'whoami') {
         newHistory.push({ type: 'out', text: 'boc_admin' });
@@ -70,9 +70,9 @@ export const TerminalContent: React.FC = () => {
           { type: 'info', text: '                         CPU: AMD Ryzen 9 7950X (32) @ 5.7GHz' },
           { type: 'info', text: '                         Memory: 8192MiB / 131072MiB' }
         );
-      } else if (cmd === 'ideathon') {
+      } else if (cmd === 'championship') {
          newHistory.push(
-            { type: 'success', text: 'Initializing Beauty of Cloud Ideathon...' },
+            { type: 'success', text: 'Initializing Beauty of Cloud Championship...' },
             { type: 'out', text: '[✓] Checking prerequisites' },
             { type: 'out', text: '[✓] Connecting to AWS nodes' },
             { type: 'success', text: 'Ready.' }

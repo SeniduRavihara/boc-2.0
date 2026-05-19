@@ -44,14 +44,14 @@ export const DocumentViewerContent: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-[9px] font-mono tracking-widest text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/10 uppercase">
-                    IDEATHON OFFICIAL
+                    OFFICIAL BRIEFING
                   </span>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white leading-none">
                   Beauty of Cloud <span className="text-blue-400">2.0</span>
                 </h1>
                 <p className="text-slate-400 uppercase tracking-widest text-[9px] md:text-[10px] font-mono mt-1">
-                  Inter-University Cloud Ideathon
+                  Inter-University Cloud Championship
                 </p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-inner">
@@ -70,7 +70,7 @@ export const DocumentViewerContent: React.FC = () => {
                   </h2>
                 </div>
                 <p className="text-sm text-slate-300 leading-relaxed font-sans">
-                  Beauty of Cloud 2.0 is Sri Lanka&apos;s first student-led inter-university cloud ideathon, returning for its second edition. This initiative brings together the brightest minds from universities across the island to solve critical real-world problems using cloud technologies.
+                  Beauty of Cloud 2.0 is Sri Lanka&apos;s first student-led inter-university cloud championship, returning for its second edition. This initiative brings together the brightest minds from universities across the island to solve critical real-world problems using cloud technologies.
                 </p>
               </section>
 

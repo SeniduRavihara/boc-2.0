@@ -46,6 +46,8 @@ export function HomeClient() {
   const personContainerRef = useRef<HTMLDivElement>(null);
   const personRef = useRef<HTMLDivElement>(null);
   const missionTextRef = useRef<HTMLDivElement>(null);
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
+  const scrollLabelRef = useRef<HTMLSpanElement>(null);
 
   /* ── Reset scroll on mount ─────────────────────────── */
   React.useEffect(() => {
@@ -220,10 +222,11 @@ export function HomeClient() {
         pointerEvents: "none",
       });
 
-      // Unified Timeline: total duration = 7.5
+      // Unified Timeline: total duration = 5.0
       // 0.0 -> 2.0: scale/expand Linux environment + Earth frames (Phase 1)
-      // 2.0 -> 3.5: shatter Linux environment (Phase 2)
-      // 2.0 -> 7.5: falling scene animation (Phase 3)
+      // 2.0 -> 2.5: HOLD / INTERACT PHASE (Linux is full screen, intact, interactive)
+      // 2.5 -> 3.5: shatter Linux environment (Phase 2)
+      // 2.5 -> 5.0: falling scene animation (Phase 3)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pinnedRef.current,
@@ -288,7 +291,11 @@ export function HomeClient() {
         0.8
       );
 
-      // 5. Predictive trigger for early screenshot capture (preCapture)
+      // ── PHASE 1.5 - HOLD / INTERACT (2.0 -> 2.5) ──
+      // The Linux window stays full screen and fully interactive during this section.
+      
+      // Predictive trigger for early screenshot capture (preCapture)
+      // Fires at 2.35, slightly before the shatter starts at 2.5.
       tl.to(
         {},
         {
@@ -296,10 +303,10 @@ export function HomeClient() {
           onStart: () => setPreCapture(true),
           onReverseComplete: () => setPreCapture(false),
         },
-        1.8
+        2.35
       );
 
-      // ── PHASE 2 (2.0 -> 3.5) ──
+      // ── PHASE 2 (2.5 -> 3.5) ──
 
       // 6. Linux UI Shatter progress (goes from 0 to 1)
       const shatterObj = { progress: 0 };
@@ -307,27 +314,27 @@ export function HomeClient() {
         shatterObj,
         {
           progress: 1,
-          duration: 1.5,
+          duration: 1.0,
           ease: "none",
           onUpdate: () => {
             setShatterProgress(shatterObj.progress);
           },
         },
-        2.0
+        2.5
       );
 
       // 7. Earth sequence fades out as falling scene becomes visible
       tl.to(
         earthContainerRef.current,
-        { opacity: 0, duration: 0.5 },
-        2.0
+        { opacity: 0, duration: 0.3 },
+        2.5
       );
 
       // 8. Falling container fades in (clouds, streaks, person)
       tl.to(
         [fallingContainerRef.current, personContainerRef.current],
-        { opacity: 1, duration: 0.5 },
-        2.0
+        { opacity: 1, duration: 0.3 },
+        2.5
       );
 
       // 8.5. Hide Linux window container when shatter is done
@@ -341,17 +348,17 @@ export function HomeClient() {
         3.5
       );
 
-      // ── PHASE 3 (2.0 -> 7.5 - continuing through shatter) ──
+      // ── PHASE 3 (2.5 -> 5.0 - continuing through shatter) ──
 
       // 9. Clouds panning down (equivalent to translate 0% to -50%)
       tl.to(
         fallingBgRef.current,
         {
           yPercent: -50,
-          duration: 5.5,
+          duration: 2.5,
           ease: "none",
         },
-        2.0
+        2.5
       );
 
       // 10. Motion streaks fade/pulsate
@@ -359,18 +366,18 @@ export function HomeClient() {
         streaksRef.current,
         {
           opacity: 0.4,
-          duration: 2.75,
+          duration: 1.25,
           ease: "none",
         },
-        2.0
+        2.5
       ).to(
         streaksRef.current,
         {
           opacity: 0.2,
-          duration: 2.75,
+          duration: 1.25,
           ease: "none",
         },
-        4.75
+        3.75
       );
 
       // 11. Darkness overlay opacity increase
@@ -378,10 +385,10 @@ export function HomeClient() {
         darknessRef.current,
         {
           opacity: 0.4,
-          duration: 5.5,
+          duration: 2.5,
           ease: "none",
         },
-        2.0
+        2.5
       );
 
       // 12. Falling person animation (y, scale, rotate)
@@ -390,22 +397,22 @@ export function HomeClient() {
         {
           y: "0vh",
           scale: 1.3,
-          duration: 5.5,
+          duration: 2.5,
           ease: "none",
         },
-        2.0
+        2.5
       );
 
       tl.to(
         personRef.current,
         {
           keyframes: [
-            { rotate: 5, duration: 2.75 },
-            { rotate: -2, duration: 2.75 },
+            { rotate: 5, duration: 1.25 },
+            { rotate: -2, duration: 1.25 },
           ],
           ease: "none",
         },
-        2.0
+        2.5
       );
 
       // 13. Mission Text reveal
@@ -415,10 +422,66 @@ export function HomeClient() {
           opacity: 1,
           y: 0,
           pointerEvents: "auto",
-          duration: 1.5,
+          duration: 1.0,
           ease: "power2.out",
         },
-        6.0
+        4.0
+      );
+
+      // 14. Scroll Indicator State Changes
+      gsap.set(scrollIndicatorRef.current, { opacity: 1, scale: 1 });
+      
+      tl.to(
+        {},
+        {
+          duration: 0.1,
+          onStart: () => {
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO ENTER";
+          },
+          onReverseComplete: () => {
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO ENTER";
+          }
+        },
+        0.5
+      );
+
+      tl.to(
+        {},
+        {
+          duration: 0.1,
+          onStart: () => {
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
+          },
+          onReverseComplete: () => {
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO ENTER";
+          }
+        },
+        2.1
+      );
+
+      tl.to(
+        {},
+        {
+          duration: 0.1,
+          onStart: () => {
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
+          },
+          onReverseComplete: () => {
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
+          }
+        },
+        2.6
+      );
+
+      // Fade out indicator at the end
+      tl.to(
+        scrollIndicatorRef.current,
+        {
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.5,
+        },
+        4.0
       );
 
       const refresh = () => ScrollTrigger.refresh();
@@ -440,7 +503,7 @@ export function HomeClient() {
       {/* ── 1. Hero + Linux — condensed pinned reveal ─────────────── */}
       <div
         ref={pinnedRef}
-        style={{ height: "850vh" }}
+        style={{ height: "550vh" }}
         className="relative z-20 w-full bg-black"
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden touch-pan-y">
@@ -524,7 +587,7 @@ export function HomeClient() {
               </span>
             </h1>
             <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4 mb-8">
-              Sri Lanka&apos;s premier inter-university cloud ideathon.
+              Sri Lanka&apos;s premier inter-university cloud championship.
             </p>
             <Link href="/register/session/2">
               <button className="px-8 py-3.5 rounded-full bg-white text-black font-bold tracking-widest uppercase text-xs sm:text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
@@ -609,6 +672,20 @@ export function HomeClient() {
 
       {/* <Footer /> */}
       <MainFooter hideTopStyling={true} />
+
+      {/* Floating Scroll Indicator */}
+      <div
+        ref={scrollIndicatorRef}
+        className="fixed bottom-6 right-6 z-50 pointer-events-none flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl text-[10px] font-mono tracking-widest text-white transition-opacity duration-300"
+      >
+        <div className="flex flex-col items-center justify-center w-5 h-8 border-2 border-white/30 rounded-full relative">
+          <div className="w-1 h-2 bg-blue-400 rounded-full absolute top-1.5 left-1/2 -translate-x-1/2 animate-bounce" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="text-[8px] text-white/40 uppercase leading-none mb-1">GUIDE</span>
+          <span ref={scrollLabelRef} className="font-bold text-blue-400 leading-none">SCROLL TO ENTER</span>
+        </div>
+      </div>
     </main>
   );
 }
