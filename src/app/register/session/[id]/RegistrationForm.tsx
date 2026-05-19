@@ -373,7 +373,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                 <div className="space-y-4 max-w-lg mx-auto text-center py-10">
                                     <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 mb-6">01. Identity Matrix</h3>
                                     <label className="block text-xl font-bold text-slate-200">
-                                        Enter your registered Email Address
+                                        Enter your email address
                                     </label>
                                     <div className="relative group">
                                         <input
@@ -397,18 +397,6 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                             </div>
                                         )}
                                     </div>
-                                    
-                                    {(() => {
-                                        const prevNum = parseInt(sessionId) - 1;
-                                        if (!isNaN(prevNum) && prevNum >= 1) {
-                                            return (
-                                                <p className="text-xs text-slate-400 mt-2">
-                                                    💡 Enter the email you used to register for <strong>Session {prevNum}</strong> if you registered for it!
-                                                </p>
-                                            );
-                                        }
-                                        return null;
-                                    })()}
 
                                     <button
                                         type="button"
@@ -423,28 +411,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                         )}
                                     </button>
 
-                                    {(() => {
-                                        const prevNum = parseInt(sessionId) - 1;
-                                        if (!isNaN(prevNum) && prevNum >= 1) {
-                                            return (
-                                                <div className="mt-8 pt-8 border-t border-white/5 space-y-4">
-                                                    <p className="text-slate-500 text-xs font-bold">
-                                                        Not registered for Session {prevNum}?
-                                                    </p>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setStep('new')}
-                                                        className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all"
-                                                    >
-                                                        Register directly for Session {sessionId}
-                                                    </button>
-                                                </div>
-                                            );
-                                        }
-                                        return (
-                                            <p className="text-slate-500 text-sm italic mt-4">We'll check if you've attended previous sessions to save you time.</p>
-                                        );
-                                    })()}
+                                    <p className="text-slate-500 text-sm italic mt-4">We'll check if you've registered for previous sessions to save you time.</p>
                                 </div>
                             </motion.div>
                         )}
