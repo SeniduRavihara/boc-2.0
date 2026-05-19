@@ -71,6 +71,9 @@ interface Frag {
   el: HTMLCanvasElement;
   rx: number;
   ry: number;
+  rz: number;
+  speedX: number;
+  speedY: number;
   delay: number;
 }
 
@@ -81,11 +84,13 @@ function makeFragments(
   centerX: number,
   centerY: number,
 ): Frag[] {
+  // Balanced rings for optimal shard count (around 120 shards) and performance
   const rings = [
-    { r: 50, c: 12 },
-    { r: 150, c: 12 },
-    { r: 300, c: 12 },
-    { r: 1200, c: 12 }
+    { r: 60, c: 14 },
+    { r: 180, c: 16 },
+    { r: 360, c: 18 },
+    { r: 800, c: 18 },
+    { r: 1500, c: 14 }
   ];
 
   const verts: number[][] = [[centerX, centerY]];
@@ -134,6 +139,7 @@ function makeFragments(
     fc.style.top = yMin + 'px';
     fc.style.position = 'absolute';
     fc.style.backfaceVisibility = 'hidden';
+    fc.style.willChange = 'transform, opacity';
 
     const ctx = fc.getContext('2d')!;
     ctx.translate(-xMin, -yMin);
@@ -149,14 +155,26 @@ function makeFragments(
     const dy = cy - centerY;
     const d = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    const rx = 30 * (dy < 0 ? -1 : 1);
-    const ry = 90 * -(dx < 0 ? -1 : 1);
-    const delay = d * 0.003 * (0.9 + Math.random() * 0.2);
+    // Premium 3D rotations
+    const rx = (100 + Math.random() * 200) * (Math.random() > 0.5 ? 1 : -1);
+    const ry = (100 + Math.random() * 200) * (Math.random() > 0.5 ? 1 : -1);
+    const rz = (50 + Math.random() * 100) * (Math.random() > 0.5 ? 1 : -1);
+    
+    // Blast vector outwards based on distance
+    const forceFactor = (1 - Math.min(d / W, 0.8));
+    const speedX = (dx / d) * (4 + Math.random() * 8) * forceFactor;
+    const speedY = (dy / d) * (4 + Math.random() * 8) * forceFactor;
+
+    // Delay based on proximity to center (shatter propagates outwards)
+    const delay = d * 0.0015 * (0.8 + Math.random() * 0.4);
 
     frags.push({
       el: fc,
       rx,
       ry,
+      rz,
+      speedX,
+      speedY,
       delay,
     });
   }
@@ -185,18 +203,26 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
   }, [shatterProgress]);
 
   const applyPhysics = useCallback((p: number) => {
-    const maxDelay = 0.5;
+    const maxDelay = 0.4;
     fragsRef.current.forEach((f) => {
       const start = Math.min(f.delay, maxDelay);
       const local = Math.max(0, Math.min(1, (p - start) / (1 - start)));
-      const t = local * local * local; // Cubic.easeIn
+      
+      // Snappy ease-out curve for explosion, then gravity falls
+      const tExplode = Math.sin(local * Math.PI * 0.5); // circular ease out
+      const tGravity = local * local; // quadratic ease in for gravity acceleration
 
-      const tz = -500 * t;
-      const rx = f.rx * t;
-      const ry = f.ry * t;
+      // Horizontal explosion push + vertical drop
+      const tx = f.speedX * 60 * tExplode;
+      const ty = f.speedY * 60 * tExplode + 1200 * tGravity; // gravity pulls pieces down
+      const tz = -600 * tExplode;
+
+      const rx = f.rx * local;
+      const ry = f.ry * local;
+      const rz = f.rz * local;
       const alpha = local > 0.6 ? Math.max(0, 1 - (local - 0.6) / 0.4) : 1;
 
-      f.el.style.transform = `translate3d(0px, 0px, ${tz}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      f.el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, ${tz.toFixed(1)}px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) rotateZ(${rz.toFixed(1)}deg)`;
       f.el.style.opacity = String(alpha.toFixed(3));
     });
   }, []);
@@ -237,7 +263,9 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
         overlay.style.cssText = `
           position: absolute;
           inset: 0;
-          perspective: 500px;
+          perspective: 1200px;
+          transform-style: preserve-3d;
+          overflow: visible;
           pointer-events: none;
           z-index: 50;
         `;
