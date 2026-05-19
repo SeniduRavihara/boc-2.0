@@ -74,7 +74,7 @@ export const Hero: React.FC<HeroProps> = ({ scrollYProgress }) => {
             <div className="absolute inset-0 bg-accent/20 rounded-full blur-[120px] animate-pulse" />
             <div className="relative w-4/5 h-4/5">
               <DitheredLogo 
-                src="/logo.png"
+                src="/email-and-header/boc.webp"
                 className="w-full h-full"
                 pixelSize={4}
               />

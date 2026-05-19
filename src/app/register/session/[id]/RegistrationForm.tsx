@@ -318,6 +318,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     src="/hero-visual.png" 
                     alt="Session Banner" 
                     fill 
+                    priority
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-blue-950/40 mix-blend-multiply" />

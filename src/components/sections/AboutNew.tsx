@@ -148,7 +148,7 @@ export function AboutNew() {
             {/* Center Core */}
             <div className="relative z-10 flex items-center justify-center pointer-events-none drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]">
               <Image
-                src="/logo.png"
+                src="/email-and-header/boc.webp"
                 alt="BOC Logo"
                 width={120}
                 height={120}

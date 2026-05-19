@@ -231,6 +231,7 @@ export default function CompetitionForm() {
                     src="/hero-visual.png" 
                     alt="Ideathon Banner" 
                     fill 
+                    priority
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-purple-950/40 mix-blend-multiply" />
