@@ -3,8 +3,9 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import ScreenLoader from "@/components/ui/screen-loader";
 
 import MainFooter from "@/components/layout/MainFooter";
 import { AboutNew } from "./sections/AboutNew";
@@ -23,6 +24,7 @@ type WindowWithEarthFrame = Window & {
 };
 
 export function HomeClient() {
+  const [isLoading, setIsLoading] = useState(true);
   const mainRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef<HTMLDivElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
@@ -46,6 +48,19 @@ export function HomeClient() {
     const loadedImages: HTMLImageElement[] = [];
     let loadedCount = 0;
     const totalFrames = 120;
+    let firstFrameLoaded = false;
+    let timerDone = false;
+
+    const checkHideLoader = () => {
+      if (firstFrameLoaded && timerDone) {
+        setIsLoading(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      timerDone = true;
+      checkHideLoader();
+    }, 1500);
 
     for (let i = 1; i <= totalFrames; i++) {
       const img = new Image();
@@ -53,6 +68,10 @@ export function HomeClient() {
       img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
       img.onload = () => {
         loadedCount++;
+        if (i === 1) {
+          firstFrameLoaded = true;
+          checkHideLoader();
+        }
         if (loadedCount === totalFrames) {
           // Initial render
           renderFrame(0);
@@ -117,6 +136,7 @@ export function HomeClient() {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      clearTimeout(timer);
     };
   }, []);
 
@@ -197,6 +217,7 @@ export function HomeClient() {
 
   return (
     <main ref={mainRef} className="flex flex-col relative bg-[#050812]">
+      <ScreenLoader isVisible={isLoading} />
       {/* ── 1. Hero + Linux — condensed pinned reveal ─────────────── */}
       <div
         ref={pinnedRef}
