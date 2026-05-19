@@ -222,11 +222,11 @@ export function HomeClient() {
         pointerEvents: "none",
       });
 
-      // Unified Timeline: total duration = 5.0
+      // Unified Timeline: total duration = 10.0
       // 0.0 -> 2.0: scale/expand Linux environment + Earth frames (Phase 1)
-      // 2.0 -> 2.5: HOLD / INTERACT PHASE (Linux is full screen, intact, interactive)
-      // 2.5 -> 3.5: shatter Linux environment (Phase 2)
-      // 2.5 -> 5.0: falling scene animation (Phase 3)
+      // 2.0 -> 2.6: HOLD / INTERACT PHASE (Linux is full screen, intact, interactive)
+      // 2.6 -> 6.6: shatter Linux environment (Phase 2)
+      // 2.6 -> 10.0: falling scene animation (Phase 3)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pinnedRef.current,
@@ -291,11 +291,11 @@ export function HomeClient() {
         0.8
       );
 
-      // ── PHASE 1.5 - HOLD / INTERACT (2.0 -> 2.5) ──
+      // ── PHASE 1.5 - HOLD / INTERACT (2.0 -> 2.6) ──
       // The Linux window stays full screen and fully interactive during this section.
       
       // Predictive trigger for early screenshot capture (preCapture)
-      // Fires at 2.35, slightly before the shatter starts at 2.5.
+      // Fires at 2.0, as soon as the hold phase starts.
       tl.to(
         {},
         {
@@ -303,10 +303,10 @@ export function HomeClient() {
           onStart: () => setPreCapture(true),
           onReverseComplete: () => setPreCapture(false),
         },
-        2.35
+        2.0
       );
 
-      // ── PHASE 2 (2.5 -> 3.5) ──
+      // ── PHASE 2 (2.6 -> 6.6) ──
 
       // 6. Linux UI Shatter progress (goes from 0 to 1)
       const shatterObj = { progress: 0 };
@@ -314,51 +314,59 @@ export function HomeClient() {
         shatterObj,
         {
           progress: 1,
-          duration: 1.0,
+          duration: 4.0,
           ease: "none",
           onUpdate: () => {
             setShatterProgress(shatterObj.progress);
           },
         },
-        2.5
+        2.6
       );
 
       // 7. Earth sequence fades out as falling scene becomes visible
       tl.to(
         earthContainerRef.current,
-        { opacity: 0, duration: 0.3 },
-        2.5
+        { opacity: 0, duration: 0.6 },
+        2.6
       );
 
       // 8. Falling container fades in (clouds, streaks, person)
       tl.to(
         [fallingContainerRef.current, personContainerRef.current],
-        { opacity: 1, duration: 0.3 },
-        2.5
+        { opacity: 1, duration: 0.6 },
+        2.6
       );
 
-      // 8.5. Hide Linux window container when shatter is done
+      // 8.5. Disable pointer events as soon as shatter starts so clicks pass through
+      tl.set(
+        windowRef.current,
+        {
+          pointerEvents: "none",
+        },
+        2.6
+      );
+
+      // Hide Linux window container smoothly over a longer range
       tl.to(
         windowRef.current,
         {
           opacity: 0,
-          pointerEvents: "none",
-          duration: 0.1,
+          duration: 2.0,
         },
-        3.5
+        5.6
       );
 
-      // ── PHASE 3 (2.5 -> 5.0 - continuing through shatter) ──
+      // ── PHASE 3 (2.6 -> 10.0 - continuing through shatter) ──
 
       // 9. Clouds panning down (equivalent to translate 0% to -50%)
       tl.to(
         fallingBgRef.current,
         {
           yPercent: -50,
-          duration: 2.5,
+          duration: 7.4,
           ease: "none",
         },
-        2.5
+        2.6
       );
 
       // 10. Motion streaks fade/pulsate
@@ -366,18 +374,18 @@ export function HomeClient() {
         streaksRef.current,
         {
           opacity: 0.4,
-          duration: 1.25,
+          duration: 3.7,
           ease: "none",
         },
-        2.5
+        2.6
       ).to(
         streaksRef.current,
         {
           opacity: 0.2,
-          duration: 1.25,
+          duration: 3.7,
           ease: "none",
         },
-        3.75
+        6.3
       );
 
       // 11. Darkness overlay opacity increase
@@ -385,10 +393,10 @@ export function HomeClient() {
         darknessRef.current,
         {
           opacity: 0.4,
-          duration: 2.5,
+          duration: 7.4,
           ease: "none",
         },
-        2.5
+        2.6
       );
 
       // 12. Falling person animation (y, scale, rotate)
@@ -397,22 +405,22 @@ export function HomeClient() {
         {
           y: "0vh",
           scale: 1.3,
-          duration: 2.5,
+          duration: 7.4,
           ease: "none",
         },
-        2.5
+        2.6
       );
 
       tl.to(
         personRef.current,
         {
           keyframes: [
-            { rotate: 5, duration: 1.25 },
-            { rotate: -2, duration: 1.25 },
+            { rotate: 5, duration: 3.7 },
+            { rotate: -2, duration: 3.7 },
           ],
           ease: "none",
         },
-        2.5
+        2.6
       );
 
       // 13. Mission Text reveal
@@ -422,10 +430,10 @@ export function HomeClient() {
           opacity: 1,
           y: 0,
           pointerEvents: "auto",
-          duration: 1.0,
+          duration: 1.8,
           ease: "power2.out",
         },
-        4.0
+        8.2
       );
 
       // 14. Scroll Indicator State Changes
@@ -470,7 +478,7 @@ export function HomeClient() {
             if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
           }
         },
-        2.6
+        2.7
       );
 
       // Fade out indicator at the end
@@ -479,9 +487,9 @@ export function HomeClient() {
         {
           opacity: 0,
           scale: 0.8,
-          duration: 0.5,
+          duration: 0.8,
         },
-        4.0
+        8.0
       );
 
       const refresh = () => ScrollTrigger.refresh();
@@ -503,7 +511,7 @@ export function HomeClient() {
       {/* ── 1. Hero + Linux — condensed pinned reveal ─────────────── */}
       <div
         ref={pinnedRef}
-        style={{ height: "550vh" }}
+        style={{ height: "1000vh" }}
         className="relative z-20 w-full bg-black"
       >
         <div className="sticky top-0 h-screen w-full overflow-hidden touch-pan-y">

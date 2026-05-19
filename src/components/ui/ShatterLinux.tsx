@@ -214,13 +214,13 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
 
       // Horizontal explosion push + vertical drop
       const tx = f.speedX * 60 * tExplode;
-      const ty = f.speedY * 60 * tExplode + 1200 * tGravity; // gravity pulls pieces down
+      const ty = f.speedY * 60 * tExplode + 900 * tGravity; // gravity pulls pieces down
       const tz = -600 * tExplode;
 
       const rx = f.rx * local;
       const ry = f.ry * local;
       const rz = f.rz * local;
-      const alpha = local > 0.6 ? Math.max(0, 1 - (local - 0.6) / 0.4) : 1;
+      const alpha = local > 0.75 ? Math.max(0, 1 - (local - 0.75) / 0.25) : 1;
 
       f.el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, ${tz.toFixed(1)}px) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) rotateZ(${rz.toFixed(1)}deg)`;
       f.el.style.opacity = String(alpha.toFixed(3));
@@ -312,6 +312,36 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       }
     }
   }, [shatterProgress, preCapture, captureAndSwap, applyPhysics]);
+
+  // Listen to typing or clicking inside the Linux environment to re-capture when they stop.
+  useEffect(() => {
+    const target = linuxRef.current;
+    if (!target) return;
+
+    let debounceTimeout: NodeJS.Timeout;
+
+    const handleActivity = () => {
+      // Re-capture on inactivity if we are already captured but not currently shattering
+      if (builtRef.current && progressRef.current === 0) {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+          if (progressRef.current === 0) {
+            builtRef.current = false;
+            captureAndSwap();
+          }
+        }, 400);
+      }
+    };
+
+    target.addEventListener('keydown', handleActivity, { passive: true });
+    target.addEventListener('click', handleActivity, { passive: true });
+
+    return () => {
+      target.removeEventListener('keydown', handleActivity);
+      target.removeEventListener('click', handleActivity);
+      clearTimeout(debounceTimeout);
+    };
+  }, [captureAndSwap]);
 
   return (
     <div className="relative w-full h-full bg-transparent">
