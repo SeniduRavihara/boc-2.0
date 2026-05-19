@@ -294,8 +294,8 @@ export function HomeClient() {
       tl.to(
         windowRef.current,
         {
-          width: "100%",
-          height: "100%",
+          width: "100vw",
+          height: "100dvh",
           borderRadius: 0,
           duration: 1.2,
           ease: "power3.inOut",
@@ -526,7 +526,7 @@ export function HomeClient() {
         style={{ height: "1000vh" }}
         className="relative z-20 w-full bg-black"
       >
-        <div className="sticky top-0 h-screen w-full overflow-hidden touch-pan-y">
+        <div className="sticky top-0 h-[100dvh] w-full overflow-hidden touch-pan-y">
           {/* A. Background 1: Earth Canvas */}
           <div ref={earthContainerRef} className="absolute inset-0 z-0 overflow-hidden">
             <canvas
@@ -619,7 +619,7 @@ export function HomeClient() {
           {/* E. Shatter window (Phase 1 scales up to full screen, Phase 2 shatters) */}
           <div
             ref={windowRef}
-            className="absolute bottom-0 z-30 h-[56svh] w-[92vw] overflow-hidden rounded-t-2xl border border-white/10 border-b-0 shadow-[0_-20px_80px_rgba(0,0,0,0.9)] md:h-[60vh] md:w-[85vw]"
+            className="absolute bottom-0 z-30 h-[62dvh] w-[92vw] overflow-hidden rounded-t-2xl border border-white/10 border-b-0 shadow-[0_-20px_80px_rgba(0,0,0,0.9)] md:h-[60vh] md:w-[85vw]"
           >
             {isMobile ? (
               <AboutNewShatter
