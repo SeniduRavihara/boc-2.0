@@ -57,7 +57,7 @@ export function AboutNew() {
   return (
     <section
       id="about-us"
-      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32"
+      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32 lg:min-h-screen lg:py-0 flex lg:items-center"
     >
       {/* Background Pattern with Fade */}
       <div
