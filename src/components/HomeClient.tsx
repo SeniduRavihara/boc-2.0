@@ -19,6 +19,7 @@ import { Partners } from "./sections/Partners";
 import { PrizePool } from "./sections/PrizePool";
 import { Timeline } from "./sections/Timeline";
 import { ShatterLinux } from "./ui/ShatterLinux";
+import { AboutNewShatter } from "./ui/AboutNewShatter";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,6 +31,17 @@ export function HomeClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [shatterProgress, setShatterProgress] = useState(0);
   const [preCapture, setPreCapture] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const mainRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef<HTMLDivElement>(null);
   const heroContentRef = useRef<HTMLDivElement>(null);
@@ -604,15 +616,22 @@ export function HomeClient() {
             </Link>
           </div>
 
-          {/* E. Linux window (Phase 1 scales up to full screen, Phase 2 shatters) */}
+          {/* E. Shatter window (Phase 1 scales up to full screen, Phase 2 shatters) */}
           <div
             ref={windowRef}
             className="absolute bottom-0 z-30 h-[56svh] w-[92vw] overflow-hidden rounded-t-2xl border border-white/10 border-b-0 shadow-[0_-20px_80px_rgba(0,0,0,0.9)] md:h-[60vh] md:w-[85vw]"
           >
-            <ShatterLinux
-              shatterProgress={shatterProgress}
-              preCapture={preCapture}
-            />
+            {isMobile ? (
+              <AboutNewShatter
+                shatterProgress={shatterProgress}
+                preCapture={preCapture}
+              />
+            ) : (
+              <ShatterLinux
+                shatterProgress={shatterProgress}
+                preCapture={preCapture}
+              />
+            )}
           </div>
 
           {/* F. Mission Text / CTA */}
@@ -629,7 +648,7 @@ export function HomeClient() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/register/compitition">
-                  <button className="w-full sm:w-auto px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2">
+                  <button className="w-full sm:w-auto px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white border border-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2">
                     <Users size={14} /> Team Registration
                   </button>
                 </Link>
@@ -638,7 +657,7 @@ export function HomeClient() {
                   href="/Delegate_Booklet.pdf" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
+                  className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
                 >
                   <Download size={14} /> Download Delegate Booklet
                 </a>
