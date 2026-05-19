@@ -343,7 +343,7 @@ export default function AdminRegistrationsPage() {
                                                     </td>
                                                     <td className="px-8 py-6 text-right flex items-center justify-end gap-2">
                                                         <button 
-                                                            onClick={() => handleDirectDelete(reg.id, reg.name)}
+                                                            onClick={() => reg.id && handleDirectDelete(reg.id, reg.name)}
                                                             className="p-2 hover:bg-rose-500/10 rounded-lg text-slate-500 hover:text-rose-500 transition-all"
                                                             title="Delete Profile"
                                                         >

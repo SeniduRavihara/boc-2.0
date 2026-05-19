@@ -6,16 +6,10 @@ import { motion } from 'framer-motion';
 import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const SPONSORS = [
-  { name: "SLT Mobitel", image: "/images/sponsers/SLT.png" },
-  { name: "TIQRI", image: "/images/sponsers/tiqri.png" },
-  { name: "HackSL", image: "/images/sponsers/hacksl-logo.png" },
-  { name: "Canon - Metropolitan", image: "/images/sponsers/metropoliton-logo.png" },
-  { name: "Ragama Pharmacy", image: "/images/sponsers/ragama-pharmacy.png" },
-  { name: "ICTS", image: "/images/sponsers/icts.png" },
-  { name: "WSO2", image: "/images/sponsers/wso2-logo.png" },
-  { name: "Mogo Games", image: "/images/sponsers/mogo.png" },
-  { name: "DALUGAMA Second Hand Stores", image: "/images/sponsers/DalugamaSHS.png" },
-  { name: "T SHIRT GEEK BY STB", image: "/images/sponsers/T-SHIRT.png" },
+  { name: "HackSL", image: "/images/sponsers/hacksl-logo.webp" },
+  { name: "ICTS", image: "/images/sponsers/icts.webp" },
+  { name: "Perl Bay", image: "/images/sponsers/perl-bay.webp" },
+  { name: "Ranmuthu", image: "/images/sponsers/ranmuthu.webp" },
 ];
 
 export const Partners: React.FC = () => {

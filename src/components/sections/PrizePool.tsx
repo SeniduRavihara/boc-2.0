@@ -2,42 +2,57 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Trophy, Award, Medal, Star } from "lucide-react";
 import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
 
 const PRIZES = [
   {
-    rank: "2nd",
-    title: "Runner Up",
-    amount: "LKR 75,000",
-    icon: Award,
-    color: "from-slate-400 to-slate-600",
-    glow: "rgba(148, 163, 184, 0.2)",
-    features: ["Cash Prize", "Certificate", "Tech Swag Box"],
+    rank: "2",
+    place: "2nd",
+    title: "SECOND PLACE",
+    amount: "Rs. 20,000",
+    color: "#ffffff",
+    headerBg: "bg-white",
+    headerText: "text-[#7c7c77]",
+    bodyBg: "bg-gradient-to-b from-[#323232] to-[#1e1e1e]",
+    bodyText: "text-white",
+    borderColor: "border-white/20",
+    cardHeight: "h-[260px] md:h-[400px]",
+    headerHeight: "h-[110px] md:h-[150px]",
+    numSize: "text-6xl md:text-8xl",
+    glow: "rgba(255, 255, 255, 0.15)",
   },
   {
-    rank: "1st",
-    title: "The Champion",
-    amount: "LKR 100,000",
-    icon: Trophy,
-    color: "from-blue-400 to-blue-600",
-    glow: "rgba(59, 130, 246, 0.4)",
+    rank: "1",
+    place: "1st",
+    title: "FIRST PLACE",
+    amount: "Rs. 30,000",
     featured: true,
-    features: [
-      "Grand Cash Prize",
-      "Winner Trophy",
-      "Exclusive Internship Opportunity",
-      "Premium Swag Pack",
-    ],
+    color: "#ffcc00",
+    headerBg: "bg-[#ffcc00]",
+    headerText: "text-[#8a6800]",
+    bodyBg: "bg-gradient-to-b from-[#2e2a14] to-[#12110a]",
+    bodyText: "text-[#ffcc00]",
+    borderColor: "border-[#ffcc00]/40",
+    cardHeight: "h-[320px] md:h-[460px]",
+    headerHeight: "h-[135px] md:h-[180px]",
+    numSize: "text-7xl md:text-9xl",
+    glow: "rgba(255, 204, 0, 0.3)",
   },
   {
-    rank: "3rd",
-    title: "Second Runner Up",
-    amount: "LKR 50,000",
-    icon: Medal,
-    color: "from-amber-600 to-amber-800",
-    glow: "rgba(180, 83, 9, 0.2)",
-    features: ["Cash Prize", "Certificate", "BOC Swag Bag"],
+    rank: "3",
+    place: "3rd",
+    title: "THIRD PLACE",
+    amount: "Rs. 10,000",
+    color: "#c15206",
+    headerBg: "bg-[#c15206]",
+    headerText: "text-[#5e2000]",
+    bodyBg: "bg-gradient-to-b from-[#2a170f] to-[#120a06]",
+    bodyText: "text-[#e06615]",
+    borderColor: "border-[#c15206]/40",
+    cardHeight: "h-[220px] md:h-[340px]",
+    headerHeight: "h-[90px] md:h-[120px]",
+    numSize: "text-5xl md:text-7xl",
+    glow: "rgba(193, 82, 6, 0.15)",
   },
 ];
 
@@ -69,70 +84,68 @@ export function PrizePool() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center md:items-end justify-center gap-6 lg:gap-8 w-full max-w-4xl mx-auto">
           {PRIZES.map((prize, idx) => (
             <motion.div
-              key={prize.rank}
+              key={prize.place}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, duration: 0.6 }}
-              className={`relative group ${
-                prize.featured ? "md:pb-12 z-20 order-1 md:order-2" : idx === 0 ? "order-2 md:order-1" : "order-3"
+              className={`relative group w-full max-w-[280px] flex flex-col ${prize.cardHeight} ${
+                prize.featured ? "order-1 md:order-2" : idx === 0 ? "order-2 md:order-1" : "order-3"
               }`}
             >
               {/* Glow Effect */}
               <div
-                className="absolute inset-0 rounded-[2.5rem] blur-2xl transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                className="absolute inset-0 rounded-2xl blur-xl transition-opacity duration-500 opacity-0 group-hover:opacity-100"
                 style={{ backgroundColor: prize.glow }}
               />
 
+              {/* Main Card Container */}
               <div
-                className={`relative h-full p-8 rounded-[2.5rem] border transition-all duration-500 ${
-                  prize.featured
-                    ? "bg-[#0a1229] border-blue-500/30 shadow-[0_0_40px_rgba(59,130,246,0.1)] py-12"
-                    : "bg-[#050812] border-white/5 hover:border-white/10"
-                }`}
+                className={`relative rounded-2xl border ${prize.borderColor} overflow-hidden h-full flex flex-col bg-black/40 backdrop-blur-xl transition-all duration-500`}
               >
-                <div className="flex flex-col items-center text-center">
-                  <div
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${prize.color} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-500`}
-                  >
-                    <prize.icon className="w-8 h-8 text-white" />
-                  </div>
-
-                  <span className="text-sm font-mono uppercase tracking-[0.3em] text-blue-500 mb-2">
-                    {prize.rank} Place
+                {/* Top Header */}
+                <div className={`w-full ${prize.headerBg} ${prize.headerHeight} flex flex-col items-center justify-center p-4`}>
+                  <span className={`font-black ${prize.numSize} leading-none tracking-tighter ${prize.headerText}`}>
+                    {prize.rank}
                   </span>
-                  <h3 className="text-2xl font-bold text-white mb-1 uppercase tracking-tight">
+                  <span className={`font-black tracking-widest text-[10px] md:text-xs uppercase mt-2 ${prize.headerText}`}>
                     {prize.title}
-                  </h3>
-                  <div className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60 mb-8 tracking-tighter">
+                  </span>
+                </div>
+
+                {/* Bottom Content */}
+                <div className={`flex-1 ${prize.bodyBg} flex flex-col items-center justify-center p-6 text-center gap-1`}>
+                  <div className={`text-2xl md:text-3xl font-black tracking-tight ${prize.bodyText}`}>
                     {prize.amount}
                   </div>
 
-                  <div className="w-full space-y-3 pt-8 border-t border-white/5">
-                    {prize.features.map((feature) => (
-                      <div
-                        key={feature}
-                        className="flex items-center gap-3 text-sm text-slate-400"
-                      >
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40" />
-                        {feature}
-                      </div>
-                    ))}
+                  <div className={`text-lg md:text-xl font-black ${prize.bodyText}`}>
+                    +
+                  </div>
+
+                  <div className={`text-xs md:text-sm font-black tracking-widest uppercase ${prize.bodyText}`}>
+                    Digital Certificate
                   </div>
                 </div>
               </div>
-
-              {prize.featured && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-blue-600 text-[10px] font-bold uppercase tracking-[0.2em] text-white z-30">
-                  Main Prize
-                </div>
-              )}
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6, duration: 0.6 }}
+          className="mt-16 text-center max-w-2xl mx-auto px-4"
+        >
+          <p className="text-slate-400 text-xs md:text-sm leading-relaxed uppercase tracking-widest font-mono">
+            ★ All participating delegates will be awarded official <span className="text-blue-400 font-bold">Digital Certificates</span> of participation to recognize their cloud innovation. ★
+          </p>
+        </motion.div>
 
         <motion.p
           initial={{ opacity: 0 }}
