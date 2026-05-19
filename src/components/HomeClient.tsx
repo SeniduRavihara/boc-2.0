@@ -60,7 +60,7 @@ export function HomeClient() {
     const timer = setTimeout(() => {
       timerDone = true;
       checkHideLoader();
-    }, 1500);
+    }, 3000);
 
     for (let i = 1; i <= totalFrames; i++) {
       const img = new Image();
