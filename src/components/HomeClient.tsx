@@ -456,10 +456,10 @@ export function HomeClient() {
         {
           duration: 0.1,
           onStart: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO ENTER";
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
           },
           onReverseComplete: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO ENTER";
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
           }
         },
         0.5
@@ -473,7 +473,7 @@ export function HomeClient() {
             if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
           },
           onReverseComplete: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO ENTER";
+            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
           }
         },
         2.1
@@ -703,14 +703,14 @@ export function HomeClient() {
       {/* Floating Scroll Indicator */}
       <div
         ref={scrollIndicatorRef}
-        className="fixed bottom-6 right-6 z-50 pointer-events-none flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl text-[10px] font-mono tracking-widest text-white transition-opacity duration-300"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 z-50 pointer-events-none flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/10 shadow-2xl text-[10px] font-mono tracking-widest text-white transition-opacity duration-300"
       >
         <div className="flex flex-col items-center justify-center w-5 h-8 border-2 border-white/30 rounded-full relative">
           <div className="w-1 h-2 bg-blue-400 rounded-full absolute top-1.5 left-1/2 -translate-x-1/2 animate-bounce" />
         </div>
         <div className="flex flex-col text-left">
           <span className="text-[8px] text-white/40 uppercase leading-none mb-1">GUIDE</span>
-          <span ref={scrollLabelRef} className="font-bold text-blue-400 leading-none">SCROLL TO ENTER</span>
+          <span ref={scrollLabelRef} className="font-bold text-blue-400 leading-none">KEEP SCROLLING</span>
         </div>
       </div>
     </main>
