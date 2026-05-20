@@ -639,7 +639,7 @@ export function HomeClient() {
             ref={missionTextRef}
             className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex justify-center pointer-events-none opacity-0"
           >
-            <div className="max-w-[1000px] mx-auto px-6 text-center pointer-events-auto">
+            <div className="max-w-[1000px] mx-auto px-6 text-center">
               <h2 className="font-reglo text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] drop-shadow-2xl text-white">
                 To build Sri Lanka&apos;s next generation of cloud-native engineers by bridging academic learning and industry infrastructure.
               </h2>
