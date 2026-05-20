@@ -648,7 +648,7 @@ export function HomeClient() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/register/compitition">
-                  <button className="w-full sm:w-auto px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white border border-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center gap-2">
+                  <button className="w-full sm:w-auto px-8 py-4 bg-blue-700 hover:bg-blue-600 text-white border border-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(30,144,255,0.4)] flex items-center justify-center gap-2">
                     <Users size={14} /> Team Registration
                   </button>
                 </Link>
@@ -668,7 +668,7 @@ export function HomeClient() {
       </div>
       {/* <MissionPillars /> */}
       <Timeline />
-      <PrizePool />
+      {/* <PrizePool /> */}
 
       {/*
         ── 2. Gallery zoom + PortalSection1 ─────────────────────────────────
