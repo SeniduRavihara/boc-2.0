@@ -4,6 +4,7 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
 } from "firebase/firestore";
 
 export interface TeamMember {
@@ -21,22 +22,15 @@ export interface Team {
 
 // Get all unique teams
 export async function getAllTeams(): Promise<Team[]> {
-  if(!db) return [];
+  if (!db) return [];
   try {
-    const membersRef = collection(db, "competition_registrations");
-    const snapshot = await getDocs(membersRef);
+    const teamsRef = collection(db, "competition_teams");
+    const q = query(teamsRef, orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
 
-    const teamsSet = new Set<string>();
-    snapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      if (data.teamName) {
-        teamsSet.add(data.teamName);
-      }
-    });
-
-    return Array.from(teamsSet).map((name) => ({
-      id: name.toLowerCase().replace(/\s+/g, "-"),
-      name,
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      name: doc.data().teamName || "",
     }));
   } catch (error) {
     console.error("Error fetching teams:", error);
@@ -46,19 +40,37 @@ export async function getAllTeams(): Promise<Team[]> {
 
 // Get team members by team name
 export async function getTeamMembers(teamName: string): Promise<TeamMember[]> {
-  if(!db) return [];
+  if (!db) return [];
   try {
-    const membersRef = collection(db, "competition_registrations");
-    const q = query(membersRef, where("teamName", "==", teamName));
+    const teamsRef = collection(db, "competition_teams");
+    const q = query(
+      teamsRef,
+      where("teamNameLowercase", "==", teamName.toLowerCase().trim())
+    );
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      name: doc.data().name || "",
-      email: doc.data().email || "",
-      teamName: doc.data().teamName || "",
-      registeredAt: doc.data().registeredAt || "",
+    if (snapshot.empty) return [];
+
+    const teamDoc = snapshot.docs[0];
+    const teamData = teamDoc.data();
+
+    const leader: TeamMember = {
+      id: teamDoc.id,
+      name: teamData.leaderName || "",
+      email: teamData.leaderEmail || "",
+      teamName: teamData.teamName || "",
+      registeredAt: teamData.createdAt?.toDate?.().toISOString() || "",
+    };
+
+    const members = (teamData.members || []).map((member: { name?: string; email?: string }) => ({
+      id: teamDoc.id,
+      name: member.name || "",
+      email: member.email || "",
+      teamName: teamData.teamName || "",
+      registeredAt: teamData.createdAt?.toDate?.().toISOString() || "",
     }));
+
+    return [leader, ...members];
   } catch (error) {
     console.error("Error fetching team members:", error);
     return [];
