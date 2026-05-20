@@ -3,8 +3,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import Link from 'next/link';
-import { Download, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export function FallingScene() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -135,20 +134,27 @@ export function FallingScene() {
               Founded under IEEE Student Branch - University of Sri Jayewardenepura
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/register/compitition">
-                <button className="w-full sm:w-auto px-8 py-4 bg-blue-700 hover:bg-blue-600 text-white border border-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(30,144,255,0.4)] flex items-center justify-center gap-2">
-                  <Users size={14} /> Team Registration
-                </button>
-              </Link>
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="w-full sm:w-auto px-8 py-4 bg-blue-700/45 text-white/65 border border-white/40 font-bold tracking-widest uppercase text-xs rounded-full transition-all shadow-[0_0_20px_rgba(30,144,255,0.2)] flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
+              >
+                <Users size={14} />
+                Team Registration
+                <span className="ml-1 rounded-full border border-white/40 bg-white/10 px-2 py-0.5 text-[10px] tracking-[0.2em] text-white/80">
+                  Open Soon
+                </span>
+              </button>
               
-              <a 
+              {/* <a 
                 href="/Delegate_Booklet.pdf" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
               >
                 <Download size={14} /> Download Delegate Booklet
-              </a>
+              </a> */}
             </div>
           </motion.div>
         </motion.div>
