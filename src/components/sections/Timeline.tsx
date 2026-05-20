@@ -65,7 +65,8 @@ export function Timeline() {
   // Desktop paths mapping
   const dMainTrackPath = useTransform(
     [widthMV, m1x, m1y, m2x, m2y, m3x, m3y, m4x, m4y, m5x, m5y],
-    ([w, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5]) => {
+    (latest: any[]) => {
+      const [w, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5] = latest;
       return `M ${0.05 * w} 280 ` +
         `L ${0.10 * w + x1} ${280 + y1} ` +
         `L ${0.30 * w + x2} ${280 + y2} ` +
@@ -78,7 +79,8 @@ export function Timeline() {
 
   const dBranchTrackPath = useTransform(
     [widthMV, m1x, m1y, s1x, s1y, s2x, s2y, s3x, s3y],
-    ([w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3]) => {
+    (latest: any[]) => {
+      const [w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3] = latest;
       return `M ${0.10 * w + x1} ${280 + y1} ` +
         `Q ${0.10 * w + x1} ${120 + sy1} ${0.20 * w + sx1} ${120 + sy1} ` +
         `L ${0.40 * w + sx2} ${120 + sy2} ` +
@@ -90,7 +92,8 @@ export function Timeline() {
   // Mobile paths mapping
   const mobMainTrackPath = useTransform(
     [mobileWidthMV, m1x, m1y, m2x, m2y, m3x, m3y, m4x, m4y, m5x, m5y],
-    ([w, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5]) => {
+    (latest: any[]) => {
+      const [w, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5] = latest;
       return `M ${0.45 * w} 0 ` +
         `L ${0.45 * w + x1} ${40 + y1} ` +
         `L ${0.45 * w + x2} ${310 + y2} ` +
@@ -103,7 +106,8 @@ export function Timeline() {
 
   const mobBranchTrackPath = useTransform(
     [mobileWidthMV, m1x, m1y, s1x, s1y, s2x, s2y, s3x, s3y],
-    ([w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3]) => {
+    (latest: any[]) => {
+      const [w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3] = latest;
       return `M ${0.45 * w + x1} ${40 + y1} ` +
         `Q ${0.45 * w + 42} ${40 + y1} ${0.45 * w + 42 + sx1} ${130 + sy1} ` +
         `L ${0.45 * w + 42 + sx2} ${220 + sy2} ` +
