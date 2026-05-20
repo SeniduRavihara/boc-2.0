@@ -274,12 +274,19 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
           overlay.appendChild(f.el);
         });
 
-        target.style.visibility = 'hidden';
         builtRef.current = true;
         isCapturingRef.current = false;
 
-        // Apply physics at current scroll progress
-        applyPhysics(progressRef.current);
+        // Show/hide based on current progress
+        if (progressRef.current > 0) {
+          target.style.visibility = 'hidden';
+          overlay.style.display = 'block';
+          applyPhysics(progressRef.current);
+        } else {
+          target.style.visibility = 'visible';
+          overlay.style.display = 'none';
+          applyPhysics(0);
+        }
       };
     } catch (error) {
       console.error('[ShatterLinux] Capture failed:', error);
@@ -296,19 +303,17 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       if (!builtRef.current) {
         captureAndSwap();
       } else if (shatterProgress > 0) {
+        overlay.style.display = 'block';
+        target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => applyPhysics(shatterProgress));
       }
     } else {
-      // Revert/Reset
-      if (builtRef.current || isCapturingRef.current) {
+      if (builtRef.current) {
         cancelAnimationFrame(rafRef.current);
-        builtRef.current = false;
-        isCapturingRef.current = false;
-        fragsRef.current = [];
-        overlay.innerHTML = '';
-        overlay.style.cssText = '';
+        overlay.style.display = 'none';
         target.style.visibility = 'visible';
+        applyPhysics(0);
       }
     }
   }, [shatterProgress, preCapture, captureAndSwap, applyPhysics]);
