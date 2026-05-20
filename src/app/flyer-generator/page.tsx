@@ -52,7 +52,7 @@ function CaptionBox({
 
   return (
     <div className="bg-dark-blue-700 bg-opacity-50 backdrop-blur rounded-2xl p-4 sm:p-8"
->
+    >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-reglo text-blue-300">
           Step 3: Copy Caption
@@ -61,7 +61,7 @@ function CaptionBox({
 
       {/* Caption text area */}
       <div className="relative">
-        <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed bg-dark-blue-900 bg-opacity-70 rounded-xl p-5 border border-dark-blue-600 font-sans min-h-[160px]">
+        <pre className="whitespace-pre-wrap text-sm text-gray-300 leading-relaxed bg-dark-blue-900 bg-opacity-70 rounded-xl p-5 border-line border-dark-blue-600 font-sans min-h-[160px]">
           {caption}
         </pre>
       </div>
@@ -133,24 +133,15 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const updatePreviewScale = () => {
-      const availableWidth = previewFrameRef.current?.clientWidth || 520;
-      setPreviewScale(Math.min(1, availableWidth / 520));
+    const updateScale = () => {
+      if (previewFrameRef.current) {
+        const containerWidth = previewFrameRef.current.offsetWidth;
+        setPreviewScale(Math.min(containerWidth / 520, 1));
+      }
     };
-
-    updatePreviewScale();
-
-    const observer = new ResizeObserver(updatePreviewScale);
-    if (previewFrameRef.current) {
-      observer.observe(previewFrameRef.current);
-    }
-
-    window.addEventListener("resize", updatePreviewScale);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updatePreviewScale);
-    };
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
   }, []);
 
   // Load members when team is selected
@@ -245,7 +236,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-dark-blue-900 via-dark-blue-800 to-dark-blue-900 text-white p-4 sm:p-6">
+    <main className="min-h-screen bg-gradient-to-br from-dark-blue-900 via-dark-blue-800 to-dark-blue-900 text-white p-3 sm:p-6 overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -260,7 +251,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Panel - Controls */}
           <div className="space-y-6">
-            <div className="glass rounded-lg p-4 sm:p-8">
+            <div className="boc-card rounded-lg p-4 sm:p-8">
               <h2 className="text-2xl font-reglo mb-6 text-blue-300">
                 Step 1: Select Team & Member
               </h2>
@@ -288,7 +279,7 @@ export default function Home() {
 
             {/* Image Upload & Crop */}
             {selectedMember && (
-              <div className="glass rounded-lg p-4 sm:p-8">
+              <div className="boc-card rounded-lg p-4 sm:p-8">
                 <h2 className="text-2xl font-reglo mb-6 text-blue-300">
                   Step 2: Upload & Crop Photo
                 </h2>
@@ -401,14 +392,14 @@ export default function Home() {
 
           {/* Right Panel - Preview */}
           <div className="lg:sticky lg:top-6 h-fit">
-            <div className="glass rounded-lg p-4 sm:p-8">
+            <div className="boc-card rounded-lg p-4 sm:p-8">
               <h2 className="text-2xl font-reglo mb-6 text-blue-300">Preview</h2>
 
-              <div className="flex items-center justify-center bg-dark-blue-900 rounded-xl p-3 sm:p-8 overflow-hidden">
+              <div className="flex items-center justify-center bg-dark-blue-900 rounded-xl p-3 sm:p-8 overflow-hidden w-full">
                 <div
                   ref={previewFrameRef}
-                  className="relative w-full max-w-[520px] overflow-hidden"
-                  style={{ height: `${650 * previewScale}px` }}
+                  className="relative w-full overflow-hidden"
+                  style={{ height: `${650 * previewScale}px`, maxWidth: "520px" }}
                 >
                   <div
                     style={{
@@ -431,9 +422,9 @@ export default function Home() {
                 aria-hidden="true"
                 data-flyer-export
                 style={{
-                  position: "absolute",
-                  left: 0,
-                  top: 0,
+                  position: "fixed",
+                  left: "-9999px",
+                  top: "-9999px",
                   width: "520px",
                   height: "650px",
                   opacity: 0,
