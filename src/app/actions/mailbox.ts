@@ -16,8 +16,9 @@ export async function sendMail(params: {
   cc?: string | string[];
   bcc?: string | string[];
   attachInvitation?: boolean;
+  metadata?: Record<string, unknown>;
 }) {
-  const { to, subject, content, cc, bcc, attachInvitation = false } = params;
+  const { to, subject, content, cc, bcc, attachInvitation = false, metadata } = params;
 
   try {
     console.log(`[Mailbox] Starting sendMail process for ${to}...`);
@@ -74,10 +75,11 @@ export async function sendMail(params: {
         content_html: htmlContent,
         folder: 'sent',
         is_read: true,
-        metadata: { 
-          source: 'admin_mailbox',
+        metadata: {
+          source: metadata?.source ?? 'admin_mailbox',
           cc: (typeof cc === 'string' ? cc : cc?.join(', ')) || null,
-          bcc: (typeof bcc === 'string' ? bcc : bcc?.join(', ')) || null
+          bcc: (typeof bcc === 'string' ? bcc : bcc?.join(', ')) || null,
+          ...metadata,
         }
       });
       console.log(`[Mailbox] Firestore record created.`);

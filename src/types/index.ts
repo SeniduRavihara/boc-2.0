@@ -141,3 +141,21 @@ export interface QuizSubmission {
    createdAt?: any;
  }
 
+export interface FlyerEmailRecipient {
+  email: string;
+  memberName: string;
+  teamName: string;
+  teamId: string;
+  registeredAt: string;
+}
+
+export type FlyerEmailQueueStatus = 'pending' | 'ready' | 'complete';
+
+export interface FlyerEmailQueue {
+  builtAt?: Timestamp;
+  timezone: 'Asia/Kolkata';
+  recipients: FlyerEmailRecipient[];
+  sentEmails: string[];
+  status: FlyerEmailQueueStatus;
+}
+

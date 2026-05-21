@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import html2canvas from "html2canvas";
 import { TeamSelector } from "@/components/flyer/TeamSelector";
 import { MemberSelector } from "@/components/flyer/MemberSelector";
@@ -100,8 +101,18 @@ function CaptionBox({
   );
 }
 
+function namesMatch(a: string, b: string): boolean {
+  const left = a.trim().toLowerCase();
+  const right = b.trim().toLowerCase();
+  return left.length > 0 && left === right;
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
-export default function Home() {
+function FlyerGeneratorContent() {
+  const searchParams = useSearchParams();
+  const teamParam = searchParams.get("team");
+  const memberParam = searchParams.get("member");
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -115,6 +126,7 @@ export default function Home() {
   const flyerRef = useRef<HTMLDivElement>(null);
   const previewFrameRef = useRef<HTMLDivElement>(null);
   const [previewScale, setPreviewScale] = useState(1);
+  const prefillApplied = useRef({ team: false, member: false });
 
   // Load teams on mount
   useEffect(() => {
@@ -131,6 +143,20 @@ export default function Home() {
     };
     loadTeams();
   }, []);
+
+  // Pre-fill team from ?team= query param
+  useEffect(() => {
+    if (!teamParam || teams.length === 0 || prefillApplied.current.team) return;
+
+    const decodedTeam = decodeURIComponent(teamParam);
+    const match = teams.find(
+      (t) => t.name === decodedTeam || namesMatch(t.name, decodedTeam)
+    );
+    if (match) {
+      setSelectedTeam(match.name);
+      prefillApplied.current.team = true;
+    }
+  }, [teams, teamParam]);
 
   useEffect(() => {
     const updateScale = () => {
@@ -153,6 +179,7 @@ export default function Home() {
         setSelectedMemberData(null);
         return;
       }
+      setSelectedMember("");
       setIsLoading(true);
       try {
         const loadedMembers = await getTeamMembers(selectedTeam);
@@ -166,10 +193,31 @@ export default function Home() {
     loadMembers();
   }, [selectedTeam]);
 
-  // Update selected member data
+  // Pre-fill member from ?member= query param (matches display name)
+  useEffect(() => {
+    if (
+      !memberParam ||
+      members.length === 0 ||
+      !selectedTeam ||
+      prefillApplied.current.member
+    ) {
+      return;
+    }
+
+    const decodedMember = decodeURIComponent(memberParam);
+    const match = members.find(
+      (m) => m.name === decodedMember || namesMatch(m.name, decodedMember)
+    );
+    if (match?.email) {
+      setSelectedMember(match.email);
+      prefillApplied.current.member = true;
+    }
+  }, [members, memberParam, selectedTeam]);
+
+  // Resolve selected member row by email
   useEffect(() => {
     if (selectedMember) {
-      const member = members.find((m) => m.id === selectedMember);
+      const member = members.find((m) => m.email === selectedMember);
       setSelectedMemberData(member || null);
     } else {
       setSelectedMemberData(null);
@@ -453,5 +501,19 @@ export default function Home() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function FlyerGeneratorPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-gradient-to-br from-dark-blue-900 via-dark-blue-800 to-dark-blue-900 text-white flex items-center justify-center">
+          <p className="text-gray-400 font-uncutsans">Loading flyer generator…</p>
+        </main>
+      }
+    >
+      <FlyerGeneratorContent />
+    </Suspense>
   );
 }

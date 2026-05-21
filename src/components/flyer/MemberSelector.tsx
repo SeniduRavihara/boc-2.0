@@ -3,7 +3,7 @@ import React from "react";
 interface MemberSelectorProps {
   members: Array<{ id: string; name: string; email: string }>;
   selectedMember: string;
-  onMemberChange: (memberId: string) => void;
+  onMemberChange: (memberEmail: string) => void;
   isLoading: boolean;
 }
 
@@ -38,7 +38,7 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
               : "Choose a member..."}
         </option>
         {members.map((member) => (
-          <option key={member.email} value={member.id}>
+          <option key={member.email} value={member.email}>
             {member.name}
           </option>
         ))}

@@ -1,22 +1,25 @@
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
   getDocs,
   getDoc,
   setDoc,
   onSnapshot,
-  query, 
+  query,
   orderBy,
   where,
   limit,
   serverTimestamp,
+  arrayUnion,
   type Firestore
 } from "firebase/firestore";
 import { db } from "./config";
-import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session, CompetitionTeam } from "@/types";
+import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session, CompetitionTeam, FlyerEmailRecipient, FlyerEmailQueue } from "@/types";
+import { isSameISTCalendarDay } from "@/lib/time/ist";
+import { flattenCompetitionRecipients } from "@/lib/flyer-queue/recipients";
 
 const TASKS_COLLECTION = "tasks";
 const TEAM_MEMBERS_COLLECTION = "team_members";
@@ -33,6 +36,8 @@ const QUIZ_PARTICIPANTS_COLLECTION = "quiz_participants";
 const SETTINGS_COLLECTION = "settings";
 const SESSIONS_COLLECTION = "sessions";
 const COMPETITION_TEAMS_COLLECTION = "competition_teams";
+const FLYER_EMAIL_QUEUE_COLLECTION = "flyer_email_queue";
+const FLYER_EMAIL_QUEUE_DOC_ID = "current";
 
 // Helper: ensures Firestore is initialized before any API call.
 function requireDb(): Firestore {
@@ -170,23 +175,23 @@ export const deleteMeeting = async (id: string) => {
 export const addRegistration = async (registration: Omit<Registration, "id">) => {
   const firestore = requireDb();
   const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
-  
+
   const existingUser = await checkUserRegistration(registration.email);
-  
+
   if (existingUser && existingUser.id) {
     const userRef = doc(firestore, REGISTRATIONS_COLLECTION, existingUser.id);
-    
+
     // BACKWARD COMPATIBILITY: If they have legacy sessionId but no sessionIds array
     let currentSessions = existingUser.sessionIds || [];
     if (currentSessions.length === 0 && existingUser.sessionId) {
       currentSessions = [existingUser.sessionId];
     }
-    
+
     const currentTimes = existingUser.sessionRegistrationTimes || {};
-    
+
     // Find which session ID is being added
     const newSessionId = (registration as any).sessionId || (registration.sessionIds?.find(id => !currentSessions.includes(id))) || "1";
-    
+
     if (!currentSessions.includes(newSessionId)) {
       return await updateDoc(userRef, {
         sessionId: newSessionId, // Force update top-level ID
@@ -199,13 +204,13 @@ export const addRegistration = async (registration: Omit<Registration, "id">) =>
         organization: registration.organization || existingUser.organization
       });
     }
-    
+
     // Even if session already in array, ensure top-level sessionId is this one
     return await updateDoc(userRef, { sessionId: newSessionId });
   }
 
   const newSessionId = (registration as any).sessionId || (registration.sessionIds && registration.sessionIds[0]) || "1";
-  
+
   return await addDoc(registrationsRef, {
     ...registration,
     sessionIds: [newSessionId],
@@ -219,10 +224,10 @@ export const addRegistration = async (registration: Omit<Registration, "id">) =>
 export const checkRegistrationExists = async (email: string, sessionId: string): Promise<boolean> => {
   const firestore = requireDb();
   const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
-  
+
   const q1 = query(registrationsRef, where("email", "==", email), where("sessionId", "==", sessionId));
   const q2 = query(registrationsRef, where("email", "==", email), where("sessionIds", "array-contains", sessionId));
-  
+
   const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
   return !snap1.empty || !snap2.empty;
 };
@@ -230,17 +235,17 @@ export const checkRegistrationExists = async (email: string, sessionId: string):
 export const getRegistrationsBySession = async (sessionId: string): Promise<Registration[]> => {
   const firestore = requireDb();
   const registrationsRef = collection(firestore, REGISTRATIONS_COLLECTION);
-  
+
   const q1 = query(registrationsRef, where("sessionId", "==", sessionId));
   const q2 = query(registrationsRef, where("sessionIds", "array-contains", sessionId));
-  
+
   const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
   const results = new Map<string, Registration>();
-  
+
   [...snap1.docs, ...snap2.docs].forEach(doc => {
     results.set(doc.id, { id: doc.id, ...doc.data() } as Registration);
   });
-  
+
   return Array.from(results.values()).sort((a, b) => {
     const timeA = a.createdAt?.toMillis() || 0;
     const timeB = b.createdAt?.toMillis() || 0;
@@ -271,7 +276,7 @@ export const deleteRegistration = async (id: string) => {
 export const addCompetitionTeam = async (team: Omit<CompetitionTeam, "id" | "createdAt">) => {
   const firestore = requireDb();
   const teamsRef = collection(firestore, COMPETITION_TEAMS_COLLECTION);
-  
+
   const normalizedEmails = team.allEmails.map(email => email.toLowerCase().trim());
   const normalizedMembers = team.members.map(member => ({
     ...member,
@@ -319,6 +324,106 @@ export const deleteCompetitionTeam = async (id: string) => {
   const firestore = requireDb();
   const teamRef = doc(firestore, COMPETITION_TEAMS_COLLECTION, id);
   return await deleteDoc(teamRef);
+};
+
+// --- Flyer email campaign queue ---
+
+export const getFirstCompetitionRecipients = async (
+  limitCount = 100
+): Promise<FlyerEmailRecipient[]> => {
+  const firestore = requireDb();
+  const teamsRef = collection(firestore, COMPETITION_TEAMS_COLLECTION);
+  const q = query(teamsRef, orderBy("createdAt", "asc"));
+  const snapshot = await getDocs(q);
+
+  const teams = snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data(),
+  }));
+
+  return flattenCompetitionRecipients(teams, limitCount);
+};
+
+export const getFlyerEmailQueue = async (): Promise<FlyerEmailQueue | null> => {
+  const firestore = requireDb();
+  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
+  const snap = await getDoc(queueRef);
+  if (!snap.exists()) return null;
+  return snap.data() as FlyerEmailQueue;
+};
+
+export const subscribeToFlyerEmailQueue = (
+  callback: (queue: FlyerEmailQueue | null) => void,
+  onError?: (error: Error) => void
+) => {
+  const firestore = requireDb();
+  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
+  return onSnapshot(
+    queueRef,
+    (snap) => {
+      callback(snap.exists() ? (snap.data() as FlyerEmailQueue) : null);
+    },
+    (err) => onError?.(err)
+  );
+};
+
+export const buildFlyerEmailQueue = async (options?: {
+  force?: boolean;
+}): Promise<FlyerEmailQueue> => {
+  const force = options?.force ?? false;
+  const existing = await getFlyerEmailQueue();
+
+  if (!force && existing?.builtAt) {
+    const builtDate =
+      typeof existing.builtAt.toDate === "function"
+        ? existing.builtAt.toDate()
+        : new Date(existing.builtAt as unknown as string);
+    if (isSameISTCalendarDay(builtDate, new Date())) {
+      return existing;
+    }
+  }
+
+  const recipients = await getFirstCompetitionRecipients(100);
+  const firestore = requireDb();
+  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
+
+  const queueData = {
+    timezone: "Asia/Kolkata" as const,
+    recipients,
+    sentEmails: [] as string[],
+    status: recipients.length > 0 ? ("ready" as const) : ("pending" as const),
+    builtAt: serverTimestamp(),
+  };
+
+  await setDoc(queueRef, queueData);
+
+  const built = await getFlyerEmailQueue();
+  if (!built) {
+    throw new Error("Failed to read flyer email queue after build.");
+  }
+  return built;
+};
+
+export const markFlyerEmailsSent = async (emails: string[]): Promise<void> => {
+  const normalized = emails.map((e) => e.toLowerCase().trim()).filter(Boolean);
+  if (normalized.length === 0) return;
+
+  const firestore = requireDb();
+  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
+  const existing = await getFlyerEmailQueue();
+  if (!existing) {
+    throw new Error("Flyer email queue does not exist.");
+  }
+
+  await updateDoc(queueRef, {
+    sentEmails: arrayUnion(...normalized),
+  });
+
+  const sentSet = new Set([...existing.sentEmails, ...normalized]);
+  const allSent = existing.recipients.every((r) => sentSet.has(r.email));
+  if (allSent && existing.recipients.length > 0) {
+    await updateDoc(queueRef, { status: "complete" });
+  }
 };
 
 // --- Attendance ---
@@ -549,8 +654,8 @@ export const subscribeToLeaderboard = (callback: (submissions: QuizSubmission[])
   const firestore = requireDb();
   const submissionsRef = collection(firestore, SUBMISSIONS_COLLECTION);
   const q = query(
-    submissionsRef, 
-    orderBy("totalScore", "desc"), 
+    submissionsRef,
+    orderBy("totalScore", "desc"),
     orderBy("completedAt", "asc"),
     limit(limitCount)
   );
@@ -587,7 +692,7 @@ export const getSessions = async (): Promise<Session[]> => {
 export const subscribeToSessions = (callback: (sessions: Session[]) => void) => {
   const firestore = requireDb();
   const sessionsRef = collection(firestore, SESSIONS_COLLECTION);
-  
+
   return onSnapshot(sessionsRef, (snapshot) => {
     const sessions = snapshot.docs.map((d) => ({
       id: d.id,
