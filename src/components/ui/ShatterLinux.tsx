@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { LinuxEnvironment } from './LinuxEnvironment';
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -218,11 +219,16 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
   const overlayRef = useRef<HTMLDivElement>(null);
   const offscreenRef = useRef<HTMLDivElement>(null);
 
+  const [mounted, setMounted] = useState(false);
   const fragsRef = useRef<Frag[]>([]);
   const isCapturingRef = useRef(false);
   const builtRef = useRef(false);
   const progressRef = useRef(0);
   const rafRef = useRef(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Store progress in ref for async callback
   useEffect(() => {
@@ -438,7 +444,7 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       <div ref={overlayRef} />
 
       {/* 3. Offscreen clone for pre-capture */}
-      {!builtRef.current && (
+      {mounted && typeof document !== 'undefined' && !builtRef.current && createPortal(
         <div 
           ref={offscreenRef} 
           className="fixed w-screen h-screen"
@@ -452,7 +458,8 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
           <div className="w-full h-full bg-[#1a1a2e]">
             <LinuxEnvironment />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
