@@ -14,7 +14,7 @@ const MILESTONES = [
 
 const SESSIONS = [
   { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130 },
-  { id: 'S2', title: "Session 2:\nCloud Compute & Networking on GCP", date: "2026.05.23", left: "40%", mobileTop: 220 },
+  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220 },
   { id: 'S3', title: "Upcoming\nSessions...", date: "TBA", left: "60%", isGhost: true, mobileTop: 400 },
 ];
 
