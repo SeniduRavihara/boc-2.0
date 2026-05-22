@@ -1,5 +1,68 @@
+const BOC_EMAIL_SIGNATURE = `Best regards,
+Waruna Udara and Kavindu Nimesha
+Co-Chairs — Beauty of Cloud 2.0
+Senindu Ravihara
+Programming Committee Head
+IEEE CS Chapter USJ`;
 
-export const getBaseTemplate = (content: string) => `
+export const FLYER_CAMPAIGN_SUBJECT =
+  "Create your Beauty of Cloud 2.0 flyer";
+
+const DEFAULT_SITE_URL = "https://www.beautyofcloud.com";
+
+export const UNCUT_SANS_FONT_FAMILY = "'Uncut Sans', Arial, Helvetica, sans-serif";
+
+export const FLYER_EMAIL_FONT_FAMILY = UNCUT_SANS_FONT_FAMILY;
+
+function getUncutSansFontFace(): string {
+  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL).replace(/\/$/, "");
+  return `
+    @font-face {
+      font-family: 'Uncut Sans';
+      src: url('${base}/UncutSans-Variable.ttf') format('truetype');
+      font-weight: 100 900;
+      font-style: normal;
+    }
+  `;
+}
+
+function usesUncutSans(fontFamily: string): boolean {
+  return fontFamily.includes("Uncut Sans");
+}
+
+/** Inner content for flyer campaign emails (wrapped by getBaseTemplate in sendMail). */
+export const getFlyerCampaignTemplate = (
+  name: string,
+  teamName: string,
+  flyerUrl: string
+) => {
+  const safeName = name || "Participant";
+  const safeTeam = teamName || "your team";
+
+  return `Dear ${safeName},
+
+Your team "${safeTeam}" is registered for Beauty of Cloud 2.0. Create and download your personalized event flyer using the link below — your team and name will already be selected when you open the generator.
+
+<div class="cta-wrap">
+  <a href="${flyerUrl}" class="button">Open Flyer Generator</a>
+</div>
+
+Or copy this link:
+${flyerUrl}
+
+${BOC_EMAIL_SIGNATURE}`;
+};
+
+const DEFAULT_EMAIL_FONT_FAMILY =
+  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+export const getBaseTemplate = (
+  content: string,
+  options?: { fontFamily?: string }
+) => {
+  const fontFamily = options?.fontFamily ?? DEFAULT_EMAIL_FONT_FAMILY;
+
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,8 +70,9 @@ export const getBaseTemplate = (content: string) => `
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Beauty of Cloud 2.0</title>
   <style>
+    ${usesUncutSans(fontFamily) ? getUncutSansFontFace() : ""}
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: ${fontFamily};
       line-height: 1.8;
       color: #94a3b8;
       margin: 0;
@@ -94,6 +158,23 @@ export const getBaseTemplate = (content: string) => `
       font-size: 18px;
       margin: 20px 0;
     }
+    .cta-wrap {
+      text-align: center;
+      margin: 28px 0;
+    }
+    .button {
+      display: inline-block;
+      padding: 16px 36px;
+      background: #2563eb;
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -126,3 +207,4 @@ export const getBaseTemplate = (content: string) => `
 </body>
 </html>
 `;
+};

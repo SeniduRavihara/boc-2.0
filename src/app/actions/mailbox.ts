@@ -17,12 +17,13 @@ export async function sendMail(params: {
   bcc?: string | string[];
   attachInvitation?: boolean;
   metadata?: Record<string, unknown>;
+  fontFamily?: string;
 }) {
-  const { to, subject, content, cc, bcc, attachInvitation = false, metadata } = params;
+  const { to, subject, content, cc, bcc, attachInvitation = false, metadata, fontFamily } = params;
 
   try {
     console.log(`[Mailbox] Starting sendMail process for ${to}...`);
-    const htmlContent = getBaseTemplate(content);
+    const htmlContent = getBaseTemplate(content, fontFamily ? { fontFamily } : undefined);
 
     const attachments = [];
     if (attachInvitation) {

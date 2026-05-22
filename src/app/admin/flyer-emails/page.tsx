@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertCircle,
   Check,
-  Clock,
   ImageIcon,
   Loader2,
   RefreshCw,
@@ -13,25 +12,19 @@ import {
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/firebase/config";
-import { subscribeToFlyerEmailQueue } from "@/firebase/api";
 import {
-  refreshFlyerQueue,
+  getFirstCompetitionRecipients,
+  subscribeToFlyerSentEmails,
+} from "@/firebase/api";
+import { RESEND_MIN_INTERVAL_MS } from "@/lib/email/send-sequential";
+import {
   sendFlyerBatch,
   type FlyerBatchSendResult,
 } from "@/app/actions/flyer-campaign";
-import type { FlyerEmailQueue, FlyerEmailRecipient } from "@/types";
-import { getMsUntil8pmIST, isAfter8pmIST } from "@/lib/time/ist";
+import type { FlyerEmailRecipient } from "@/types";
 
 const BATCH_SIZE = 10;
 const BATCH_COUNT = 10;
-
-function formatCountdown(ms: number): string {
-  const totalSec = Math.max(0, Math.ceil(ms / 1000));
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
 
 function normalizeEmail(email: string): string {
   return email.toLowerCase().trim();
@@ -55,104 +48,106 @@ function batchIsFullySent(
 
 export default function AdminFlyerEmailsPage() {
   const { user, loading: authLoading } = useAuth();
-  const [queue, setQueue] = useState<FlyerEmailQueue | null>(null);
-  const [queueLoading, setQueueLoading] = useState(true);
-  const [countdownMs, setCountdownMs] = useState(getMsUntil8pmIST());
-  const [after8pm, setAfter8pm] = useState(isAfter8pmIST());
+  const [recipients, setRecipients] = useState<FlyerEmailRecipient[]>([]);
+  const [sentEmails, setSentEmails] = useState<string[]>([]);
+  const [loadingRecipients, setLoadingRecipients] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sendingBatch, setSendingBatch] = useState<number | null>(null);
+  const [sendingBatchTotal, setSendingBatchTotal] = useState(0);
   const [batchErrors, setBatchErrors] = useState<Record<number, FlyerBatchSendResult[]>>({});
   const [actionMessage, setActionMessage] = useState<string | null>(null);
-  const autoRefreshDone = useRef(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const getIdToken = useCallback(async () => {
     if (!auth?.currentUser) throw new Error("Not signed in");
     return auth.currentUser.getIdToken();
   }, []);
 
-  useEffect(() => {
-    if (!user || authLoading) {
-      setQueueLoading(false);
-      return;
+  const loadRecipients = useCallback(async (): Promise<number> => {
+    setLoadingRecipients(true);
+    setFetchError(null);
+    try {
+      const list = await getFirstCompetitionRecipients(100);
+      setRecipients(list);
+      return list.length;
+    } catch (err) {
+      console.error("[flyer-emails] fetch recipients:", err);
+      setFetchError(
+        err instanceof Error ? err.message : "Failed to load recipients."
+      );
+      setRecipients([]);
+      return 0;
+    } finally {
+      setLoadingRecipients(false);
     }
+  }, []);
 
-    setQueueLoading(true);
-    const unsubscribe = subscribeToFlyerEmailQueue(
-      (data) => {
-        setQueue(data);
-        setQueueLoading(false);
-      },
-      () => setQueueLoading(false)
+  useEffect(() => {
+    if (!user || authLoading) return;
+    loadRecipients();
+  }, [user, authLoading, loadRecipients]);
+
+  useEffect(() => {
+    if (!user || authLoading) return;
+
+    const unsubscribe = subscribeToFlyerSentEmails(
+      (emails) => setSentEmails(emails),
+      (err) => console.error("[flyer-emails] sent subscription:", err)
     );
 
     return () => unsubscribe();
   }, [user, authLoading]);
 
   useEffect(() => {
-    const tick = () => {
-      setCountdownMs(getMsUntil8pmIST());
-      setAfter8pm(isAfter8pmIST());
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
+    if (sendingBatch === null || sendingBatchTotal === 0) return;
 
-  useEffect(() => {
-    if (!after8pm || autoRefreshDone.current || !user || authLoading) return;
+    const batchRecipients = recipients.slice(
+      sendingBatch * BATCH_SIZE,
+      sendingBatch * BATCH_SIZE + BATCH_SIZE
+    );
+    const sentInBatch = batchRecipients.filter((r) =>
+      isRecipientSent(r, sentEmails)
+    ).length;
 
-    const runAutoRefresh = async () => {
-      try {
-        const token = await getIdToken();
-        await refreshFlyerQueue(token, false);
-        autoRefreshDone.current = true;
-      } catch (err) {
-        console.error("[flyer-emails] auto refresh failed:", err);
-      }
-    };
+    setActionMessage(
+      `Sending batch ${sendingBatch + 1}: ${sentInBatch} / ${sendingBatchTotal} sent…`
+    );
+  }, [sentEmails, sendingBatch, sendingBatchTotal, recipients]);
 
-    runAutoRefresh();
-  }, [after8pm, user, authLoading, getIdToken]);
-
-  const handleRefreshQueue = async (force: boolean) => {
+  const handleRefreshRecipients = async () => {
     setRefreshing(true);
     setActionMessage(null);
-    try {
-      const token = await getIdToken();
-      const result = await refreshFlyerQueue(token, force);
-      if (result.success) {
-        setActionMessage(
-          `Queue ready: ${result.recipientCount ?? 0} recipients (${result.status}).`
-        );
-      } else {
-        setActionMessage(result.error ?? "Failed to refresh queue.");
-      }
-    } catch (err) {
-      setActionMessage(err instanceof Error ? err.message : "Refresh failed.");
-    } finally {
-      setRefreshing(false);
-    }
+    const count = await loadRecipients();
+    setActionMessage(
+      `Loaded ${count} recipient${count === 1 ? "" : "s"} (first 100 by registration order).`
+    );
+    setRefreshing(false);
   };
 
   const handleSendBatch = async (batchIndex: number) => {
-    const batchRecipients =
-      queue?.recipients.slice(
-        batchIndex * BATCH_SIZE,
-        batchIndex * BATCH_SIZE + BATCH_SIZE
-      ) ?? [];
+    const batchRecipients = recipients.slice(
+      batchIndex * BATCH_SIZE,
+      batchIndex * BATCH_SIZE + BATCH_SIZE
+    );
     const pending = batchRecipients.filter(
-      (r) => !isRecipientSent(r, queue?.sentEmails ?? [])
+      (r) => !isRecipientSent(r, sentEmails)
     );
 
     if (pending.length === 0) return;
 
+    const estimatedSec = Math.ceil(
+      (pending.length * RESEND_MIN_INTERVAL_MS) / 1000
+    );
     const confirmed = window.confirm(
-      `Send flyer emails to ${pending.length} recipient(s) in batch ${batchIndex + 1}?`
+      `Send ${pending.length} flyer email(s) in batch ${batchIndex + 1}?\n\nThey will be sent one at a time (about ${estimatedSec} seconds total). Keep this tab open until finished.`
     );
     if (!confirmed) return;
 
     setSendingBatch(batchIndex);
-    setActionMessage(null);
+    setSendingBatchTotal(pending.length);
+    setActionMessage(
+      `Sending batch ${batchIndex + 1}: 0 / ${pending.length}… (~${estimatedSec}s total)`
+    );
     try {
       const token = await getIdToken();
       const result = await sendFlyerBatch(batchIndex, token);
@@ -172,11 +167,10 @@ export default function AdminFlyerEmailsPage() {
       setActionMessage(err instanceof Error ? err.message : "Send failed.");
     } finally {
       setSendingBatch(null);
+      setSendingBatchTotal(0);
     }
   };
 
-  const sentEmails = queue?.sentEmails ?? [];
-  const recipients = queue?.recipients ?? [];
   const sentCount = recipients.filter((r) => isRecipientSent(r, sentEmails)).length;
   const progressPct =
     recipients.length > 0 ? Math.round((sentCount / recipients.length) * 100) : 0;
@@ -186,7 +180,7 @@ export default function AdminFlyerEmailsPage() {
     return { index: i, recipients: slice };
   });
 
-  if (authLoading || queueLoading) {
+  if (authLoading || loadingRecipients) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
@@ -210,40 +204,29 @@ export default function AdminFlyerEmailsPage() {
             Flyer <span className="text-purple-500">Email Campaign</span>
           </h1>
           <p className="text-slate-400 text-sm">
-            First 100 ideathon registrants · batches of 10 · 8:00 PM IST queue build
+            First 100 ideathon registrants (by signup order) · send in batches of 10
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {!after8pm && (
-            <button
-              type="button"
-              onClick={() => handleRefreshQueue(true)}
-              disabled={refreshing}
-              className="bg-amber-600/20 text-amber-300 hover:bg-amber-600/30 px-4 py-2.5 rounded-xl text-sm font-bold border border-amber-500/30 flex items-center gap-2 disabled:opacity-50"
-            >
-              {refreshing ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <RefreshCw size={16} />
-              )}
-              Build queue now (test)
-            </button>
+        <button
+          type="button"
+          onClick={handleRefreshRecipients}
+          disabled={refreshing}
+          className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/5 flex items-center gap-2 disabled:opacity-50"
+        >
+          {refreshing ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <RefreshCw size={16} />
           )}
-          <button
-            type="button"
-            onClick={() => handleRefreshQueue(after8pm)}
-            disabled={refreshing || (!after8pm && !queue)}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/5 flex items-center gap-2 disabled:opacity-50"
-          >
-            {refreshing ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <RefreshCw size={16} />
-            )}
-            Refresh queue
-          </button>
-        </div>
+          Refresh list
+        </button>
       </div>
+
+      {fetchError && (
+        <div className="px-4 py-3 rounded-xl bg-red-950/50 border border-red-500/30 text-sm text-red-300">
+          {fetchError}
+        </div>
+      )}
 
       {actionMessage && (
         <div className="px-4 py-3 rounded-xl bg-slate-900/80 border border-white/10 text-sm text-slate-300">
@@ -251,38 +234,7 @@ export default function AdminFlyerEmailsPage() {
         </div>
       )}
 
-      {!after8pm && !queue && (
-        <GlassCard className="p-8 border-white/5">
-          <div className="flex flex-col items-center text-center gap-4">
-            <Clock className="w-12 h-12 text-purple-400" />
-            <h2 className="text-xl font-black text-white uppercase tracking-tight">
-              Queue builds at 8:00 PM IST
-            </h2>
-            <p className="text-slate-400 max-w-md text-sm">
-              The first 100 competition registrants will be fetched automatically when
-              the clock hits 8 PM India time. You can send emails in batches of 10
-              after that.
-            </p>
-            <div className="text-4xl font-mono font-black text-purple-400 tabular-nums">
-              {formatCountdown(countdownMs)}
-            </div>
-            <p className="text-[10px] uppercase tracking-widest text-slate-600 font-bold">
-              Time until auto-build
-            </p>
-          </div>
-        </GlassCard>
-      )}
-
-      {after8pm && !queue && (
-        <GlassCard className="p-6 border-white/5 flex items-center gap-4">
-          <Loader2 className="w-6 h-6 animate-spin text-purple-400 shrink-0" />
-          <p className="text-slate-400 text-sm">
-            Building recipient queue… If this persists, use Refresh queue.
-          </p>
-        </GlassCard>
-      )}
-
-      {queue && recipients.length > 0 && (
+      {recipients.length > 0 && (
         <>
           <GlassCard className="p-6 border-white/5">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
@@ -293,7 +245,7 @@ export default function AdminFlyerEmailsPage() {
                     {sentCount} / {recipients.length} emails sent
                   </p>
                   <p className="text-xs text-slate-500 uppercase tracking-widest">
-                    Status: {queue.status}
+                    Live from competition teams
                   </p>
                 </div>
               </div>
@@ -369,10 +321,17 @@ export default function AdminFlyerEmailsPage() {
                                   </span>
                                 ) : rowError && !rowError.success ? (
                                   <span
-                                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full"
+                                    className="inline-flex flex-col items-start gap-0.5 max-w-[140px]"
                                     title={rowError.error}
                                   >
-                                    <AlertCircle size={10} /> Failed
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">
+                                      <AlertCircle size={10} /> Failed
+                                    </span>
+                                    {rowError.error && (
+                                      <span className="text-[9px] text-red-400/80 line-clamp-2 leading-tight">
+                                        {rowError.error}
+                                      </span>
+                                    )}
                                   </span>
                                 ) : (
                                   <span className="inline-flex text-[10px] font-bold uppercase text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
@@ -396,7 +355,11 @@ export default function AdminFlyerEmailsPage() {
                     {isSending ? (
                       <>
                         <Loader2 size={18} className="animate-spin" />
-                        Sending…
+                        Sending batch… (~
+                        {Math.ceil(
+                          (pendingCount * RESEND_MIN_INTERVAL_MS) / 1000
+                        )}
+                        s)
                       </>
                     ) : fullySent ? (
                       <>
@@ -417,10 +380,10 @@ export default function AdminFlyerEmailsPage() {
         </>
       )}
 
-      {queue && recipients.length === 0 && (
+      {!loadingRecipients && recipients.length === 0 && !fetchError && (
         <GlassCard className="p-8 text-center text-slate-400 text-sm">
-          Queue is empty — no competition registrants found. Refresh after teams
-          register.
+          No competition registrants found. Teams will appear here after ideathon
+          signup.
         </GlassCard>
       )}
     </div>

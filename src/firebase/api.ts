@@ -17,8 +17,7 @@ import {
   type Firestore
 } from "firebase/firestore";
 import { db } from "./config";
-import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session, CompetitionTeam, FlyerEmailRecipient, FlyerEmailQueue } from "@/types";
-import { isSameISTCalendarDay } from "@/lib/time/ist";
+import { Task, TeamMember, Meeting, Quiz, QuizSubmission, Registration, ContactMessage, AttendanceRecord, Session, CompetitionTeam, FlyerEmailRecipient } from "@/types";
 import { flattenCompetitionRecipients } from "@/lib/flyer-queue/recipients";
 
 const TASKS_COLLECTION = "tasks";
@@ -344,64 +343,36 @@ export const getFirstCompetitionRecipients = async (
   return flattenCompetitionRecipients(teams, limitCount);
 };
 
-export const getFlyerEmailQueue = async (): Promise<FlyerEmailQueue | null> => {
+function flyerCampaignRef(firestore: Firestore) {
+  return doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
+}
+
+/** Emails already sent in this flyer campaign (persisted for batch idempotency). */
+export const getFlyerSentEmails = async (): Promise<string[]> => {
   const firestore = requireDb();
-  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
-  const snap = await getDoc(queueRef);
-  if (!snap.exists()) return null;
-  return snap.data() as FlyerEmailQueue;
+  const snap = await getDoc(flyerCampaignRef(firestore));
+  if (!snap.exists()) return [];
+  const data = snap.data();
+  return Array.isArray(data.sentEmails) ? data.sentEmails : [];
 };
 
-export const subscribeToFlyerEmailQueue = (
-  callback: (queue: FlyerEmailQueue | null) => void,
+export const subscribeToFlyerSentEmails = (
+  callback: (sentEmails: string[]) => void,
   onError?: (error: Error) => void
 ) => {
   const firestore = requireDb();
-  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
   return onSnapshot(
-    queueRef,
+    flyerCampaignRef(firestore),
     (snap) => {
-      callback(snap.exists() ? (snap.data() as FlyerEmailQueue) : null);
+      if (!snap.exists()) {
+        callback([]);
+        return;
+      }
+      const data = snap.data();
+      callback(Array.isArray(data.sentEmails) ? data.sentEmails : []);
     },
     (err) => onError?.(err)
   );
-};
-
-export const buildFlyerEmailQueue = async (options?: {
-  force?: boolean;
-}): Promise<FlyerEmailQueue> => {
-  const force = options?.force ?? false;
-  const existing = await getFlyerEmailQueue();
-
-  if (!force && existing?.builtAt) {
-    const builtDate =
-      typeof existing.builtAt.toDate === "function"
-        ? existing.builtAt.toDate()
-        : new Date(existing.builtAt as unknown as string);
-    if (isSameISTCalendarDay(builtDate, new Date())) {
-      return existing;
-    }
-  }
-
-  const recipients = await getFirstCompetitionRecipients(100);
-  const firestore = requireDb();
-  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
-
-  const queueData = {
-    timezone: "Asia/Kolkata" as const,
-    recipients,
-    sentEmails: [] as string[],
-    status: recipients.length > 0 ? ("ready" as const) : ("pending" as const),
-    builtAt: serverTimestamp(),
-  };
-
-  await setDoc(queueRef, queueData);
-
-  const built = await getFlyerEmailQueue();
-  if (!built) {
-    throw new Error("Failed to read flyer email queue after build.");
-  }
-  return built;
 };
 
 export const markFlyerEmailsSent = async (emails: string[]): Promise<void> => {
@@ -409,21 +380,17 @@ export const markFlyerEmailsSent = async (emails: string[]): Promise<void> => {
   if (normalized.length === 0) return;
 
   const firestore = requireDb();
-  const queueRef = doc(firestore, FLYER_EMAIL_QUEUE_COLLECTION, FLYER_EMAIL_QUEUE_DOC_ID);
-  const existing = await getFlyerEmailQueue();
-  if (!existing) {
-    throw new Error("Flyer email queue does not exist.");
+  const ref = flyerCampaignRef(firestore);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, { sentEmails: normalized });
+    return;
   }
 
-  await updateDoc(queueRef, {
+  await updateDoc(ref, {
     sentEmails: arrayUnion(...normalized),
   });
-
-  const sentSet = new Set([...existing.sentEmails, ...normalized]);
-  const allSent = existing.recipients.every((r) => sentSet.has(r.email));
-  if (allSent && existing.recipients.length > 0) {
-    await updateDoc(queueRef, { status: "complete" });
-  }
 };
 
 // --- Attendance ---
