@@ -32,15 +32,29 @@ export function HomeClient() {
   const [shatterProgress, setShatterProgress] = useState(0);
   const [preCapture, setPreCapture] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [scrollContainerHeight, setScrollContainerHeight] = useState("1000vh");
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMob = window.innerWidth < 768;
+      setIsMobile(isMob);
+      if (isMob) {
+        const height = window.innerHeight;
+        // Dynamically compute vh based on target 4500px scroll depth
+        const calculatedVh = Math.min(Math.max(Math.round(450000 / height), 450), 750);
+        setScrollContainerHeight(`${calculatedVh}vh`);
+      } else {
+        setScrollContainerHeight("1000vh");
+      }
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [scrollContainerHeight]);
 
   const mainRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef<HTMLDivElement>(null);
@@ -523,7 +537,7 @@ export function HomeClient() {
       {/* ── 1. Hero + Linux — condensed pinned reveal ─────────────── */}
       <div
         ref={pinnedRef}
-        style={{ height: "1000vh" }}
+        style={{ height: scrollContainerHeight }}
         className="relative z-20 w-full bg-black"
       >
         <div className="sticky top-0 h-[100dvh] w-full overflow-hidden touch-pan-y">
