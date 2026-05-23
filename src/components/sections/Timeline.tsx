@@ -2,23 +2,25 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const MILESTONES = [
   { id: 'M1', title: "Workshop\nSeries Start", date: "2026.04.26", left: "10%", mobileTop: 40 },
-  { id: 'M2', title: "Ideathon Registrations\nOpen", date: "2026.05.23", left: "30%", mobileTop: 310 },
+  { id: 'M2', title: "Ideathon Registrations\nOpen", date: "2026.05.24", left: "30%", mobileTop: 310 },
   { id: 'M3', title: "Problem Statement\nRelease", date: "2026.05.24", left: "50%", mobileTop: 520 },
   { id: 'M4', title: "Competition\nRounds (R1 Ends)", date: "2026.07.20", left: "70%", mobileTop: 720 },
   { id: 'M5', title: "Grand\nFinale", date: "2026.08.02", left: "90%", mobileTop: 920 },
 ];
 
 const SESSIONS = [
-  { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130 },
-  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220 },
+  { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130, link: "/sessions" },
+  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220, link: "/register/session/2" },
   { id: 'S3', title: "Upcoming\nSessions...", date: "TBA", left: "60%", isGhost: true, mobileTop: 400 },
 ];
 
 export function Timeline() {
+  const router = useRouter();
   const [desktopWidth, setDesktopWidth] = useState(1000);
   const [mobileWidth, setMobileWidth] = useState(350);
 
@@ -245,7 +247,8 @@ export function Timeline() {
                     dragElastic={0.8}
                     dragTransition={{ bounceStiffness: 400, bounceDamping: 15 }}
                     whileDrag={{ scale: 1.3, zIndex: 50 }}
-                    className="absolute top-0 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050812] border-[3px] border-[#1E90FF] shadow-[0_0_15px_rgba(30,144,255,0.6)] cursor-grab active:cursor-grabbing group-hover:scale-125 transition-transform duration-300"
+                    onClick={() => item.link && router.push(item.link)}
+                    className={`absolute top-0 -translate-y-1/2 w-5 h-5 rounded-full bg-[#050812] border-[3px] border-[#1E90FF] shadow-[0_0_15px_rgba(30,144,255,0.6)] group-hover:scale-125 transition-transform duration-300 ${item.link ? 'cursor-pointer hover:bg-[#1E90FF]/20' : 'cursor-grab active:cursor-grabbing'}`}
                   />
                 </motion.div>
               );
@@ -349,7 +352,8 @@ export function Timeline() {
                   dragElastic={0.8}
                   dragTransition={{ bounceStiffness: 400, bounceDamping: 15 }}
                   whileDrag={{ scale: 1.3, zIndex: 50 }}
-                  className="shrink-0 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050812] border-[2.5px] border-[#1E90FF] shadow-[0_0_10px_rgba(30,144,255,0.6)] cursor-grab active:cursor-grabbing z-10 mt-[2px]" 
+                  onClick={() => item.link && router.push(item.link)}
+                  className={`shrink-0 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050812] border-[2.5px] border-[#1E90FF] shadow-[0_0_10px_rgba(30,144,255,0.6)] z-10 mt-[2px] ${item.link ? 'cursor-pointer hover:bg-[#1E90FF]/20' : 'cursor-grab active:cursor-grabbing'}`} 
                 />
                 
                 {/* Text to the RIGHT */}
