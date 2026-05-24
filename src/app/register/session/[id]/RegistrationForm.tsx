@@ -143,19 +143,23 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                         const isFromAttendance = redirectParsed.pathname.startsWith('/attendance/');
 
                         if (isFromAttendance) {
-                            // Mark attendance directly here — don't bounce back to attendance page
-                            const alreadyMarked = await checkAttendanceExists(emailToUse, sessionId);
-                            if (!alreadyMarked) {
-                                await markAttendance({
-                                    sessionId,
-                                    email: emailToUse,
-                                    userName: userObj.name || '',
-                                    organization: userObj.organization || '',
-                                });
-                            }
-                            setStatus('success');
+                            // Only mark attendance if there is a meeting link (session is live)
                             if (meetingUrl) {
+                                const alreadyMarked = await checkAttendanceExists(emailToUse, sessionId);
+                                if (!alreadyMarked) {
+                                    await markAttendance({
+                                        sessionId,
+                                        email: emailToUse,
+                                        userName: userObj.name || '',
+                                        organization: userObj.organization || '',
+                                    });
+                                }
+                                setStatus('success');
                                 setTimeout(() => { window.location.href = meetingUrl; }, 1500);
+                            } else {
+                                // No meeting URL, just redirect back to the attendance page without marking attendance
+                                setStatus('success');
+                                setTimeout(() => { window.location.href = redirectUrl; }, 1500);
                             }
                             return;
                         }

@@ -69,20 +69,22 @@ export default function AttendancePage() {
         // Refresh local cache with latest DB data
         localStorage.setItem('last_registered_user', JSON.stringify(registration));
 
-        // Registered — mark attendance silently
+        // Registered — mark attendance silently only if there is a meeting URL
         setEmail(registration.email);
         setUserName(registration.name || "");
 
-        const exists = await checkAttendanceExists(registration.email, sessionId);
-        if (exists) {
-          setAlreadyMarked(true);
-        } else {
-          await markAttendance({
-            sessionId,
-            email: registration.email,
-            userName: registration.name,
-            organization: registration.organization || "",
-          });
+        if (meetingUrl) {
+          const exists = await checkAttendanceExists(registration.email, sessionId);
+          if (exists) {
+            setAlreadyMarked(true);
+          } else {
+            await markAttendance({
+              sessionId,
+              email: registration.email,
+              userName: registration.name,
+              organization: registration.organization || "",
+            });
+          }
         }
 
         // Show confirmed card with button — user clicks to join
@@ -129,17 +131,19 @@ export default function AttendancePage() {
         return;
       }
 
-      // Registered — mark attendance
-      const exists = await checkAttendanceExists(registration.email, sessionId);
-      if (exists) {
-        setAlreadyMarked(true);
-      } else {
-        await markAttendance({
-          sessionId,
-          email: registration.email,
-          userName: registration.name,
-          organization: registration.organization || "",
-        });
+      // Registered — mark attendance only if session is live
+      if (meetingUrl) {
+        const exists = await checkAttendanceExists(registration.email, sessionId);
+        if (exists) {
+          setAlreadyMarked(true);
+        } else {
+          await markAttendance({
+            sessionId,
+            email: registration.email,
+            userName: registration.name,
+            organization: registration.organization || "",
+          });
+        }
       }
 
       // Cache for future visits
