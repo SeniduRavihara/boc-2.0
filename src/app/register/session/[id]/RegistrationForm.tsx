@@ -317,7 +317,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 )}
             </AnimatePresence>
             {/* Form Banner */}
-            <div className="mb-12 w-full overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[16/9] md:aspect-[5/1]">
+            <div className="mb-6 md:mb-12 w-full overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[21/9] md:aspect-[5/1]">
                 <Image 
                     src="/images/image3.webp" 
                     alt="Session Banner" 
@@ -355,23 +355,23 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 </div>
             </div>
 
-            <GlassCard className="relative rounded-[3rem] border-white/10 bg-[#09090b]/80 shadow-2xl backdrop-blur-3xl p-6 md:p-16">
+            <GlassCard className="relative rounded-[2rem] md:rounded-[3rem] border-white/10 bg-[#09090b]/80 shadow-2xl backdrop-blur-3xl p-4 md:p-16">
                 
                 {/* Header */}
-                <div className="mb-12 border-b border-white/5 pb-10">
-                    <div className="flex flex-wrap items-end justify-between gap-6 mb-6">
+                <div className="mb-6 md:mb-12 border-b border-white/5 pb-6 md:pb-10">
+                    <div className="flex flex-wrap items-end justify-between gap-4 md:gap-6 mb-4 md:mb-6">
                        <div>
-                          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-4">
+                          <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-3 md:mb-4">
                              Delegate <span className="text-blue-500">Registration</span>
                           </h1>
-                          <p className="text-slate-400 leading-relaxed max-w-xl text-lg">
+                          <p className="text-slate-400 leading-relaxed max-w-xl text-xs sm:text-base md:text-lg">
                               {step === 'returning' 
                                 ? `Welcome back! Confirm your registration for the next session.` 
                                 : `Fill this form out to register yourselves for the BOC Workshop Series.`}
                           </p>
                        </div>
-                       <div className="px-6 py-3 bg-blue-500/20 border border-blue-400/40 rounded-lg backdrop-blur-md group transition-all hover:scale-105">
-                          <span className="text-xs font-black text-blue-400 uppercase tracking-[0.3em]">Session: {sessionId}</span>
+                       <div className="px-4 py-2 md:px-6 md:py-3 bg-blue-500/20 border border-blue-400/40 rounded-lg backdrop-blur-md group transition-all hover:scale-105">
+                          <span className="text-[10px] md:text-xs font-black text-blue-400 uppercase tracking-[0.3em]">Session: {sessionId}</span>
                        </div>
                     </div>
                 </div>
@@ -389,7 +389,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                 exit={{ opacity: 0, y: -10 }}
                                 className="space-y-8"
                             >
-                                <div className="space-y-4 max-w-lg mx-auto text-center py-10">
+                                <div className="space-y-4 max-w-lg mx-auto text-center py-4 md:py-10">
                                     <h3 className="text-xs font-black uppercase tracking-[0.3em] text-blue-500/60 mb-6">01. Identity Matrix</h3>
                                     <label className="block text-xl font-bold text-slate-200">
                                         Enter your email address
