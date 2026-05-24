@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useCallback, useEffect } from 'react';
-import { AppState } from './types';
+import { AppState, AppId } from './types';
 
 interface WindowProps {
   app: AppState;
@@ -95,16 +95,14 @@ export const Window: React.FC<WindowProps> = ({
   const getWindowSizeClass = (id: AppId) => {
     switch (id) {
       case 'viewer':
-        return 'md:left-[8%] w-[94vw] md:w-[940px] h-[80vh] md:h-[600px]';
-      case 'browser':
-        return 'md:left-[10%] w-[92vw] md:w-[860px] h-[72vh] md:h-[540px]';
+        return 'w-[94vw] md:w-[940px] h-[80vh] md:h-[600px]';
       case 'terminal':
-        return 'md:left-[14%] w-[90vw] md:w-[680px] h-[62vh] md:h-[440px]';
+        return 'w-[90vw] md:w-[680px] h-[62vh] md:h-[440px]';
       case 'files':
       case 'trash':
-        return 'md:left-[16%] w-[90vw] md:w-[650px] h-[60vh] md:h-[440px]';
+        return 'w-[90vw] md:w-[650px] h-[60vh] md:h-[440px]';
       default:
-        return 'md:left-[18%] w-[90vw] md:w-[700px] h-[60vh] md:h-[450px]';
+        return 'w-[90vw] md:w-[700px] h-[60vh] md:h-[450px]';
     }
   };
 
@@ -120,7 +118,7 @@ export const Window: React.FC<WindowProps> = ({
           ? 'top-0 left-14 w-[calc(100%-3.5rem)] h-full rounded-none'
           : (isMobile
               ? 'top-0 left-0 w-full h-full rounded-none'
-              : `top-10 left-1/2 -translate-x-1/2 md:translate-x-0 ${getWindowSizeClass(app.id)} rounded-xl`
+              : `top-10 md:top-14 left-[calc(50%+1.75rem)] -translate-x-1/2 ${getWindowSizeClass(app.id)} rounded-xl`
             )
       } bg-[#1e1e1e] shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col overflow-hidden pointer-events-auto`}
     >

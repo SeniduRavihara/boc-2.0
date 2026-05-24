@@ -299,21 +299,23 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
-    if (shatterProgress > 0 || preCapture) {
+    if (shatterProgress > 0) {
       if (!builtRef.current) {
         captureAndSwap();
-      } else if (shatterProgress > 0) {
+      } else {
         overlay.style.display = 'block';
         target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => applyPhysics(shatterProgress));
       }
     } else {
-      if (builtRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        overlay.style.display = 'none';
-        target.style.visibility = 'visible';
-        applyPhysics(0);
+      cancelAnimationFrame(rafRef.current);
+      overlay.style.display = 'none';
+      target.style.visibility = 'visible';
+      applyPhysics(0);
+
+      if (preCapture && !builtRef.current) {
+        captureAndSwap();
       }
     }
   }, [shatterProgress, preCapture, captureAndSwap, applyPhysics]);
@@ -322,7 +324,7 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     <div className="relative w-full h-full bg-transparent">
       {/* 1. Real AboutNew Component */}
       <div ref={contentRef} className="absolute inset-0 w-full h-full overflow-y-auto overflow-x-hidden no-scrollbar">
-        <AboutNew />
+        <AboutNew isWindowMode={true} />
       </div>
 
       {/* 2. Fragment Container Overlay */}

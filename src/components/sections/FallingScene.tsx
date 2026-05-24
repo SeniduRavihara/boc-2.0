@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useRef } from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Users } from 'lucide-react';
+import { Users, BookOpen } from 'lucide-react';
 
 export function FallingScene() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -147,14 +148,12 @@ export function FallingScene() {
                 </span>
               </button>
               
-              {/* <a 
-                href="/Delegate_Booklet.pdf" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              <Link 
+                href="/delegate-booklet" 
                 className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
               >
-                <Download size={14} /> Download Delegate Booklet
-              </a> */}
+                <BookOpen size={14} /> View Delegate Booklet
+              </Link>
             </div>
           </motion.div>
         </motion.div>

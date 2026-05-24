@@ -382,21 +382,23 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
-    if (shatterProgress > 0 || preCapture) {
+    if (shatterProgress > 0) {
       if (!builtRef.current) {
         captureAndSwap(false);
-      } else if (shatterProgress > 0) {
+      } else {
         overlay.style.display = 'block';
         target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => applyPhysics(shatterProgress));
       }
     } else {
-      if (builtRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        overlay.style.display = 'none';
-        target.style.visibility = 'visible';
-        applyPhysics(0);
+      cancelAnimationFrame(rafRef.current);
+      overlay.style.display = 'none';
+      target.style.visibility = 'visible';
+      applyPhysics(0);
+
+      if (preCapture && !builtRef.current) {
+        captureAndSwap(false);
       }
     }
 

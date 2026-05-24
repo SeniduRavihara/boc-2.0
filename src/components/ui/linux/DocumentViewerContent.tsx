@@ -32,7 +32,7 @@ export const DocumentViewerContent: React.FC = () => {
 
       {/* Document Body Area (Rendering the real AboutNew Section) */}
       <div className="flex-1 overflow-y-auto no-scrollbar bg-[#050812]">
-        <AboutNew />
+        <AboutNew isWindowMode={true} />
       </div>
     </div>
   );

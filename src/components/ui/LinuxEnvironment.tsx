@@ -113,11 +113,20 @@ export const LinuxEnvironment: React.FC = () => {
 
   return (
     <div 
-      className="w-full h-full bg-[#1a1a2e] relative overflow-hidden select-none font-sans cursor-default outline-none" 
+      className="w-full h-full bg-[#050812] relative overflow-hidden select-none font-sans cursor-default outline-none" 
       onClick={() => { setShowQuickSettings(false); setShowCalendar(false); }}
     >
       {/* — Wallpaper — */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#166d7a] to-[#07353b]" />
+      <div className="absolute inset-0 z-0 select-none pointer-events-none">
+        <img 
+          src="/images/image3.webp" 
+          alt="Desktop Background" 
+          className="w-full h-full object-cover opacity-45 select-none pointer-events-none"
+        />
+        {/* Blue theme color tint and overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/35 via-[#050812]/25 to-[#050812]/85" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[120px]" />
+      </div>
 
       {/* — Desktop Icons — */}
       <div className="absolute top-14 left-20 z-[10] flex flex-col gap-6">
