@@ -280,7 +280,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                                 </a>
                                             ) : (
                                                 <a 
-                                                    href="https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"
+                                                    href="https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"
                                                     className="w-full py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                                                 >
                                                     Join WhatsApp Group
