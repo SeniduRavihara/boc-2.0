@@ -302,9 +302,12 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       const dataUrl = await domToPng(target, {
         width: W,
         height: H,
-        backgroundColor: '#1a1a2e',
+        backgroundColor: '#050812',
         style: {
           transform: 'none',
+          left: '0',
+          top: '0',
+          position: 'relative',
         }
       });
 
@@ -446,16 +449,21 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       {/* 3. Offscreen clone for pre-capture */}
       {mounted && typeof document !== 'undefined' && !builtRef.current && createPortal(
         <div 
-          ref={offscreenRef} 
-          className="fixed w-screen h-screen"
           style={{
+            position: 'fixed',
             left: '-9999px',
             top: '-9999px',
+            width: '100vw',
+            height: '100vh',
+            overflow: 'hidden',
             zIndex: -1000,
             pointerEvents: 'none',
           }}
         >
-          <div className="w-full h-full bg-[#1a1a2e]">
+          <div 
+            ref={offscreenRef} 
+            className="w-full h-full bg-[#050812]"
+          >
             <LinuxEnvironment />
           </div>
         </div>,

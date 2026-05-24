@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AppId = 'terminal' | 'files' | 'editor' | 'browser' | 'monitor' | 'settings' | 'calculator' | 'viewer';
+export type AppId = 'terminal' | 'files' | 'viewer' | 'trash';
 
 export interface AppState {
   id: AppId;
