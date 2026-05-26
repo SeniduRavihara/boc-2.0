@@ -10,11 +10,11 @@ import { CheckCircle2, AlertCircle, Loader2, Plus, Trash2, Users, School, Sparkl
 export default function CompetitionForm() {
     const [status, setStatus] = useState<"success" | "error" | "loading" | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    
+
     // Top-level team details
     const [teamName, setTeamName] = useState("");
     const [university, setUniversity] = useState("");
-    
+
     // Leader details
     const [leader, setLeader] = useState({
         name: "",
@@ -24,7 +24,7 @@ export default function CompetitionForm() {
 
     // Members list (0 to 3 additional members)
     const [members, setMembers] = useState<{ name: string; email: string }[]>([]);
-    
+
     // Terms verification checkbox
     const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -146,7 +146,7 @@ export default function CompetitionForm() {
             {/* Status Overlay */}
             <AnimatePresence>
                 {status && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -163,7 +163,7 @@ export default function CompetitionForm() {
                                     <>
                                         <div className="relative w-16 h-16 md:w-20 md:h-20 mb-4 md:mb-6">
                                             <div className="absolute inset-0 rounded-full border-4 border-purple-500/20" />
-                                            <motion.div 
+                                            <motion.div
                                                 className="absolute inset-0 rounded-full border-4 border-t-purple-500 border-r-transparent border-b-transparent border-l-transparent"
                                                 animate={{ rotate: 360 }}
                                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -188,13 +188,13 @@ export default function CompetitionForm() {
                                             Redirecting you to the official WhatsApp channel...
                                         </p>
                                         <div className="flex flex-col gap-3 w-full">
-                                            <a 
-                                                href="https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"
+                                            <a
+                                                href="https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"
                                                 className="w-full py-4 md:py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-xl md:rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                                             >
                                                 Join WhatsApp Group
                                             </a>
-                                            <button 
+                                            <button
                                                 onClick={() => setStatus(null)}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-xl md:rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
                                             >
@@ -211,7 +211,7 @@ export default function CompetitionForm() {
                                         </div>
                                         <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight mb-2">Protocol Violation</h3>
                                         <p className="text-slate-400 text-xs md:text-sm font-medium mb-8 leading-relaxed">{errorMessage}</p>
-                                        <button 
+                                        <button
                                             onClick={() => setStatus(null)}
                                             className="w-full py-3.5 bg-red-500 text-white font-black uppercase tracking-widest text-[10px] rounded-xl md:rounded-2xl hover:bg-red-600 transition-colors"
                                         >
@@ -227,21 +227,36 @@ export default function CompetitionForm() {
 
             {/* Form Banner — Glass & Modern */}
             <div className="mb-6 md:mb-12 w-full overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[16/9] md:aspect-[5/1]">
-                <Image 
-                    src="/hero-visual.png" 
-                    alt="Ideathon Banner" 
-                    fill 
+                <Image
+                    src="/images/image3.webp"
+                    alt="Ideathon Banner"
+                    fill
+                    priority
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-purple-950/40 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/50 to-transparent" />
-                <div className="absolute bottom-3 md:bottom-8 left-4 md:left-10 right-4 md:right-10">
-                    <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
-                        <span className="inline-flex rounded-full border border-purple-400/50 bg-purple-600/20 px-2.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-black uppercase tracking-widest text-purple-400 backdrop-blur-md shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+
+                {/* Wall-E Mascot Overlay */}
+                <div className="absolute right-4 md:right-12 bottom-0 top-0 w-[30%] md:w-[20%] pointer-events-none z-10 flex items-end justify-end">
+                    <div className="relative w-full h-[95%] md:h-[115%] transition-transform duration-700 hover:scale-105">
+                        <Image
+                            src="/images/walle.png"
+                            alt="Wall-E Mascot"
+                            fill
+                            priority
+                            className="object-contain object-bottom"
+                        />
+                    </div>
+                </div>
+
+                <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-10 right-[35%] md:right-10 z-20">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mb-1.5 sm:mb-2">
+                        <span className="inline-flex self-start rounded-lg border border-purple-400/50 bg-purple-600/20 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-purple-400 backdrop-blur-md">
                             Ideathon Phase
                         </span>
-                        <div className="h-1 w-1 rounded-full bg-white/20" />
-                        <span className="text-[9px] md:text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">SEC-REG-2.0</span>
+                        <div className="hidden sm:block h-1 w-1 rounded-full bg-white/20" />
+                        <span className="text-[8px] sm:text-[10px] font-black text-white/80 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">SEC-REG-2.0</span>
                     </div>
                     <h2 className="text-sm md:text-3xl font-black text-white tracking-tight uppercase leading-tight">
                         Cloud Challenge Team Registration
@@ -251,23 +266,23 @@ export default function CompetitionForm() {
 
             {/* Main Form Wrapper */}
             <GlassCard className="relative rounded-[2rem] md:rounded-[3rem] border-white/10 bg-[#09090b]/80 shadow-2xl backdrop-blur-3xl p-5 md:p-16">
-                
+
                 {/* Header */}
                 <div className="mb-6 md:mb-12 border-b border-white/5 pb-6 md:pb-10">
                     <div className="flex flex-wrap items-end justify-between gap-4 mb-4 md:mb-6">
-                       <div>
-                          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-3 md:mb-4">
-                             Join the <span className="text-purple-500">Ideathon</span>
-                          </h1>
-                          <p className="text-slate-400 leading-relaxed max-w-xl text-sm md:text-md">
-                              Form your dream team of 1 to 4 members to brainstorm, design and pitch breakthrough cloud computing architectures.
-                          </p>
-                       </div>
-                       <div className="px-4 py-2 md:px-6 md:py-3 bg-purple-500/20 border border-purple-400/40 rounded-xl md:rounded-2xl backdrop-blur-md shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all hover:scale-105">
-                          <span className="text-[10px] md:text-xs font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-1.5">
-                             <Award size={12} /> Phase 1
-                          </span>
-                       </div>
+                        <div>
+                            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-3 md:mb-4">
+                                Join the <span className="text-purple-500">Ideathon</span>
+                            </h1>
+                            <p className="text-slate-400 leading-relaxed max-w-xl text-sm md:text-md">
+                                Form your dream team of 1 to 4 members to brainstorm, design and pitch breakthrough cloud computing architectures.
+                            </p>
+                        </div>
+                        <div className="px-4 py-2 md:px-6 md:py-3 bg-purple-500/20 border border-purple-400/40 rounded-lg backdrop-blur-md transition-all hover:scale-105">
+                            <span className="text-[10px] md:text-xs font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-1.5">
+                                <Award size={12} /> Phase 1
+                            </span>
+                        </div>
                     </div>
 
                     {/* Quick Rules Summary */}
@@ -294,7 +309,7 @@ export default function CompetitionForm() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6 md:space-y-12">
-                    
+
                     {/* SECTION 1: TEAM INFORMATION */}
                     <div className="space-y-4 md:space-y-8">
                         <div className="flex items-center gap-2.5 border-l-2 border-purple-500 pl-3 md:pl-4">
@@ -396,7 +411,7 @@ export default function CompetitionForm() {
                                 <span className="text-[10px] md:text-xs font-mono font-black text-purple-500">03</span>
                                 <h3 className="text-sm md:text-md font-black uppercase tracking-[0.2em] text-white">Additional Members</h3>
                             </div>
-                            
+
                             <button
                                 type="button"
                                 onClick={addMember}
@@ -408,7 +423,7 @@ export default function CompetitionForm() {
                         </div>
 
                         {members.length === 0 ? (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 className="bg-white/[0.01] border border-white/[0.03] border-dashed rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 text-center"

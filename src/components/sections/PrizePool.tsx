@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
+import Image from "next/image";
 
 const PRIZES = [
   {
@@ -60,8 +61,16 @@ export function PrizePool() {
   return (
     <section id="prizes" className="relative py-32 bg-[#020617] overflow-hidden border-y border-white/5">
       {/* Background Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[120px]" />
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <Image
+          src="/images/image3.webp"
+          alt="Rewards Background"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#020617]/30 to-[#020617]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/10 rounded-full blur-[120px]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">

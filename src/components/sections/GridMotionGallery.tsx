@@ -13,56 +13,56 @@ import { X, ZoomIn } from 'lucide-react';
 
 const GALLERY_ITEMS = [
   {
-    src: '/gallery/535402715_122240866520212355_8124034634747307157_n 1.png',
+    src: '/gallery/535402715_122240866520212355_8124034634747307157_n 1.webp',
     label: '001 // IDEATHON',
     title: 'BOC 1.0',
     sub: '2025 — Cloud Era',
     span: 'lg:col-span-2 lg:row-span-2', // Hero — large
   },
   {
-    src: '/gallery/535554370_122240866814212355_5298821791634180236_n 1.png',
+    src: '/gallery/535554370_122240866814212355_5298821791634180236_n 1.webp',
     label: '002 // KEYNOTE',
     title: 'Opening Day',
     sub: '2025 — Main Stage',
     span: 'lg:col-span-1',
   },
   {
-    src: '/gallery/536284330_122240866082212355_6148099243555502993_n 1.png',
+    src: '/gallery/536284330_122240866082212355_6148099243555502993_n 1.webp',
     label: '003 // TEAM',
     title: 'Core Team',
     sub: '2025 — Sri Jayewardenepura',
     span: 'lg:col-span-1',
   },
   {
-    src: '/gallery/536502129_122240864120212355_2064198593439261121_n 1.png',
+    src: '/gallery/536502129_122240864120212355_2064198593439261121_n 1.webp',
     label: '004 // AWARDS',
     title: 'Ceremony',
     sub: '2025 — Finalists',
     span: 'lg:col-span-1',
   },
   {
-    src: '/gallery/537424474_122240865374212355_3166245579080254582_n 3.png',
+    src: '/gallery/537424474_122240865374212355_3166245579080254582_n 3.webp',
     label: '005 // WORKSHOP',
     title: 'Cloud Workshop',
     sub: '2025 — AWS Track',
     span: 'lg:col-span-2', // Wide
   },
   {
-    src: '/gallery/537483229_122240864276212355_3196250950373039991_n 2.png',
+    src: '/gallery/537483229_122240864276212355_3196250950373039991_n 2.webp',
     label: '006 // HACKERS',
     title: 'Hack Night',
     sub: '2025 — Late Session',
     span: 'lg:col-span-1',
   },
   {
-    src: '/gallery/538341720_122240863028212355_4189567101984455264_n 1.png',
+    src: '/gallery/538341720_122240863028212355_4189567101984455264_n 1.webp',
     label: '007 // COLLAB',
     title: 'University Meet',
     sub: '2025 — Collaboration',
     span: 'lg:col-span-1',
   },
   {
-    src: '/gallery/fffff 2.png',
+    src: '/gallery/fffff 2.webp',
     label: '008 // MOMENT',
     title: 'Memorable',
     sub: '2025 — Highlights',

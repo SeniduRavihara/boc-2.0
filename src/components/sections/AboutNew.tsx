@@ -57,7 +57,7 @@ export function AboutNew() {
   return (
     <section
       id="about-us"
-      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32"
+      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32 lg:min-h-screen lg:py-0 flex lg:items-center"
     >
       {/* Background Pattern with Fade */}
       <div
@@ -148,7 +148,7 @@ export function AboutNew() {
             {/* Center Core */}
             <div className="relative z-10 flex items-center justify-center pointer-events-none drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]">
               <Image
-                src="/logo.png"
+                src="/email-and-header/boc.webp"
                 alt="BOC Logo"
                 width={120}
                 height={120}
