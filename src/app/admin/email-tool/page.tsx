@@ -160,12 +160,17 @@ export default function EmailToolPage() {
   const [filterSender, setFilterSender] = useState('');
 
   const IR_MEMBERS = [
-    "Waruna Udara",
-    "Kavindu Nimesha",
-    "Senindu Ravihara",
-    "Tharindu Kalhara",
-    "Sanduni Perera",
-    "Nishara Dilmi"
+    "Shanki Tharusha",
+    "Chanupa Diwyanjala",
+    "Senumi Waidyalankara",
+    "Kaushan Munasingha",
+    "Kavinya Peiris",
+    "Bakeerathan Karthigan",
+    "Wiraji Wijewardana",
+    "Amasha Malindi",
+    "Himasha Ranasooriya",
+    "Inuka Karunasiri",
+    "Charutha Palihawadana"
   ];
 
   // AWS Vouchers State
