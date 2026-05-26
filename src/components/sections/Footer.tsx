@@ -236,17 +236,17 @@ export const Footer: React.FC = () => {
               { 
                 icon: FacebookIcon, 
                 color: 'hover:bg-[#1877F2]',
-                href: 'https://www.facebook.com/share/1EkWmtzhkP/?mibextid=wwXIfr'
+                href: 'https://www.facebook.com/beautyofcloud/'
               },
               { 
                 icon: LinkedinIcon, 
                 color: 'hover:bg-[#0A66C2]',
-                href: 'https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/'
+                href: 'https://www.linkedin.com/company/beautyofcloud/'
               },
               { 
                 icon: InstagramIcon, 
                 color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]',
-                href: 'https://www.instagram.com/ieee_usj_cs?igsh=aWNheXQyMmxreGto'
+                href: 'https://www.instagram.com/beautyofcloud/'
               }
             ].map(({ icon: Icon, color, href }, i) => (
               <Link 

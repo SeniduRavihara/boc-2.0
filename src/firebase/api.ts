@@ -534,6 +534,12 @@ export const updateMailMessageStatus = async (id: string, updates: Partial<MailM
   return await updateDoc(messageRef, updates);
 };
 
+export const deleteMailMessage = async (id: string) => {
+  const firestore = requireDb();
+  const messageRef = doc(firestore, MAILBOX_COLLECTION, id);
+  return await deleteDoc(messageRef);
+};
+
 export const addMailMessage = async (message: Omit<MailMessage, "id" | "createdAt">) => {
   const firestore = requireDb();
   const mailboxRef = collection(firestore, MAILBOX_COLLECTION);
