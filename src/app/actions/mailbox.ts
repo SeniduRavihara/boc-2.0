@@ -7,7 +7,7 @@ import { getBaseTemplate, getLightTemplate } from '@/lib/email/templates';
 import fs from 'fs';
 import path from 'path';
 
-const FROM_EMAIL = 'Beauty of Cloud 2.0 <noreply@beautyofcloud.com>';
+const FROM_EMAIL = 'Beauty of Cloud 2.0 <info@beautyofcloud.com>';
 
 export async function sendMail(params: {
   to: string | string[];
@@ -28,7 +28,7 @@ export async function sendMail(params: {
     
     const senderEmail = senderName 
       ? `${senderName.toLowerCase().replace(/\s+/g, '.')}@beautyofcloud.com`
-      : 'noreply@beautyofcloud.com';
+      : 'info@beautyofcloud.com';
       
     const fromAddress = senderName
       ? `${senderName} (IR Committee) <${senderEmail}>`
@@ -37,11 +37,11 @@ export async function sendMail(params: {
     const attachments = [];
     if (attachInvitation) {
       try {
-        const invitationPath = path.join(process.cwd(), 'public', 'invitation.jpeg');
+        const invitationPath = path.join(process.cwd(), 'public', 'invitation.png');
         console.log(`[Mailbox] Loading attachment from: ${invitationPath}`);
         const invitationBuffer = fs.readFileSync(invitationPath);
         attachments.push({
-          filename: 'invitation.jpeg',
+          filename: 'invitation.png',
           content: invitationBuffer,
         });
       } catch (err) {
