@@ -1,13 +1,13 @@
 'use server';
 
 import { resend } from '@/lib/resend';
-import { addMailMessage, MailFolder, fetchMailboxMessages, updateMailMessageStatus } from '@/firebase/api';
+import { addMailMessage, MailFolder, fetchMailboxMessages, updateMailMessageStatus, deleteMailMessage } from '@/firebase/api';
 import { revalidatePath } from 'next/cache';
-import { getBaseTemplate } from '@/lib/email/templates';
+import { getBaseTemplate, getLightTemplate } from '@/lib/email/templates';
 import fs from 'fs';
 import path from 'path';
 
-const FROM_EMAIL = 'Beauty of Cloud 2.0 <noreply@beautyofcloud.com>';
+const FROM_EMAIL = 'Beauty of Cloud 2.0 <info@beautyofcloud.com>';
 
 export async function sendMail(params: {
   to: string | string[];
@@ -16,23 +16,34 @@ export async function sendMail(params: {
   cc?: string | string[];
   bcc?: string | string[];
   attachInvitation?: boolean;
+  senderName?: string;
   metadata?: Record<string, unknown>;
   fontFamily?: string;
 }) {
-  const { to, subject, content, cc, bcc, attachInvitation = false, metadata, fontFamily } = params;
+  const { to, subject, content, cc, bcc, attachInvitation = false, senderName, metadata, fontFamily } = params;
 
   try {
     console.log(`[Mailbox] Starting sendMail process for ${to}...`);
-    const htmlContent = getBaseTemplate(content, fontFamily ? { fontFamily } : undefined);
+    
+    // Determine template and sender based on whether an IR member was selected
+    const htmlContent = senderName ? getLightTemplate(content, senderName) : getBaseTemplate(content, 'https://www.beautyofcloud.com', fontFamily ? { fontFamily } : undefined);
+    
+    const senderEmail = senderName 
+      ? `${senderName.toLowerCase().replace(/\s+/g, '.')}@beautyofcloud.com`
+      : 'info@beautyofcloud.com';
+      
+    const fromAddress = senderName
+      ? `${senderName} (IR Committee) <${senderEmail}>`
+      : FROM_EMAIL;
 
     const attachments = [];
     if (attachInvitation) {
       try {
-        const invitationPath = path.join(process.cwd(), 'public', 'invitation.jpeg');
+        const invitationPath = path.join(process.cwd(), 'public', 'invitation.png');
         console.log(`[Mailbox] Loading attachment from: ${invitationPath}`);
         const invitationBuffer = fs.readFileSync(invitationPath);
         attachments.push({
-          filename: 'invitation.jpeg',
+          filename: 'invitation.png',
           content: invitationBuffer,
         });
       } catch (err) {
@@ -42,7 +53,7 @@ export async function sendMail(params: {
 
     // 1. Prepare Payload
     const emailPayload: any = {
-      from: FROM_EMAIL,
+      from: fromAddress,
       to: typeof to === 'string' ? [to] : to,
       subject: subject,
       html: htmlContent,
@@ -69,18 +80,19 @@ export async function sendMail(params: {
       await addMailMessage({
         resend_id: resendData?.id || '',
         direction: 'outgoing',
-        from_email: FROM_EMAIL,
+        from_email: fromAddress,
         to_email: typeof to === 'string' ? to : to.join(', '),
         subject: subject,
         content_text: content,
         content_html: htmlContent,
         folder: 'sent',
         is_read: true,
-        metadata: {
+        metadata: { 
           source: metadata?.source ?? 'admin_mailbox',
           cc: (typeof cc === 'string' ? cc : cc?.join(', ')) || null,
           bcc: (typeof bcc === 'string' ? bcc : bcc?.join(', ')) || null,
-          ...metadata,
+          senderName: senderName || 'System Default',
+          ...metadata
         }
       });
       console.log(`[Mailbox] Firestore record created.`);
@@ -100,7 +112,11 @@ export async function sendMail(params: {
 
 export async function getMessages(folder: MailFolder = 'inbox') {
   try {
-    return await fetchMailboxMessages(folder);
+    const rawMessages = await fetchMailboxMessages(folder);
+    return rawMessages.map(msg => ({
+      ...msg,
+      createdAt: msg.createdAt ? (typeof msg.createdAt.toDate === 'function' ? msg.createdAt.toDate().toISOString() : new Date(msg.createdAt.seconds * 1000).toISOString()) : new Date().toISOString()
+    }));
   } catch (error) {
     console.error('Error fetching messages:', error);
     return [];
@@ -110,6 +126,26 @@ export async function getMessages(folder: MailFolder = 'inbox') {
 export async function markAsRead(id: string) {
   try {
     await updateMailMessageStatus(id, { is_read: true });
+    revalidatePath('/admin/email-tool');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateMailFolder(id: string, folder: MailFolder) {
+  try {
+    await updateMailMessageStatus(id, { folder });
+    revalidatePath('/admin/email-tool');
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteMailMessageAction(id: string) {
+  try {
+    await deleteMailMessage(id);
     revalidatePath('/admin/email-tool');
     return { success: true };
   } catch (error: any) {
