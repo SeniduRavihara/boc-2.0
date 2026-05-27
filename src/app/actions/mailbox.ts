@@ -39,13 +39,25 @@ export async function sendMail(params: {
       try {
         const invitationPath = path.join(process.cwd(), 'public', 'invitation.png');
         console.log(`[Mailbox] Loading attachment from: ${invitationPath}`);
-        const invitationBuffer = fs.readFileSync(invitationPath);
-        attachments.push({
-          filename: 'invitation.png',
-          content: invitationBuffer,
-        });
+        if (fs.existsSync(invitationPath)) {
+          const invitationBuffer = fs.readFileSync(invitationPath);
+          attachments.push({
+            filename: 'invitation.png',
+            content: invitationBuffer,
+          });
+        }
+
+        const invitation2Path = path.join(process.cwd(), 'public', 'invitation2.png');
+        console.log(`[Mailbox] Loading attachment from: ${invitation2Path}`);
+        if (fs.existsSync(invitation2Path)) {
+          const invitation2Buffer = fs.readFileSync(invitation2Path);
+          attachments.push({
+            filename: 'invitation2.png',
+            content: invitation2Buffer,
+          });
+        }
       } catch (err) {
-        console.error('[Mailbox] Failed to read invitation attachment:', err);
+        console.error('[Mailbox] Failed to read invitation attachments:', err);
       }
     }
 
