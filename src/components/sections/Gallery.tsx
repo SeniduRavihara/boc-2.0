@@ -12,7 +12,7 @@ const PROJECTS = [
     title: 'Neural Convergence',
     category: 'CLOUD_ARCHITECTURE',
     year: '2024',
-    image: '/gallery/535402715_122240866520212355_8124034634747307157_n 1.png',
+    image: '/gallery/535402715_122240866520212355_8124034634747307157_n 1.webp',
     description: 'Visualizing the density of university cloud collaborations across Sri Lanka.',
     tech: ['Next.js', 'Firebase', 'Terraform'],
     span: 'lg:col-span-2 lg:row-span-2'
@@ -22,7 +22,7 @@ const PROJECTS = [
     title: 'Data Nebula',
     category: 'STUDENT_INNOVATION',
     year: '2024',
-    image: '/gallery/535554370_122240866814212355_5298821791634180236_n 1.png',
+    image: '/gallery/535554370_122240866814212355_5298821791634180236_n 1.webp',
     description: 'A study on the latent potential of student ideation in the cloud space.',
     tech: ['AWS Lambda', 'GCP Functions'],
     span: ''
@@ -32,7 +32,7 @@ const PROJECTS = [
     title: 'Infinite Shard',
     category: 'PROCEDURAL_MAPPING',
     year: '2023',
-    image: '/gallery/536284330_122240866082212355_6148099243555502993_n 1.png',
+    image: '/gallery/536284330_122240866082212355_6148099243555502993_n 1.webp',
     description: 'Mapping the digital infrastructure of Beauty of Cloud 1.0.',
     tech: ['React', 'D3.js'],
     span: ''
@@ -42,7 +42,7 @@ const PROJECTS = [
     title: 'Digital Monolith',
     category: 'STRUCTURAL_DESIGN',
     year: '2024',
-    image: '/gallery/536502129_122240864120212355_2064198593439261121_n 1.png',
+    image: '/gallery/536502129_122240864120212355_2064198593439261121_n 1.webp',
     description: 'The geometric foundation of our elite tech event branding.',
     tech: ['Framer Motion', 'Three.js'],
     span: 'lg:col-span-2 lg:row-span-1'
@@ -52,7 +52,7 @@ const PROJECTS = [
     title: 'Cloud Pulse',
     category: 'VIRTUAL_PRESENCE',
     year: '2024',
-    image: '/gallery/537424474_122240865374212355_3166245579080254582_n 3.png',
+    image: '/gallery/537424474_122240865374212355_3166245579080254582_n 3.webp',
     description: 'Real-time telemetry of delegate engagement across 7 universities.',
     tech: ['WebSockets', 'Go'],
     span: ''
@@ -62,7 +62,7 @@ const PROJECTS = [
     title: 'Spectral Array',
     category: 'LIGHT_DYNAMICS',
     year: '2024',
-    image: '/gallery/537483229_122240864276212355_3196250950373039991_n 2.png',
+    image: '/gallery/537483229_122240864276212355_3196250950373039991_n 2.webp',
     description: 'Exploring the spectrum of cloud solutions for social impact.',
     tech: ['GraphQL', 'Apollo'],
     span: ''
@@ -72,7 +72,7 @@ const PROJECTS = [
     title: 'Vortex Core',
     category: 'FLUID_LOGIC',
     year: '2024',
-    image: '/gallery/538341720_122240863028212355_4189567101984455264_n 1.png',
+    image: '/gallery/538341720_122240863028212355_4189567101984455264_n 1.webp',
     description: 'Simulating the flow of knowledge through the ideathon pipeline.',
     tech: ['Rust', 'WebAssembly'],
     span: 'lg:col-span-1'
@@ -82,7 +82,7 @@ const PROJECTS = [
     title: 'Prism Void',
     category: 'ABSTRACT_VISION',
     year: '2024',
-    image: '/gallery/fffff 2.png',
+    image: '/gallery/fffff 2.webp',
     description: 'Looking beyond the horizon of traditional computing into the serverless void.',
     tech: ['AI Engine', 'Python'],
     span: 'lg:col-span-1'

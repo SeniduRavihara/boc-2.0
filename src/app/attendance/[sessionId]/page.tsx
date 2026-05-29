@@ -39,32 +39,52 @@ export default function AttendancePage() {
           return;
         }
 
-        const userData = JSON.parse(saved);
-        const isRegistered =
-          userData.sessionIds?.includes(sessionId) ||
-          userData.sessionId === sessionId;
-
-        if (!isRegistered) {
-          // Known user but not registered for this session — pre-fill email and show form
-          setEmail(userData.email || "");
+        const localData = JSON.parse(saved);
+        if (!localData.email) {
           setPageState('input');
           return;
         }
 
-        // Registered — mark attendance silently
-        setEmail(userData.email);
-        setUserName(userData.name || "");
+        // Robust check: always verify with Firestore to ensure the user still exists and is registered
+        const registration = await checkUserRegistration(localData.email);
+        if (!registration) {
+          // User was deleted from DB
+          localStorage.removeItem('last_registered_user');
+          localStorage.removeItem('quiz_user_general');
+          setPageState('input');
+          return;
+        }
 
-        const exists = await checkAttendanceExists(userData.email, sessionId);
-        if (exists) {
-          setAlreadyMarked(true);
-        } else {
-          await markAttendance({
-            sessionId,
-            email: userData.email,
-            userName: userData.name,
-            organization: userData.organization || "",
-          });
+        const isRegistered =
+          registration.sessionIds?.includes(sessionId) ||
+          registration.sessionId === sessionId;
+
+        if (!isRegistered) {
+          // Known user but not registered for this session — pre-fill email and show form
+          setEmail(registration.email || "");
+          setPageState('input');
+          return;
+        }
+
+        // Refresh local cache with latest DB data
+        localStorage.setItem('last_registered_user', JSON.stringify(registration));
+
+        // Registered — mark attendance silently only if there is a meeting URL
+        setEmail(registration.email);
+        setUserName(registration.name || "");
+
+        if (meetingUrl) {
+          const exists = await checkAttendanceExists(registration.email, sessionId);
+          if (exists) {
+            setAlreadyMarked(true);
+          } else {
+            await markAttendance({
+              sessionId,
+              email: registration.email,
+              userName: registration.name,
+              organization: registration.organization || "",
+            });
+          }
         }
 
         // Show confirmed card with button — user clicks to join
@@ -111,17 +131,19 @@ export default function AttendancePage() {
         return;
       }
 
-      // Registered — mark attendance
-      const exists = await checkAttendanceExists(registration.email, sessionId);
-      if (exists) {
-        setAlreadyMarked(true);
-      } else {
-        await markAttendance({
-          sessionId,
-          email: registration.email,
-          userName: registration.name,
-          organization: registration.organization || "",
-        });
+      // Registered — mark attendance only if session is live
+      if (meetingUrl) {
+        const exists = await checkAttendanceExists(registration.email, sessionId);
+        if (exists) {
+          setAlreadyMarked(true);
+        } else {
+          await markAttendance({
+            sessionId,
+            email: registration.email,
+            userName: registration.name,
+            organization: registration.organization || "",
+          });
+        }
       }
 
       // Cache for future visits
@@ -145,13 +167,13 @@ export default function AttendancePage() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="flex-1 flex items-center justify-center p-6 relative z-10">
-        <div className="w-full max-w-md py-12">
+        <div className="w-full max-w-md py-6 md:py-12">
           {/* Header */}
-          <header className="text-center mb-10">
+          <header className="text-center mb-6 md:mb-10">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-6"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 mb-4 md:mb-6"
             >
               <UserCheck size={14} /> Session Attendance & Uplink
             </motion.div>
@@ -159,7 +181,7 @@ export default function AttendancePage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl font-black text-white uppercase tracking-tighter mb-2"
+              className="text-4xl font-black text-white uppercase tracking-tighter mb-1 md:mb-2"
             >
               Session <span className="text-blue-500">{sessionId}</span>
             </motion.h1>

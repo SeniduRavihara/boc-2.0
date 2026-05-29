@@ -53,12 +53,12 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
     },
     { 
       icon: <InstagramIcon className="w-[18px] h-[18px]" />, 
-      href: "https://www.instagram.com/ieee_usj_cs?igsh=aWNheXQyMmxreGto",
+      href: "https://www.instagram.com/ieee_usj_cs/",
       label: "Instagram"
     },
     { 
       icon: <FacebookIcon className="w-[18px] h-[18px]" />, 
-      href: "https://www.facebook.com/share/1EkWmtzhkP/?mibextid=wwXIfr",
+      href: "https://web.facebook.com/profile.php?id=61568293116395",
       label: "Facebook"
     },
     { 
