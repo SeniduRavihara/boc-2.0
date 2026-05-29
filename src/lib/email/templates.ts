@@ -123,64 +123,83 @@ export const getBaseTemplate = (content: string, baseUrl: string = 'https://www.
 </body>
 </html>
 `;
+export interface MemberInfo {
+  role: string;
+  email: string;
+  phone: string;
+  privateEmail: string;
+}
+
+export const MEMBER_SIGNATURES: Record<string, MemberInfo> = {
+  "Shanki Tharusha": {
+    role: "Industry Relations Committee Head",
+    email: "shanki.tharusha@beautyofcloud.com",
+    phone: "+94 76 346 9070",
+    privateEmail: "shankitharu@gmail.com"
+  },
+  "Chanupa Diwyanjala": {
+    role: "Industry Relations Committee",
+    email: "chanupa.diwyanjala@beautyofcloud.com",
+    phone: "+94 71 791 6464",
+    privateEmail: "chanupadiw@gmail.com"
+  },
+  "Senumi Waidyalankara": {
+    role: "Industry Relations Committee",
+    email: "senumi.waidyalankara@beautyofcloud.com",
+    phone: "+94 70 512 5759",
+    privateEmail: "amayawaid@gmail.com"
+  },
+  "Kaushan Munasingha": {
+    role: "Industry Relations Committee",
+    email: "kaushan.munasingha@beautyofcloud.com",
+    phone: "+94 77 067 4146",
+    privateEmail: "k.h.s.ucoders03@gmail.com"
+  },
+  "Kavinya Peiris": {
+    role: "Industry Relations Committee",
+    email: "kavinya.peiris@beautyofcloud.com",
+    phone: "+94 70 140 1144",
+    privateEmail: "kavinyapeiris99@gmail.com"
+  },
+  "Bakeerathan Karthigan": {
+    role: "Industry Relations Committee",
+    email: "bakeerathan.karthigan@beautyofcloud.com",
+    phone: "+94 74 077 8329",
+    privateEmail: "bakeekarthigan@gmail.com"
+  },
+  "Wiraji Wijewardana": {
+    role: "Industry Relations Committee",
+    email: "wiraji.wijewardana@beautyofcloud.com",
+    phone: "+94 76 169 5635",
+    privateEmail: "wirajiwijewardana@gmail.com"
+  },
+  "Amasha Malindi": {
+    role: "Industry Relations Committee",
+    email: "amasha.malindi@beautyofcloud.com",
+    phone: "+94 71 419 9177",
+    privateEmail: "malindiamasha@gmail.com"
+  },
+  "Himasha Ranasooriya": {
+    role: "Industry Relations Committee",
+    email: "himasha.ranasooriya@beautyofcloud.com",
+    phone: "+94 77 929 3054",
+    privateEmail: "himasharanasooriya@gmail.com"
+  },
+  "Inuka Karunasiri": {
+    role: "Industry Relations Committee",
+    email: "inuka.karunasiri@beautyofcloud.com",
+    phone: "+94 74 042 3126",
+    privateEmail: "vimuthinuka@gmail.com"
+  },
+  "Charutha Palihawadana": {
+    role: "Industry Relations Committee",
+    email: "charutha.palihawadana@beautyofcloud.com",
+    phone: "+94 71 398 7924",
+    privateEmail: "palihawadanacharutha@gmail.com"
+  }
+};
+
 export const getLightTemplate = (content: string, senderName?: string, baseUrl: string = 'https://www.beautyofcloud.com') => {
-  const MEMBER_SIGNATURES: Record<string, { role: string; email: string; phone: string }> = {
-    "Shanki Tharusha": {
-      role: "Industry Relations Committee Head",
-      email: "shanki.tharusha@beautyofcloud.com",
-      phone: "+94 76 346 9070"
-    },
-    "Chanupa Diwyanjala": {
-      role: "Industry Relations Committee",
-      email: "chanupa.diwyanjala@beautyofcloud.com",
-      phone: "+94 71 791 6464"
-    },
-    "Senumi Waidyalankara": {
-      role: "Industry Relations Committee",
-      email: "senumi.waidyalankara@beautyofcloud.com",
-      phone: "+94 70 512 5759"
-    },
-    "Kaushan Munasingha": {
-      role: "Industry Relations Committee",
-      email: "kaushan.munasingha@beautyofcloud.com",
-      phone: "+94 77 067 4146"
-    },
-    "Kavinya Peiris": {
-      role: "Industry Relations Committee",
-      email: "kavinya.peiris@beautyofcloud.com",
-      phone: "+94 70 140 1144"
-    },
-    "Bakeerathan Karthigan": {
-      role: "Industry Relations Committee",
-      email: "bakeerathan.karthigan@beautyofcloud.com",
-      phone: "+94 74 077 8329"
-    },
-    "Wiraji Wijewardana": {
-      role: "Industry Relations Committee",
-      email: "wiraji.wijewardana@beautyofcloud.com",
-      phone: "+94 76 169 5635"
-    },
-    "Amasha Malindi": {
-      role: "Industry Relations Committee",
-      email: "amasha.malindi@beautyofcloud.com",
-      phone: "+94 71 419 9177"
-    },
-    "Himasha Ranasooriya": {
-      role: "Industry Relations Committee",
-      email: "himasha.ranasooriya@beautyofcloud.com",
-      phone: "+94 77 929 3054"
-    },
-    "Inuka Karunasiri": {
-      role: "Industry Relations Committee",
-      email: "inuka.karunasiri@beautyofcloud.com",
-      phone: "+94 74 042 3126"
-    },
-    "Charutha Palihawadana": {
-      role: "Industry Relations Committee",
-      email: "charutha.palihawadana@beautyofcloud.com",
-      phone: "+94 71 398 7924"
-    }
-  };
 
   let signatureHtml = '';
   if (senderName && MEMBER_SIGNATURES[senderName]) {
