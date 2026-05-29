@@ -48,17 +48,17 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
   const socialLinks = [
     { 
       icon: <LinkedinIcon className="w-[18px] h-[18px]" />, 
-      href: "https://www.linkedin.com/company/beautyofcloud/",
+      href: "https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/",
       label: "LinkedIn"
     },
     { 
       icon: <InstagramIcon className="w-[18px] h-[18px]" />, 
-      href: "https://www.instagram.com/beautyofcloud/",
+      href: "https://www.instagram.com/ieee_usj_cs/",
       label: "Instagram"
     },
     { 
       icon: <FacebookIcon className="w-[18px] h-[18px]" />, 
-      href: "https://www.facebook.com/beautyofcloud/",
+      href: "https://web.facebook.com/profile.php?id=61568293116395",
       label: "Facebook"
     },
     { 

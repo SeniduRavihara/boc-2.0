@@ -158,6 +158,31 @@ export default function EmailToolPage() {
   const [attachInvitation, setAttachInvitation] = useState(false);
   const [sending, setSending] = useState(false);
   const [filterSender, setFilterSender] = useState('');
+  const [customAttachments, setCustomAttachments] = useState<{ filename: string; content: string }[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Content = (event.target?.result as string).split(',')[1];
+        setCustomAttachments(prev => [
+          ...prev,
+          {
+            filename: file.name,
+            content: base64Content
+          }
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeAttachment = (index: number) => {
+    setCustomAttachments(prev => prev.filter((_, i) => i !== index));
+  };
 
   const IR_MEMBERS = [
     "Shanki Tharusha",
@@ -328,7 +353,8 @@ export default function EmailToolPage() {
       cc: ccList.length > 0 ? ccList : undefined,
       bcc: bccList.length > 0 ? bccList : undefined,
       attachInvitation: attachInvitation,
-      senderName: composeSender || undefined
+      senderName: composeSender || undefined,
+      customAttachments: customAttachments
     });
 
     if (result.success) {
@@ -338,6 +364,7 @@ export default function EmailToolPage() {
       setComposeBcc('');
       setComposeSubject('');
       setComposeContent('');
+      setCustomAttachments([]);
       setShowPreview(false);
       if (activeFolder === 'sent') loadMessages();
     } else {
@@ -1003,7 +1030,7 @@ Warm regards,
                 </div>
                 <h2 className="text-xl font-black text-white uppercase tracking-tight">New Transmission</h2>
               </div>
-              <button onClick={() => setIsComposeOpen(false)} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
+              <button onClick={() => { setIsComposeOpen(false); setCustomAttachments([]); }} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
                 Cancel
               </button>
             </div>
@@ -1141,6 +1168,47 @@ Warm regards,
                 <label htmlFor="attachInvitation" className="text-xs font-bold text-slate-400 cursor-pointer hover:text-white transition-all">
                   Attach Official Invitation (Speaker Image)
                 </label>
+              </div>
+
+              {/* Dynamic File Attachments Selector */}
+              <div className="space-y-3 bg-white/[0.02] border border-white/5 p-4 rounded-none">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Paperclip size={14} className="text-blue-400" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custom Attachments</span>
+                  </div>
+                  <label className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-all cursor-pointer flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-none">
+                    <Plus size={14} />
+                    <span>Upload File</span>
+                    <input 
+                      type="file" 
+                      multiple 
+                      className="hidden" 
+                      onChange={handleFileChange} 
+                    />
+                  </label>
+                </div>
+                
+                {customAttachments.length > 0 ? (
+                  <div className="space-y-2 mt-2 max-h-36 overflow-y-auto custom-scrollbar">
+                    {customAttachments.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white/[0.03] border border-white/5 px-3 py-2 rounded-none text-xs">
+                        <span className="text-slate-300 font-medium truncate max-w-[280px]">{file.filename}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => removeAttachment(idx)} 
+                          className="text-slate-500 hover:text-red-400 transition-all font-bold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-slate-500 italic mt-1 pl-1">
+                    No custom attachments added
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 flex justify-end gap-4">

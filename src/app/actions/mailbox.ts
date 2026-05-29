@@ -17,8 +17,12 @@ export async function sendMail(params: {
   bcc?: string | string[];
   attachInvitation?: boolean;
   senderName?: string;
+  customAttachments?: {
+    filename: string;
+    content: string;
+  }[];
 }) {
-  const { to, subject, content, cc, bcc, attachInvitation = false, senderName } = params;
+  const { to, subject, content, cc, bcc, attachInvitation = false, senderName, customAttachments = [] } = params;
 
   try {
     console.log(`[Mailbox] Starting sendMail process for ${to}...`);
@@ -58,6 +62,20 @@ export async function sendMail(params: {
         }
       } catch (err) {
         console.error('[Mailbox] Failed to read invitation attachments:', err);
+      }
+    }
+
+    if (customAttachments && customAttachments.length > 0) {
+      for (const att of customAttachments) {
+        try {
+          const buffer = Buffer.from(att.content, 'base64');
+          attachments.push({
+            filename: att.filename,
+            content: buffer,
+          });
+        } catch (err) {
+          console.error(`[Mailbox] Failed to read custom attachment ${att.filename}:`, err);
+        }
       }
     }
 
