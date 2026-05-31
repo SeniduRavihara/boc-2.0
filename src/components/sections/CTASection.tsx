@@ -249,7 +249,7 @@ export function CTASection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/register/session/2">
+              <Link href="/register/session/3">
                 <Magnet padding={150} magnetStrength={12}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}

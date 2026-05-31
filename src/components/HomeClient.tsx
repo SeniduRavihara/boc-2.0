@@ -623,9 +623,9 @@ export function HomeClient() {
             <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4 mb-8">
               Sri Lanka&apos;s premier inter-university cloud championship.
             </p>
-            <Link href="/register/session/2">
+            <Link href="/register/session/3">
               <button className="px-8 py-3.5 rounded-full bg-white text-black font-bold tracking-widest uppercase text-xs sm:text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-                Register for Session 2
+                Register for Session 3
               </button>
             </Link>
           </div>
