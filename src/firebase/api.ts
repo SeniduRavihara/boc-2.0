@@ -267,6 +267,24 @@ export const checkUserRegistration = async (email: string): Promise<Registration
 export const deleteRegistration = async (id: string) => {
   const firestore = requireDb();
   const registrationRef = doc(firestore, REGISTRATIONS_COLLECTION, id);
+  
+  try {
+    const snap = await getDoc(registrationRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      const email = data.email;
+      if (email) {
+        const attendanceRef = collection(firestore, ATTENDANCE_COLLECTION);
+        const q = query(attendanceRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        const deletePromises = querySnapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+        await Promise.all(deletePromises);
+      }
+    }
+  } catch (err) {
+    console.error("Failed to delete associated attendance records:", err);
+  }
+
   return await deleteDoc(registrationRef);
 };
 
@@ -586,6 +604,12 @@ export const updateMailMessageStatus = async (id: string, updates: Partial<MailM
   const firestore = requireDb();
   const messageRef = doc(firestore, MAILBOX_COLLECTION, id);
   return await updateDoc(messageRef, updates);
+};
+
+export const deleteMailMessage = async (id: string) => {
+  const firestore = requireDb();
+  const messageRef = doc(firestore, MAILBOX_COLLECTION, id);
+  return await deleteDoc(messageRef);
 };
 
 export const addMailMessage = async (message: Omit<MailMessage, "id" | "createdAt">) => {

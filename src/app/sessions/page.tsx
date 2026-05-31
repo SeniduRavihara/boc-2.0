@@ -1,8 +1,9 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Play, Calendar, Clock, Video, User } from 'lucide-react';
+import { Play, Calendar, Clock, Video, User, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Header } from '@/components/layout/Header';
 import MainFooter from '@/components/layout/MainFooter';
@@ -29,19 +30,15 @@ export default function PastSessionsPage() {
         <div className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vw] bg-purple-500/10 rounded-full blur-[120px] mix-blend-screen opacity-30" />
       </div>
 
-      <div className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 pt-32 pb-24 relative z-10 flex flex-col gap-16">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 pt-10 pb-24 relative z-10 flex flex-col gap-16">
         {/* Header Section */}
         <div className="flex flex-col gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/5 px-4 py-2 w-fit backdrop-blur-md"
-          >
-            <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-            <span className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-blue-400">
-              Video Archive
-            </span>
-          </motion.div>
+          <Link href="/">
+            <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-mono uppercase tracking-widest mb-4 group">
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              Back to Home
+            </button>
+          </Link>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +94,7 @@ export default function PastSessionsPage() {
               </div>
 
               <div className="pt-6 border-t border-white/10 mt-auto">
-                <a 
+                <a
                   href={`https://www.youtube.com/watch?v=${currentSession.videoId}`}
                   target="_blank"
                   rel="noopener noreferrer"

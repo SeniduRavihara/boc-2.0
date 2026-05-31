@@ -236,7 +236,7 @@ export const Footer: React.FC = () => {
               { 
                 icon: FacebookIcon, 
                 color: 'hover:bg-[#1877F2]',
-                href: 'https://www.facebook.com/share/1EkWmtzhkP/?mibextid=wwXIfr'
+                href: 'https://web.facebook.com/profile.php?id=61568293116395'
               },
               { 
                 icon: LinkedinIcon, 
@@ -246,7 +246,7 @@ export const Footer: React.FC = () => {
               { 
                 icon: InstagramIcon, 
                 color: 'hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7]',
-                href: 'https://www.instagram.com/ieee_usj_cs?igsh=aWNheXQyMmxreGto'
+                href: 'https://www.instagram.com/ieee_usj_cs/'
               }
             ].map(({ icon: Icon, color, href }, i) => (
               <Link 

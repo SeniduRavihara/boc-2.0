@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity } from 'lucide-react';
+import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity, Reply, ReplyAll, Paperclip } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { getMessages, sendMail, markAsRead } from '@/app/actions/mailbox';
+import { getMessages, sendMail, markAsRead, updateMailFolder, deleteMailMessageAction } from '@/app/actions/mailbox';
 import { MailMessage, MailFolder, getQuizzes, getQuizSubmissions } from '@/firebase/api';
+import { getBaseTemplate, getLightTemplate } from '@/lib/email/templates';
 import { Quiz, QuizSubmission } from '@/types';
 import { format } from 'date-fns';
 
@@ -66,6 +67,77 @@ Senindu Ravihara
 Programming Committee Head
 IEEE CS Chapter USJ`;
 
+const cleanMessageForQuote = (text: string): string => {
+  if (!text) return '';
+  let cleaned = text;
+
+  // List of standard lines to remove from quotes to avoid duplication
+  const linesToRemove = [
+    /Co-Chairs\s*—\s*Beauty of Cloud 2\.0/gi,
+    /Senindu Ravihara/gi,
+    /Programming Committee Head/gi,
+    /IEEE CS Chapter USJ/gi,
+    /IEEE Computer Society - Student Branch Chapter of the University of Sri Jayewardenepura/gi,
+    /Organizing Committee\s*·\s*University of Sri Jayewardenepura/gi,
+    /©\s*\d{4}\s*Beauty of Cloud 2\.0/gi,
+    /No\. 123, Business Avenue, Colombo, Sri Lanka/gi,
+    /Privacy Policy/gi,
+    /Terms of Service/gi,
+    /https:\/\/www\.beautyofcloud\.com/gi,
+    /https:\/\/wa\.me\/94785147452/gi,
+    /Waruna Udara and Kavindu Nimesha/gi
+  ];
+
+  for (const regex of linesToRemove) {
+    cleaned = cleaned.replace(regex, '');
+  }
+
+  // Remove duplicate quoted block headers or excessive whitespace
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  return cleaned.trim();
+};
+
+const formatContentForPreview = (content: string): string => {
+  if (!content) return '';
+  
+  // Escape HTML tags to prevent layout hijack or XSS in preview
+  let escaped = content.trim()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  // Now parse blockquotes (lines starting with &gt; or >)
+  const lines = escaped.split('\n');
+  let inBlockquote = false;
+  const resultLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('&gt;')) {
+      const quoteText = trimmed.substring(4).trim();
+      if (!inBlockquote) {
+        resultLines.push('<blockquote style="border-left: 2px solid #3b82f6; padding-left: 15px; margin: 10px 0; color: #64748b; font-style: italic;">');
+        inBlockquote = true;
+      }
+      resultLines.push(quoteText + '<br/>');
+    } else {
+      if (inBlockquote) {
+        resultLines.push('</blockquote>');
+        inBlockquote = false;
+      }
+      resultLines.push(line + '<br/>');
+    }
+  }
+  
+  if (inBlockquote) {
+    resultLines.push('</blockquote>');
+  }
+
+  return resultLines.join('\n');
+};
+
 export default function EmailToolPage() {
   const [activeFolder, setActiveFolder] = useState<MailFolder | 'aws_vouchers'>('inbox');
   const [messages, setMessages] = useState<MailMessage[]>([]);
@@ -76,10 +148,55 @@ export default function EmailToolPage() {
 
   // Compose State
   const [composeTo, setComposeTo] = useState('');
+  const [composeCc, setComposeCc] = useState('');
+  const [composeBcc, setComposeBcc] = useState('');
+  const [showCcBcc, setShowCcBcc] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [composeSubject, setComposeSubject] = useState('');
+  const [composeSender, setComposeSender] = useState('');
   const [composeContent, setComposeContent] = useState('');
   const [attachInvitation, setAttachInvitation] = useState(false);
   const [sending, setSending] = useState(false);
+  const [filterSender, setFilterSender] = useState('');
+  const [customAttachments, setCustomAttachments] = useState<{ filename: string; content: string }[]>([]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Content = (event.target?.result as string).split(',')[1];
+        setCustomAttachments(prev => [
+          ...prev,
+          {
+            filename: file.name,
+            content: base64Content
+          }
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeAttachment = (index: number) => {
+    setCustomAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const IR_MEMBERS = [
+    "Shanki Tharusha",
+    "Chanupa Diwyanjala",
+    "Senumi Waidyalankara",
+    "Kaushan Munasingha",
+    "Kavinya Peiris",
+    "Bakeerathan Karthigan",
+    "Wiraji Wijewardana",
+    "Amasha Malindi",
+    "Himasha Ranasooriya",
+    "Inuka Karunasiri",
+    "Charutha Palihawadana"
+  ];
 
   // AWS Vouchers State
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
@@ -225,18 +342,30 @@ export default function EmailToolPage() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
+    
+    const ccList = composeCc.split(',').map(e => e.trim()).filter(e => e !== "");
+    const bccList = composeBcc.split(',').map(e => e.trim()).filter(e => e !== "");
+    
     const result = await sendMail({
       to: composeTo,
       subject: composeSubject,
       content: composeContent,
-      attachInvitation: attachInvitation
+      cc: ccList.length > 0 ? ccList : undefined,
+      bcc: bccList.length > 0 ? bccList : undefined,
+      attachInvitation: attachInvitation,
+      senderName: composeSender || undefined,
+      customAttachments: customAttachments
     });
 
     if (result.success) {
       setIsComposeOpen(false);
       setComposeTo('');
+      setComposeCc('');
+      setComposeBcc('');
       setComposeSubject('');
       setComposeContent('');
+      setCustomAttachments([]);
+      setShowPreview(false);
       if (activeFolder === 'sent') loadMessages();
     } else {
       alert("Protocol Failure: " + result.error);
@@ -252,11 +381,80 @@ export default function EmailToolPage() {
     }
   };
 
-  const filteredMessages = messages.filter(msg => 
-    msg.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    msg.from_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    msg.to_email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleArchive = async (id: string) => {
+    const result = await updateMailFolder(id, 'archive');
+    if (result.success) {
+      setSelectedMessage(null);
+      loadMessages();
+    } else {
+      alert("Failed to archive: " + result.error);
+    }
+  };
+
+  const handleTrash = async (id: string) => {
+    const result = await updateMailFolder(id, 'trash');
+    if (result.success) {
+      setSelectedMessage(null);
+      loadMessages();
+    } else {
+      alert("Failed to move to trash: " + result.error);
+    }
+  };
+
+  const handleDeletePermanently = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this transmission?")) return;
+    const result = await deleteMailMessageAction(id);
+    if (result.success) {
+      setSelectedMessage(null);
+      loadMessages();
+    } else {
+      alert("Failed to delete: " + result.error);
+    }
+  };
+
+  const handleReply = () => {
+    if (!selectedMessage) return;
+    setComposeTo(selectedMessage.from_email);
+    setComposeSubject(selectedMessage.subject.startsWith('Re:') ? selectedMessage.subject : `Re: ${selectedMessage.subject}`);
+    
+    // Clean original text
+    const cleanedText = cleanMessageForQuote(selectedMessage.content_text);
+    
+    setComposeContent(`\n\nOn ${selectedMessage.createdAt ? format(new Date(selectedMessage.createdAt), 'PPP p') : ''}, ${selectedMessage.from_email} wrote:\n> ${cleanedText.split('\n').join('\n> ')}`);
+    
+    // Auto-detect matching sender
+    const fromEmailLower = selectedMessage.from_email.toLowerCase();
+    const toEmailLower = selectedMessage.to_email.toLowerCase();
+    const matchedMember = IR_MEMBERS.find(member => 
+      toEmailLower.includes(member.toLowerCase().replace(/\s+/g, '.')) ||
+      fromEmailLower.includes(member.toLowerCase().replace(/\s+/g, '.'))
+    );
+    setComposeSender(matchedMember || filterSender || '');
+
+    setAttachInvitation(false);
+    setComposeCc('');
+    setComposeBcc('');
+    setIsComposeOpen(true);
+  };
+
+  const filteredMessages = messages.filter(msg => {
+    const matchesSearch = 
+      msg.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      msg.from_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      msg.to_email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (filterSender) {
+      const memberEmail = `${filterSender.toLowerCase().replace(/\s+/g, '.')}@beautyofcloud.com`;
+      const isFromMember = msg.from_email.toLowerCase().includes(memberEmail.toLowerCase()) || 
+                           msg.metadata?.senderName === filterSender;
+      const isToMember = msg.to_email.toLowerCase().includes(memberEmail.toLowerCase());
+      return isFromMember || isToMember;
+    }
+
+    return true;
+  });
 
   return (
     <div className="min-h-[800px] h-[calc(100vh-120px)] flex flex-col gap-6">
@@ -268,8 +466,27 @@ export default function EmailToolPage() {
           <p className="text-slate-400 text-sm">Secure communications protocol v2.0</p>
         </div>
         <div className="flex items-center gap-3">
+          {/* Global Member Filter Dropdown */}
+          <div className="relative min-w-[200px]">
+            <select
+              value={filterSender}
+              onChange={(e) => setFilterSender(e.target.value)}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white pl-10 pr-10 py-3 rounded-none text-sm font-bold border border-white/5 shadow-xl transition-all appearance-none cursor-pointer outline-none focus:border-blue-500/50"
+            >
+              <option value="" className="bg-slate-900 text-slate-300">All Members</option>
+              {IR_MEMBERS.map((member) => (
+                <option key={member} value={member} className="bg-slate-900 text-white">
+                  {member}
+                </option>
+              ))}
+            </select>
+            <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" />
+          </div>
+
           <button 
             onClick={() => {
+              setComposeSender(filterSender);
               setComposeSubject("Official Invitation: Beauty of Cloud 2.0");
               setComposeContent(`Dear Mr. Tharindu Kalhara,
 
@@ -291,20 +508,21 @@ Warm regards,
               setAttachInvitation(true);
               setIsComposeOpen(true);
             }}
-            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-5 py-3 rounded-2xl flex items-center gap-2 transition-all font-bold text-sm border border-blue-500/30"
+            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-5 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-blue-500/30"
           >
             <Check size={18} />
             SPEAKER TEMPLATE
           </button>
           <button 
             onClick={() => {
+              setComposeSender(filterSender);
               setComposeSubject('');
               setComposeContent('');
               setComposeTo('');
               setAttachInvitation(false);
               setIsComposeOpen(true);
             }}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all font-bold text-sm border border-white/5 shadow-xl"
+            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-white/5 shadow-xl"
           >
             <Plus size={18} />
             COMPOSE
@@ -313,7 +531,7 @@ Warm regards,
       </div>
 
       {/* Main Mailbox Interface */}
-      <GlassCard className="flex-1 flex overflow-hidden border-white/5 rounded-[2.5rem]">
+      <GlassCard className="flex-1 flex overflow-hidden border-white/5 rounded-none">
         
         {/* Navigation Sidebar */}
         <div className="w-64 border-r border-white/5 bg-white/[0.02] flex flex-col p-6 gap-2 overflow-y-auto custom-scrollbar">
@@ -365,7 +583,7 @@ Warm regards,
                   <select 
                     value={selectedQuizId}
                     onChange={(e) => setSelectedQuizId(e.target.value)}
-                    className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all appearance-none"
+                    className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all appearance-none"
                   >
                     <option value="" disabled className="bg-slate-900">Select a Quiz Leaderboard</option>
                     {quizzes.map(q => (
@@ -378,7 +596,7 @@ Warm regards,
                   <select 
                     value={emailType}
                     onChange={(e) => setEmailType(e.target.value as any)}
-                    className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-2.5 text-sm text-blue-400 font-bold outline-none focus:border-blue-500/50 transition-all appearance-none"
+                    className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 py-2.5 text-sm text-blue-400 font-bold outline-none focus:border-blue-500/50 transition-all appearance-none"
                   >
                     <option value="voucher" className="bg-slate-900">Email: AWS Voucher</option>
                     <option value="inquiry" className="bg-slate-900">Email: Redemption Inquiry</option>
@@ -388,7 +606,7 @@ Warm regards,
                 <button 
                   onClick={loadTopPerformers}
                   disabled={!selectedQuizId || loadingVouchers}
-                  className="p-2.5 bg-white/[0.03] border border-white/5 rounded-xl text-slate-400 hover:text-white transition-all disabled:opacity-30"
+                  className="p-2.5 bg-white/[0.03] border border-white/5 rounded-none text-slate-400 hover:text-white transition-all disabled:opacity-30"
                 >
                   <RefreshCw size={18} className={loadingVouchers ? 'animate-spin' : ''} />
                 </button>
@@ -401,7 +619,7 @@ Warm regards,
                 <div className="p-4 bg-white/[0.02] border-b border-white/5 flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Mapped Performers ({topSubmissions.length}/30)</span>
                   <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-32 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-32 bg-white/5 rounded-none overflow-hidden">
                       <div 
                         className="h-full bg-blue-500 transition-all duration-500" 
                         style={{ width: `${(sentCount / topSubmissions.length) * 100}%` }}
@@ -425,8 +643,8 @@ Warm regards,
                   ) : (
                     <div className="grid grid-cols-1 gap-3">
                       {topSubmissions.map((sub, i) => (
-                        <div key={i} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center gap-4 hover:border-white/10 transition-all group">
-                          <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-black text-blue-400">
+                        <div key={i} className="p-4 rounded-none bg-white/[0.02] border border-white/5 flex items-center gap-4 hover:border-white/10 transition-all group">
+                          <div className="w-8 h-8 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-black text-blue-400">
                             {i + 1}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -434,7 +652,7 @@ Warm regards,
                             <p className="text-[10px] text-slate-500 truncate">{sub.userEmail}</p>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs font-mono text-blue-400 font-bold bg-blue-500/5 px-2 py-1 rounded-lg border border-blue-500/10">
+                            <div className="text-xs font-mono text-blue-400 font-bold bg-blue-500/5 px-2 py-1 rounded-none border border-blue-500/10">
                               {sub.voucher}
                             </div>
                             <p className="text-[10px] text-slate-600 mt-1 uppercase font-black tracking-tighter">{sub.totalScore} PTS</p>
@@ -457,21 +675,21 @@ Warm regards,
                     <input 
                       type="email" 
                       placeholder="test-recipient@example.com"
-                      className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
+                      className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 py-3 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
                       value={testEmail}
                       onChange={(e) => setTestEmail(e.target.value)}
                     />
                     <input 
                       type="text" 
                       placeholder="BCC (comma separated)..."
-                      className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
+                      className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 py-3 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
                       value={testBcc}
                       onChange={(e) => setTestBcc(e.target.value)}
                     />
                     <button 
                       onClick={handleTestSend}
                       disabled={sending || !testEmail}
-                      className="w-full h-12 bg-white/5 border border-white/10 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2 disabled:opacity-30"
+                      className="w-full h-12 bg-white/5 border border-white/10 text-white rounded-none text-xs font-black uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2 disabled:opacity-30"
                     >
                       {sending ? <Loader2 size={14} className="animate-spin" /> : <ExternalLink size={14} />}
                       Execute Test Send
@@ -491,7 +709,7 @@ Warm regards,
                     <input 
                       type="text" 
                       placeholder="Admin BCCs (comma separated)..."
-                      className="w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
+                      className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 py-3 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
                       value={batchBcc}
                       onChange={(e) => setBatchBcc(e.target.value)}
                     />
@@ -502,7 +720,7 @@ Warm regards,
                   <button 
                     onClick={handleBatchSend}
                     disabled={batchProgress.sending || topSubmissions.length === 0 || sentCount >= topSubmissions.length}
-                    className="w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black uppercase tracking-[0.2em] hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3 disabled:opacity-30"
+                    className="w-full h-14 bg-blue-600 text-white rounded-none text-sm font-black uppercase tracking-[0.2em] hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/10 flex items-center justify-center gap-3 disabled:opacity-30"
                   >
                     {batchProgress.sending ? (
                       <>
@@ -531,7 +749,7 @@ Warm regards,
                   )}
                 </div>
 
-                <div className="mt-auto p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 text-center">
+                <div className="mt-auto p-5 rounded-none bg-blue-500/5 border border-blue-500/10 text-center">
                   <AlertCircle size={24} className="mx-auto mb-3 text-blue-400 opacity-50" />
                   <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">Security Notice</p>
                   <p className="text-[10px] text-slate-500 leading-normal">
@@ -551,7 +769,7 @@ Warm regards,
               <input 
                 type="text" 
                 placeholder="Search encrypted mail..." 
-                className="w-full bg-white/[0.03] border border-white/5 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
+                className="w-full bg-white/[0.03] border border-white/5 rounded-none pl-12 pr-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 transition-all"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -576,13 +794,13 @@ Warm regards,
                   onClick={() => handleSelectMessage(msg)}
                   className={`p-6 border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.03] group relative ${selectedMessage?.id === msg.id ? 'bg-blue-500/[0.05]' : ''}`}
                 >
-                  {!msg.is_read && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full" />}
+                  {!msg.is_read && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-none" />}
                   <div className="flex justify-between items-start mb-2">
                     <span className={`text-xs font-black truncate max-w-[150px] ${!msg.is_read ? 'text-blue-400' : 'text-slate-400'}`}>
                       {msg.direction === 'incoming' ? msg.from_email : `To: ${msg.to_email}`}
                     </span>
                     <span className="text-[10px] text-slate-600 font-mono">
-                      {msg.createdAt && format(msg.createdAt.toDate(), 'HH:mm')}
+                      {msg.createdAt && format(new Date(msg.createdAt), 'HH:mm')}
                     </span>
                   </div>
                   <h4 className={`text-sm mb-1 truncate ${!msg.is_read ? 'text-white font-bold' : 'text-slate-300 font-medium'}`}>
@@ -605,30 +823,192 @@ Warm regards,
                 <div>
                   <h2 className="text-2xl font-black text-white tracking-tight mb-4">{selectedMessage.subject}</h2>
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-black">
+                    <div className="w-10 h-10 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-black">
                       {selectedMessage.from_email.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <p className="text-sm font-bold text-white">{selectedMessage.from_email}</p>
-                      <p className="text-xs text-slate-500">to {selectedMessage.to_email} · {selectedMessage.createdAt && format(selectedMessage.createdAt.toDate(), 'PPP p')}</p>
+                      <p className="text-xs text-slate-500">to {selectedMessage.to_email} · {selectedMessage.createdAt && format(new Date(selectedMessage.createdAt), 'PPP p')}</p>
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button className="p-3 bg-white/[0.03] border border-white/5 rounded-xl text-slate-400 hover:text-white transition-all"><Archive size={18} /></button>
-                  <button className="p-3 bg-white/[0.03] border border-white/5 rounded-xl text-slate-400 hover:text-red-400 transition-all"><Trash2 size={18} /></button>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={handleReply}
+                    className="px-4 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 rounded-none transition-all flex items-center gap-2 font-bold text-xs"
+                  >
+                    <Reply size={14} /> REPLY
+                  </button>
+                  {selectedMessage.folder !== 'archive' && (
+                    <button 
+                      onClick={() => handleArchive(selectedMessage.id)}
+                      className="p-3 bg-white/[0.03] border border-white/5 rounded-none text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+                      title="Archive message"
+                    >
+                      <Archive size={18} />
+                    </button>
+                  )}
+                  {selectedMessage.folder === 'trash' ? (
+                    <button 
+                      onClick={() => handleDeletePermanently(selectedMessage.id)}
+                      className="p-3 bg-red-500/10 border border-red-500/20 rounded-none text-red-400 hover:bg-red-500/20 transition-all"
+                      title="Delete permanently"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => handleTrash(selectedMessage.id)}
+                      className="p-3 bg-white/[0.03] border border-white/5 rounded-none text-slate-400 hover:text-red-400 hover:bg-white/5 transition-all"
+                      title="Move to trash"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-                <div 
-                  className="prose prose-invert max-w-none text-slate-300 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: selectedMessage.content_html }}
+                <iframe
+                  srcDoc={`
+                    <!DOCTYPE html>
+                    <html>
+                      <head>
+                        <style>
+                          ::-webkit-scrollbar {
+                            width: 8px;
+                            height: 8px;
+                          }
+                          ::-webkit-scrollbar-track {
+                            background: #020617;
+                          }
+                          ::-webkit-scrollbar-thumb {
+                            background: #1e293b;
+                            border-radius: 9999px;
+                          }
+                          ::-webkit-scrollbar-thumb:hover {
+                            background: #334155;
+                          }
+                          body {
+                            margin: 0;
+                            padding: 0;
+                            background-color: #020617;
+                            color: #cbd5e1;
+                            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            line-height: 1.6;
+                            font-size: 14px;
+                          }
+                          /* Ensure images do not overflow and behave responsively */
+                          img {
+                            max-width: 100%;
+                            height: auto;
+                          }
+                          /* Scope template elements inside the iframe */
+                          .container {
+                            max-width: 100%;
+                            margin: 0 auto;
+                            background: #0f172a;
+                            border-radius: 16px;
+                            overflow: hidden;
+                            border: 1px solid rgba(255, 255, 255, 0.08);
+                          }
+                          .header {
+                            background: radial-gradient(circle at top right, #1e40af 0%, #020617 80%);
+                            padding: 20px;
+                            text-align: center;
+                            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                          }
+                          .logo {
+                            max-width: 120px;
+                          }
+                          .content {
+                            padding: 25px;
+                            color: #f1f5f9;
+                          }
+                          .footer {
+                            background: #020617;
+                            padding: 30px 20px;
+                            text-align: center;
+                            color: #475569;
+                            border-top: 1px solid rgba(255, 255, 255, 0.05);
+                          }
+                          .footer-logo {
+                            height: 24px;
+                            margin: 0 10px;
+                            opacity: 0.4;
+                          }
+                          blockquote {
+                            border-left: 2px solid #3b82f6;
+                            padding-left: 15px;
+                            margin: 10px 0;
+                            color: #64748b;
+                          }
+                          /* Hide standard email client quoted reply history */
+                          .gmail_quote,
+                          blockquote[type="cite"],
+                          .yahoo_quoted,
+                          .ms-outlook-ios-signature,
+                          div[id="appendonsend"] {
+                            display: none !important;
+                          }
+                        </style>
+                      </head>
+                      <body>
+                        ${selectedMessage.content_html || `<pre style="white-space: pre-wrap; font-family: sans-serif; color: #cbd5e1; line-height: 1.6; margin: 0;">${selectedMessage.content_text}</pre>`}
+                      </body>
+                    </html>
+                  `}
+                  className="w-full h-[550px] border border-white/5 rounded-none bg-[#020617] mb-6 shadow-inner"
+                  title="Email Transmission Body"
                 />
+
+                {/* Attachments rendering */}
+                {selectedMessage.metadata?.attachments && Array.isArray(selectedMessage.metadata.attachments) && selectedMessage.metadata.attachments.length > 0 && (
+                  <div className="mt-8 pt-8 border-t border-white/5">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
+                      <Paperclip size={14} /> Attachments ({selectedMessage.metadata.attachments.length})
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {selectedMessage.metadata.attachments.map((att: any, idx: number) => (
+                        <a 
+                          key={idx}
+                          href={att.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-4 rounded-none bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.03] transition-all flex items-center justify-between group"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-none bg-white/5 flex items-center justify-center text-slate-400">
+                              <Paperclip size={14} />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-300 truncate">{att.name || att.filename}</p>
+                              <p className="text-[10px] text-slate-500">{(att.size / 1024).toFixed(1)} KB · {att.contentType || att.mimeType || 'unknown'}</p>
+                            </div>
+                          </div>
+                          <ChevronRight size={14} className="text-slate-600 group-hover:text-slate-400 transition-all" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Reply Form */}
+                <div className="mt-8 pt-8 border-t border-white/5">
+                  <div 
+                    onClick={handleReply}
+                    className="border border-dashed border-white/10 rounded-none bg-white/[0.01] hover:bg-white/[0.02] hover:border-blue-500/30 transition-all p-5 flex items-center gap-4 cursor-pointer group"
+                  >
+                    <div className="w-10 h-10 rounded-none bg-white/5 flex items-center justify-center group-hover:bg-blue-500/10 group-hover:text-blue-400 transition-all text-slate-400">
+                      <Reply size={18} />
+                    </div>
+                    <span className="text-sm text-slate-400 font-medium">Click here to <span className="text-blue-400 font-bold">Reply</span> to this message...</span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center opacity-20">
-              <div className="w-24 h-24 rounded-full border-4 border-dashed border-white/20 flex items-center justify-center mb-6">
+              <div className="w-24 h-24 rounded-none border-4 border-dashed border-white/20 flex items-center justify-center mb-6">
                 <Mail size={40} />
               </div>
               <p className="text-sm font-black uppercase tracking-[0.3em]">Select a transmission to view content</p>
@@ -642,31 +1022,104 @@ Warm regards,
       {/* Compose Modal */}
       {isComposeOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 backdrop-blur-xl bg-black/60">
-          <GlassCard className="w-full max-w-2xl rounded-[2.5rem] border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+          <GlassCard className="w-full max-w-2xl rounded-none border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
             <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                <div className="p-2 bg-blue-500/20 rounded-none text-blue-400">
                   <Plus size={18} />
                 </div>
                 <h2 className="text-xl font-black text-white uppercase tracking-tight">New Transmission</h2>
               </div>
-              <button onClick={() => setIsComposeOpen(false)} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
+              <button onClick={() => { setIsComposeOpen(false); setCustomAttachments([]); }} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
                 Cancel
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
+              {/* Switch between Editor and Preview */}
+              <div className="flex justify-between items-center bg-white/[0.02] border border-white/5 p-2 rounded-none mb-6">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Mode</span>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(false)}
+                    className={`px-3 py-1.5 rounded-none text-xs font-black uppercase tracking-wide transition-all ${!showPreview ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    Write
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className={`px-3 py-1.5 rounded-none text-xs font-black uppercase tracking-wide transition-all ${showPreview ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    Branded Preview
+                  </button>
+                </div>
+              </div>
+
               <form onSubmit={handleSendMessage} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Sender (IR Committee Member)</label>
+                <select
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
+                  value={composeSender}
+                  onChange={(e) => setComposeSender(e.target.value)}
+                >
+                  <option value="" className="bg-slate-900 text-slate-300">Default (Beauty of Cloud 2.0)</option>
+                  {IR_MEMBERS.map((member) => (
+                    <option key={member} value={member} className="bg-slate-900 text-white">
+                      {member} ({member.toLowerCase().replace(/\s+/g, '.')}@beautyofcloud.com)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Recipient Address</label>
                 <input 
                   type="email" 
                   required
                   placeholder="delegate@example.com"
-                  className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all"
                   value={composeTo}
                   onChange={(e) => setComposeTo(e.target.value)}
                 />
+              </div>
+
+              {/* Optional CC/BCC Fields */}
+              <div className="pt-2">
+                <button 
+                  type="button"
+                  onClick={() => setShowCcBcc(!showCcBcc)}
+                  className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-all flex items-center gap-1 mb-2"
+                >
+                  {showCcBcc ? 'Hide CC / BCC' : 'Show CC / BCC'}
+                </button>
+                
+                {showCcBcc && (
+                  <div className="space-y-4 border-l border-white/5 pl-4 ml-1 my-3 animate-in fade-in duration-200">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">CC Addresses (comma separated)</label>
+                      <input 
+                        type="text" 
+                        placeholder="cc-recipient@example.com"
+                        className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-3.5 text-white outline-none focus:border-blue-500/50 transition-all"
+                        value={composeCc}
+                        onChange={(e) => setComposeCc(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">BCC Addresses (comma separated)</label>
+                      <input 
+                        type="text" 
+                        placeholder="bcc-recipient@example.com"
+                        className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-3.5 text-white outline-none focus:border-blue-500/50 transition-all"
+                        value={composeBcc}
+                        onChange={(e) => setComposeBcc(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -675,7 +1128,7 @@ Warm regards,
                   type="text" 
                   required
                   placeholder="RE: Cloud Ideathon Registration"
-                  className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all font-bold"
                   value={composeSubject}
                   onChange={(e) => setComposeSubject(e.target.value)}
                 />
@@ -683,21 +1136,32 @@ Warm regards,
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Message Content</label>
-                <textarea 
-                  required
-                  rows={8}
-                  placeholder="Type your secure message here..."
-                  className="w-full bg-white/[0.03] border border-white/5 rounded-3xl px-6 py-6 text-white outline-none focus:border-blue-500/50 transition-all resize-none"
-                  value={composeContent}
-                  onChange={(e) => setComposeContent(e.target.value)}
-                />
+                {showPreview ? (
+                  <div className="rounded-none border border-white/5 overflow-hidden bg-[#020617]" style={{ height: '420px' }}>
+                    <iframe
+                      srcDoc={composeSender ? getLightTemplate(formatContentForPreview(composeContent), composeSender, typeof window !== 'undefined' ? window.location.origin : undefined) : getBaseTemplate(formatContentForPreview(composeContent), typeof window !== 'undefined' ? window.location.origin : undefined)}
+                      sandbox="allow-same-origin"
+                      style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                      title="Email Preview"
+                    />
+                  </div>
+                ) : (
+                  <textarea 
+                    required
+                    rows={8}
+                    placeholder="Type your secure message here..."
+                    className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-6 text-white outline-none focus:border-blue-500/50 transition-all resize-none leading-relaxed"
+                    value={composeContent}
+                    onChange={(e) => setComposeContent(e.target.value)}
+                  />
+                )}
               </div>
 
               <div className="flex items-center gap-3 px-2">
                 <input 
                   type="checkbox" 
                   id="attachInvitation"
-                  className="w-4 h-4 rounded border-white/10 bg-white/5 text-blue-600 focus:ring-blue-500 transition-all"
+                  className="w-4 h-4 rounded-none border-white/10 bg-white/5 text-blue-600 focus:ring-blue-500 transition-all"
                   checked={attachInvitation}
                   onChange={(e) => setAttachInvitation(e.target.checked)}
                 />
@@ -706,11 +1170,52 @@ Warm regards,
                 </label>
               </div>
 
+              {/* Dynamic File Attachments Selector */}
+              <div className="space-y-3 bg-white/[0.02] border border-white/5 p-4 rounded-none">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Paperclip size={14} className="text-blue-400" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Custom Attachments</span>
+                  </div>
+                  <label className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-all cursor-pointer flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-none">
+                    <Plus size={14} />
+                    <span>Upload File</span>
+                    <input 
+                      type="file" 
+                      multiple 
+                      className="hidden" 
+                      onChange={handleFileChange} 
+                    />
+                  </label>
+                </div>
+                
+                {customAttachments.length > 0 ? (
+                  <div className="space-y-2 mt-2 max-h-36 overflow-y-auto custom-scrollbar">
+                    {customAttachments.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white/[0.03] border border-white/5 px-3 py-2 rounded-none text-xs">
+                        <span className="text-slate-300 font-medium truncate max-w-[280px]">{file.filename}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => removeAttachment(idx)} 
+                          className="text-slate-500 hover:text-red-400 transition-all font-bold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-slate-500 italic mt-1 pl-1">
+                    No custom attachments added
+                  </div>
+                )}
+              </div>
+
               <div className="pt-4 flex justify-end gap-4">
                 <button 
                   type="submit" 
                   disabled={sending}
-                  className="bg-white text-black px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="bg-white text-black px-10 py-4 rounded-none font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50 flex items-center gap-2"
                 >
                   {sending ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
                   Execute Transmission
@@ -730,13 +1235,13 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, labe
   return (
     <button 
       onClick={onClick}
-      className={`flex items-center justify-between w-full p-4 rounded-2xl transition-all group ${active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-500 hover:bg-white/[0.02] hover:text-slate-300 border border-transparent'}`}
+      className={`flex items-center justify-between w-full p-4 rounded-none transition-all group ${active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-500 hover:bg-white/[0.02] hover:text-slate-300 border border-transparent'}`}
     >
       <div className="flex items-center gap-3">
         {icon}
         <span className="text-sm font-bold">{label}</span>
       </div>
-      {active && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />}
+      {active && <div className="w-1.5 h-1.5 rounded-none bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />}
     </button>
   );
 }

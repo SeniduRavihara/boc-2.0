@@ -19,8 +19,12 @@ export async function sendMail(params: {
   senderName?: string;
   metadata?: Record<string, unknown>;
   fontFamily?: string;
+  customAttachments?: {
+    filename: string;
+    content: string;
+  }[];
 }) {
-  const { to, subject, content, cc, bcc, attachInvitation = false, senderName, metadata, fontFamily } = params;
+  const { to, subject, content, cc, bcc, attachInvitation = false, senderName, metadata, fontFamily, customAttachments = [] } = params;
 
   try {
     console.log(`[Mailbox] Starting sendMail process for ${to}...`);
@@ -41,13 +45,39 @@ export async function sendMail(params: {
       try {
         const invitationPath = path.join(process.cwd(), 'public', 'invitation.png');
         console.log(`[Mailbox] Loading attachment from: ${invitationPath}`);
-        const invitationBuffer = fs.readFileSync(invitationPath);
-        attachments.push({
-          filename: 'invitation.png',
-          content: invitationBuffer,
-        });
+        if (fs.existsSync(invitationPath)) {
+          const invitationBuffer = fs.readFileSync(invitationPath);
+          attachments.push({
+            filename: 'invitation.png',
+            content: invitationBuffer,
+          });
+        }
+
+        const invitation2Path = path.join(process.cwd(), 'public', 'invitation2.png');
+        console.log(`[Mailbox] Loading attachment from: ${invitation2Path}`);
+        if (fs.existsSync(invitation2Path)) {
+          const invitation2Buffer = fs.readFileSync(invitation2Path);
+          attachments.push({
+            filename: 'invitation2.png',
+            content: invitation2Buffer,
+          });
+        }
       } catch (err) {
-        console.error('[Mailbox] Failed to read invitation attachment:', err);
+        console.error('[Mailbox] Failed to read invitation attachments:', err);
+      }
+    }
+
+    if (customAttachments && customAttachments.length > 0) {
+      for (const att of customAttachments) {
+        try {
+          const buffer = Buffer.from(att.content, 'base64');
+          attachments.push({
+            filename: att.filename,
+            content: buffer,
+          });
+        } catch (err) {
+          console.error(`[Mailbox] Failed to read custom attachment ${att.filename}:`, err);
+        }
       }
     }
 

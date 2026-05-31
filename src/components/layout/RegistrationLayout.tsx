@@ -26,14 +26,14 @@ export function RegistrationLayout({ children }: RegistrationLayoutProps) {
       </div>
 
       {/* Header — Cinematic Centered (As per Image) */}
-      <header className="relative z-10 pt-8 md:pt-16 pb-8 md:pb-12 flex flex-col items-center px-6">
-        <Link href="/" className="group flex flex-col items-center gap-6 transition-all hover:opacity-90">
-          <div className="relative h-28 md:h-44 w-auto aspect-square">
+      <header className="relative z-10 pt-4 md:pt-16 pb-2 md:pb-12 flex flex-col items-center px-6">
+        <Link href="/" className="group flex flex-col items-center gap-4 md:gap-6 transition-all hover:opacity-90">
+          <div className="relative h-16 md:h-44 w-auto aspect-square">
             <Image 
               src="/email-and-header/boc.webp" 
               alt="Beauty of Cloud 2.0" 
               fill
-              sizes="(max-width: 768px) 112px, 176px"
+              sizes="(max-width: 768px) 64px, 176px"
               className="object-contain drop-shadow-[0_0_30px_rgba(37,99,235,0.3)] group-hover:scale-105 transition-transform duration-500"
               priority
             />
