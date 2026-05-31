@@ -319,7 +319,7 @@ export function HomeClient() {
 
       // ── PHASE 1.5 - HOLD / INTERACT (2.0 -> 2.6) ──
       // The Linux window stays full screen and fully interactive during this section.
-      
+
       // Predictive trigger for early screenshot capture (preCapture)
       // Fires at 2.0, as soon as the hold phase starts.
       tl.to(
@@ -464,7 +464,7 @@ export function HomeClient() {
 
       // 14. Scroll Indicator State Changes
       gsap.set(scrollIndicatorRef.current, { opacity: 1, scale: 1 });
-      
+
       tl.to(
         {},
         {
@@ -571,7 +571,7 @@ export function HomeClient() {
                 style={{ minHeight: '220vh' }}
               />
             </div>
-            
+
             {/* Darkness overlay */}
             <div ref={darknessRef} className="absolute inset-0 bg-black/40 opacity-0" />
 
@@ -673,7 +673,7 @@ export function HomeClient() {
                     Open Soon
                   </span>
                 </button>
-                
+
                 {/* <a 
                   href="/Delegate_Booklet.pdf" 
                   target="_blank" 
