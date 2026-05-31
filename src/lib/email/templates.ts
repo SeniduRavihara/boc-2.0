@@ -413,28 +413,38 @@ export const getLightTemplate = (
         <div class="header-text">2.0 | Cloud Session | Ideathon</div>
     </div>
     <div class="content">${content}</div>${signatureHtml ? `<div class="signature-container" style="border-top: 1px solid #cbd5e1; padding: 20px 40px 15px 40px; background-color: #ffffff;">${signatureHtml}</div>` : ''}
-    <div class="footer" style="border-top: 1px solid #cbd5e1; padding: 20px 40px; background-color: #ffffff;">
-      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; white-space: normal;">
+    <div class="footer" style="padding: 28px 20px 32px 20px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+      <!-- Logos: table forces single row, never wraps -->
+      <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 20px auto; border-collapse: collapse;">
         <tr>
-          <!-- Left Column: Footer Logos -->
-          <td style="vertical-align: middle; text-align: left; width: 65%; white-space: nowrap;">
-            <img src="${baseUrl}/email-and-header/ieee-dark.png" alt="IEEE USJ" style="height: 22px; width: auto; margin-right: 12px; vertical-align: middle;" />
-            <img src="${baseUrl}/email-and-header/IEEE-CS-dark.png" alt="IEEE CS USJ" style="height: 22px; width: auto; margin-right: 12px; vertical-align: middle;" />
-            <img src="${baseUrl}/email-and-header/boc.png" alt="BOC" style="height: 22px; width: auto; vertical-align: middle;" />
+          <td style="vertical-align: middle; padding: 0 12px;">
+            <img src="${baseUrl}/email-and-header/ieee-dark.png" alt="IEEE USJ" style="height: 30px; width: auto; display: block;" />
           </td>
-          
-          <!-- Right Column: Reach Us -->
-          <td style="vertical-align: middle; text-align: right; width: 35%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-            <div style="font-size: 14px; font-weight: 700; color: #2563eb; margin-bottom: 8px;">Reach Us</div>
-            <div style="margin-bottom: 8px;">
-              <a href="https://web.facebook.com/profile.php?id=61568293116395" style="margin-left: 8px; text-decoration: none;"><img src="https://img.icons8.com/color/48/000000/facebook-new.png" style="width: 24px; height: 24px; vertical-align: middle; border: 0;" alt="Facebook"></a>
-              <a href="https://www.instagram.com/ieee_usj_cs/" style="margin-left: 8px; text-decoration: none;"><img src="https://img.icons8.com/color/48/000000/instagram-new.png" style="width: 24px; height: 24px; vertical-align: middle; border: 0;" alt="Instagram"></a>
-              <a href="https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/" style="margin-left: 8px; text-decoration: none;"><img src="https://img.icons8.com/color/48/000000/linkedin.png" style="width: 24px; height: 24px; vertical-align: middle; border: 0;" alt="LinkedIn"></a>
-            </div>
-            <div style="font-size: 9px; font-weight: 600; color: #2563eb; line-height: 1.2;">IEEE Computer Society Student Branch Chapter, University of Sri Jayewardenepura</div>
+          <td style="vertical-align: middle; padding: 0;">
+            <div style="width: 1px; height: 30px; background-color: #cbd5e1;"></div>
+          </td>
+          <td style="vertical-align: middle; padding: 0 12px;">
+            <img src="${baseUrl}/email-and-header/IEEE-CS-dark.png" alt="IEEE CS USJ" style="height: 30px; width: auto; display: block;" />
+          </td>
+          <td style="vertical-align: middle; padding: 0;">
+            <div style="width: 1px; height: 30px; background-color: #cbd5e1;"></div>
+          </td>
+          <td style="vertical-align: middle; padding: 0 12px;">
+            <img src="${baseUrl}/email-and-header/boc.png" alt="BOC" style="height: 30px; width: auto; display: block;" />
           </td>
         </tr>
       </table>
+      <!-- Social icons: Facebook, LinkedIn, Instagram -->
+      <div style="text-align: center; margin-bottom: 18px;">
+        <a href="https://web.facebook.com/profile.php?id=61568293116395" style="margin: 0 6px; text-decoration: none; display: inline-block;"><img src="https://img.icons8.com/color/48/000000/facebook-new.png" style="width: 38px; height: 38px; vertical-align: middle; border: 0; border-radius: 50%;" alt="Facebook"></a>
+        <a href="https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/" style="margin: 0 6px; text-decoration: none; display: inline-block;"><img src="https://img.icons8.com/color/48/000000/linkedin.png" style="width: 38px; height: 38px; vertical-align: middle; border: 0; border-radius: 50%;" alt="LinkedIn"></a>
+        <a href="https://www.instagram.com/ieee_usj_cs/" style="margin: 0 6px; text-decoration: none; display: inline-block;"><img src="https://img.icons8.com/color/48/000000/instagram-new.png" style="width: 38px; height: 38px; vertical-align: middle; border: 0; border-radius: 50%;" alt="Instagram"></a>
+      </div>
+      <!-- Copyright -->
+      <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 500; color: #334155; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">&copy;2026 Beauty of Cloud 2.0</p>
+      <!-- Two-line committee text -->
+      <p style="margin: 0 0 2px 0; font-size: 12px; color: #64748b; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">IEEE Computer Society Student Branch Chapter</p>
+      <p style="margin: 0; font-size: 12px; color: #64748b; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">University of Sri Jayewardenepura</p>
     </div>
   </div>
 </body>

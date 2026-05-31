@@ -17,7 +17,8 @@ import {
   UserPlus,
   Calendar,
   Award,
-  ImageIcon
+  ImageIcon,
+  FileText
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -34,6 +35,7 @@ const navItems = [
   { name: 'Quiz Management', href: '/admin/quiz', icon: Monitor },
   { name: 'Task Tracking', href: '/admin/task-tracking', icon: CheckSquare },
   { name: 'Email Tool', href: '/admin/email-tool', icon: Mail },
+  { name: 'Email Templates', href: '/admin/email-templates', icon: FileText },
   { name: 'Flyer Emails', href: '/admin/flyer-emails', icon: ImageIcon },
   { name: 'Attendance', href: '/admin/attendance', icon: Users },
 ];
