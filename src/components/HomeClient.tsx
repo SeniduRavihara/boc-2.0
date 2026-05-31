@@ -109,23 +109,33 @@ export function HomeClient() {
 
     // Load the first frame immediately for fast FCP/LCP
     const firstImg = new window.Image();
-    firstImg.src = `/Earth-splits/ezgif-frame-001.webp`;
-    firstImg.onload = () => {
+    const handleFirstFrameLoad = () => {
+      if (firstFrameLoaded) return;
       loadedImages[0] = firstImg;
       firstFrameLoaded = true;
       renderFrame(0);
       checkHideLoader();
     };
 
+    firstImg.onload = handleFirstFrameLoad;
+    firstImg.src = `/Earth-splits/ezgif-frame-001.webp`;
+    if (firstImg.complete) {
+      handleFirstFrameLoad();
+    }
+
     // Helper to load the rest of the frames
     const loadRemainingFrames = () => {
       for (let i = 2; i <= totalFrames; i++) {
         const img = new window.Image();
         const frameNum = String(i).padStart(3, "0");
-        img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
+        const idx = i - 1;
         img.onload = () => {
-          loadedImages[i - 1] = img;
+          loadedImages[idx] = img;
         };
+        img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
+        if (img.complete) {
+          loadedImages[idx] = img;
+        }
       }
     };
 

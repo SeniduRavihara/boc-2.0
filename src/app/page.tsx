@@ -1,5 +1,12 @@
-import { HomeClient } from '@/components/HomeClient';
+"use client";
 
-export default async function Home() {
+import dynamic from 'next/dynamic';
+
+const HomeClient = dynamic(
+  () => import('@/components/HomeClient').then((mod) => mod.HomeClient),
+  { ssr: false }
+);
+
+export default function Home() {
   return <HomeClient />;
 }
