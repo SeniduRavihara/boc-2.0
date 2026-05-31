@@ -457,17 +457,17 @@ export default function EmailToolPage() {
   });
 
   return (
-    <div className="min-h-[800px] h-[calc(100vh-120px)] flex flex-col gap-6">
+    <div className="min-h-[800px] h-auto lg:h-[calc(100vh-120px)] flex flex-col gap-6">
       
       {/* Header Area */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Administrative <span className="text-blue-500">Mailbox</span></h1>
           <p className="text-slate-400 text-sm">Secure communications protocol v2.0</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Global Member Filter Dropdown */}
-          <div className="relative min-w-[200px]">
+          <div className="relative w-full sm:min-w-[220px] sm:w-auto">
             <select
               value={filterSender}
               onChange={(e) => setFilterSender(e.target.value)}
@@ -508,7 +508,7 @@ Warm regards,
               setAttachInvitation(true);
               setIsComposeOpen(true);
             }}
-            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-5 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-blue-500/30"
+            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-5 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-blue-500/30 w-full sm:w-auto justify-center"
           >
             <Check size={18} />
             SPEAKER TEMPLATE
@@ -522,7 +522,7 @@ Warm regards,
               setAttachInvitation(false);
               setIsComposeOpen(true);
             }}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-white/5 shadow-xl"
+            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-white/5 shadow-xl w-full sm:w-auto justify-center"
           >
             <Plus size={18} />
             COMPOSE
@@ -531,10 +531,10 @@ Warm regards,
       </div>
 
       {/* Main Mailbox Interface */}
-      <GlassCard className="flex-1 flex overflow-hidden border-white/5 rounded-none">
+      <GlassCard className="flex-1 flex flex-col lg:flex-row overflow-hidden border-white/5 rounded-none">
         
         {/* Navigation Sidebar */}
-        <div className="w-64 border-r border-white/5 bg-white/[0.02] flex flex-col p-6 gap-2 overflow-y-auto custom-scrollbar">
+        <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 bg-white/[0.02] flex flex-col p-6 gap-2 overflow-y-auto custom-scrollbar">
           <NavItem 
             icon={<Inbox size={18} />} 
             label="Inbox" 
@@ -613,9 +613,9 @@ Warm regards,
               </div>
             </div>
 
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex flex-col xl:flex-row overflow-hidden">
               {/* List of mapped students */}
-              <div className="flex-1 border-r border-white/5 flex flex-col">
+              <div className="flex-1 border-b xl:border-b-0 xl:border-r border-white/5 flex flex-col">
                 <div className="p-4 bg-white/[0.02] border-b border-white/5 flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Mapped Performers ({topSubmissions.length}/30)</span>
                   <div className="flex items-center gap-3">
@@ -665,7 +665,7 @@ Warm regards,
               </div>
 
               {/* Actions & Template Preview */}
-              <div className="w-96 flex flex-col p-8 gap-8">
+              <div className="w-full xl:w-96 flex flex-col p-6 md:p-8 gap-8">
                 {/* Testing Section */}
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
@@ -762,7 +762,7 @@ Warm regards,
         ) : (
           <>
         {/* Message List */}
-        <div className="w-96 border-r border-white/5 flex flex-col">
+        <div className="w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col">
           <div className="p-6 border-b border-white/5">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
@@ -819,7 +819,7 @@ Warm regards,
         <div className="flex-1 bg-white/[0.01] flex flex-col">
           {selectedMessage ? (
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="p-10 border-b border-white/5 flex justify-between items-start">
+              <div className="p-6 sm:p-8 lg:p-10 border-b border-white/5 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
                 <div>
                   <h2 className="text-2xl font-black text-white tracking-tight mb-4">{selectedMessage.subject}</h2>
                   <div className="flex items-center gap-4">
@@ -832,7 +832,7 @@ Warm regards,
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <button 
                     onClick={handleReply}
                     className="px-4 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 rounded-none transition-all flex items-center gap-2 font-bold text-xs"
@@ -867,7 +867,7 @@ Warm regards,
                   )}
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10 custom-scrollbar">
                 <iframe
                   srcDoc={`
                     <!DOCTYPE html>
@@ -957,7 +957,7 @@ Warm regards,
                       </body>
                     </html>
                   `}
-                  className="w-full h-[550px] border border-white/5 rounded-none bg-[#020617] mb-6 shadow-inner"
+                  className="w-full h-[420px] sm:h-[520px] lg:h-[550px] border border-white/5 rounded-none bg-[#020617] mb-6 shadow-inner"
                   title="Email Transmission Body"
                 />
 
