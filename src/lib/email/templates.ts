@@ -426,12 +426,7 @@ export const getLightTemplate = (
           <td style="vertical-align: middle; padding: 0 12px;">
             <img src="${baseUrl}/email-and-header/IEEE-CS-dark.png" alt="IEEE CS USJ" style="height: 30px; width: auto; display: block;" />
           </td>
-          <td style="vertical-align: middle; padding: 0;">
-            <div style="width: 1px; height: 30px; background-color: #cbd5e1;"></div>
-          </td>
-          <td style="vertical-align: middle; padding: 0 12px;">
-            <img src="${baseUrl}/email-and-header/boc.png" alt="BOC" style="height: 30px; width: auto; display: block;" />
-          </td>
+
         </tr>
       </table>
       <!-- Social icons: Facebook, LinkedIn, Instagram -->
