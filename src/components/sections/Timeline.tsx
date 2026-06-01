@@ -14,9 +14,9 @@ const MILESTONES = [
 ];
 
 const SESSIONS = [
-  { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130, link: "/sessions" },
-  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220, link: "/register/session/2" },
-  { id: 'S3', title: "Upcoming\nSessions...", date: "TBA", left: "60%", isGhost: true, mobileTop: 400 },
+  { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130, link: "/sessions", isGhost: false },
+  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220, link: "/register/session/2", isGhost: false },
+  { id: 'S3', title: "Session 3:\nGCP Fundamentals", date: "2026.06.01", left: "60%", mobileTop: 400, link: "/register/session/3", isGhost: false },
 ];
 
 export function Timeline() {
