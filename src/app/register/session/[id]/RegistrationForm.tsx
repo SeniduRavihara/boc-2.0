@@ -1,6 +1,6 @@
 'use client';
 
-import { addRegistration, checkRegistrationExists, checkUserRegistration, markAttendance, checkAttendanceExists } from '@/firebase/api';
+import { addRegistration, checkRegistrationExists, checkUserRegistration, markAttendance, checkAttendanceExists, getRegistrationsBySession } from '@/firebase/api';
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -17,6 +17,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
     const [step, setStep] = useState<'initial' | 'returning' | 'new'>('initial');
     const [returningUser, setReturningUser] = useState<any>(null);
     const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+    const [regCount, setRegCount] = useState<number | null>(null);
 
     const [form, setForm] = useState({
         name: "",
@@ -66,6 +67,22 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             setReturningUser(null);
         }
     }, [sessionId, searchParams]);
+
+    // Fetch session registration count for Session 3 marketing trick
+    useEffect(() => {
+        if (sessionId === "3") {
+            getRegistrationsBySession("3")
+                .then(regs => {
+                    setRegCount(regs.length);
+                })
+                .catch(err => {
+                    console.error("Error fetching session 3 count:", err);
+                    setRegCount(5); // Fallback count
+                });
+        } else {
+            setRegCount(null);
+        }
+    }, [sessionId]);
 
     const handleEmailBlur = async () => {
         if (!form.email || step !== 'initial' || !form.email.includes('@')) return;
@@ -375,6 +392,59 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                         </div>
                     </div>
                 </div>
+
+                {/* Session 3 Seat Availability Banner (Marketing Trick) */}
+                {sessionId === "3" && regCount !== null && (() => {
+                    const displayCount = regCount < 95 ? Math.max(23, regCount) : (95 + (regCount % 4));
+                    const percentage = (displayCount / 100) * 100;
+                    return (
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-8 p-6 rounded-2xl border border-amber-500/15 bg-gradient-to-r from-amber-950/20 via-amber-950/10 to-transparent relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                                <div className="space-y-1.5 max-w-md">
+                                    <div className="flex items-center gap-2">
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                        </span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">
+                                            Limited Seats Available
+                                        </span>
+                                    </div>
+                                    <h4 className="text-sm font-bold text-slate-200 uppercase tracking-tight">
+                                        Session 3: {SESSIONS.find(s => s.id === "3")?.topic}
+                                    </h4>
+                                    <p className="text-xs text-slate-400 leading-relaxed">
+                                        Due to high cloud resource allocation demands, seats are limited to 100 delegates. Register immediately to reserve your workspace.
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col gap-2 min-w-[240px] md:self-center">
+                                    <div className="flex justify-between items-end text-[10px] font-black uppercase tracking-wider font-mono">
+                                        <span className="text-amber-400/70">Seats Claimed</span>
+                                        <span className="text-white text-xs">{displayCount} / 100</span>
+                                    </div>
+                                    <div className="w-full h-3 bg-white/[0.03] rounded-full overflow-hidden border border-white/5 p-[2px]">
+                                        <motion.div
+                                            className="h-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.4)]"
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${percentage}%` }}
+                                            transition={{ duration: 1.8, ease: "easeOut" }}
+                                        />
+                                    </div>
+                                    <div className="flex justify-between text-[9px] font-bold text-slate-500 font-mono">
+                                        <span>CAPACITY: 100%</span>
+                                        <span className="text-amber-500/80 animate-pulse uppercase">HURRY! ONLY {100 - displayCount} SEATS LEFT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    );
+                })()}
 
                 {/* Form Logic */}
                 <form onSubmit={handleSubmit} className="space-y-12">
