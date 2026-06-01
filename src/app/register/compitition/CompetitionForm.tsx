@@ -140,7 +140,7 @@ export default function CompetitionForm() {
 
             // Optional redirect
             redirectTimeoutRef.current = setTimeout(() => {
-                window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"; // Redirect to whatsapp or dashboard
+                window.location.href = "https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"; // Redirect to whatsapp or dashboard
             }, 4500);
 
         } catch (error: any) {

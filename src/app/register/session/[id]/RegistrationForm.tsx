@@ -17,7 +17,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
     const [step, setStep] = useState<'initial' | 'returning' | 'new'>('initial');
     const [returningUser, setReturningUser] = useState<any>(null);
     const [isCheckingEmail, setIsCheckingEmail] = useState(false);
-    
+
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -36,7 +36,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
         setStatus(null);
         setErrorMessage(null);
         setIsCheckingEmail(false);
-        
+
         if (sessionId === "1") {
             setStep('new');
             setReturningUser(null);
@@ -45,7 +45,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
         const urlEmail = searchParams.get('email');
         const saved = localStorage.getItem('last_registered_user');
-        
+
         if (urlEmail) {
             // Priority 1: Email from URL (likely coming from attendance redirect)
             setForm(prev => ({ ...prev, email: urlEmail }));
@@ -69,14 +69,14 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
     const handleEmailBlur = async () => {
         if (!form.email || step !== 'initial' || !form.email.includes('@')) return;
-        
+
         setIsCheckingEmail(true);
         try {
             const existing = await checkUserRegistration(form.email);
             if (existing && sessionId !== "1") {
                 setReturningUser(existing);
-                setForm(prev => ({ 
-                    ...prev, 
+                setForm(prev => ({
+                    ...prev,
                     name: existing.name || "",
                     phone: existing.phone || "",
                     organization: existing.organization || ""
@@ -84,8 +84,8 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 setStep('returning');
             } else if (existing && sessionId === "1") {
                 // If they exist but it's session 1, just pre-fill the form but stay on 'new' step
-                setForm(prev => ({ 
-                    ...prev, 
+                setForm(prev => ({
+                    ...prev,
                     name: existing.name || "",
                     phone: existing.phone || "",
                     organization: existing.organization || ""
@@ -175,7 +175,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                 // No redirect — go to WhatsApp
                 setStatus('success');
                 setTimeout(() => {
-                    window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t";
+                    window.location.href = "https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t";
                 }, 3500);
             };
 
@@ -187,20 +187,20 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             }
 
             let finalUser: any = form;
-            
+
             if (returningUser) {
                 // Update existing profile
                 const updatedSessions = [...(returningUser.sessionIds || [])];
                 if (!updatedSessions.includes(sessionId)) {
                     updatedSessions.push(sessionId);
                 }
-                
+
                 finalUser = {
                     ...returningUser,
                     sessionId,
                     sessionIds: updatedSessions
                 };
-                
+
                 await addRegistration(finalUser);
             } else {
                 // Totally new user
@@ -227,7 +227,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             {/* Status Overlay */}
             <AnimatePresence>
                 {status && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -244,7 +244,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                     <>
                                         <div className="relative w-20 h-20 mb-6">
                                             <div className="absolute inset-0 rounded-full border-4 border-blue-500/20" />
-                                            <motion.div 
+                                            <motion.div
                                                 className="absolute inset-0 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent"
                                                 animate={{ rotate: 360 }}
                                                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -265,28 +265,28 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                         </div>
                                         <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Success!</h3>
                                         <p className="text-slate-400 text-sm font-medium mb-8">
-                                            {errorMessage || (searchParams.get('redirect') 
-                                                ? `Your registration for Session ${sessionId} has been confirmed. Returning you to the portal to join...` 
+                                            {errorMessage || (searchParams.get('redirect')
+                                                ? `Your registration for Session ${sessionId} has been confirmed. Returning you to the portal to join...`
                                                 : `Your registration for Session ${sessionId} has been confirmed. Redirecting you to the official WhatsApp group...`
                                             )}
                                         </p>
                                         <div className="flex flex-col gap-3 font-mono">
                                             {searchParams.get('redirect') ? (
-                                                <a 
+                                                <a
                                                     href={searchParams.get('redirect') || undefined}
                                                     className="w-full py-5 px-6 bg-blue-600 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-blue-500 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]"
                                                 >
                                                     Uplink to Attendance Portal
                                                 </a>
                                             ) : (
-                                                <a 
+                                                <a
                                                     href="https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"
                                                     className="w-full py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                                                 >
                                                     Join WhatsApp Group
                                                 </a>
                                             )}
-                                            <button 
+                                            <button
                                                 onClick={() => setStatus(null)}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
                                             >
@@ -303,7 +303,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                         </div>
                                         <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Protocol Error</h3>
                                         <p className="text-slate-400 text-sm font-medium mb-8">{errorMessage}</p>
-                                        <button 
+                                        <button
                                             onClick={() => setStatus(null)}
                                             className="w-full py-4 bg-red-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-red-600 transition-colors"
                                         >
@@ -318,16 +318,16 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             </AnimatePresence>
             {/* Form Banner */}
             <div className="mb-6 md:mb-12 w-full overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border border-white/10 shadow-2xl relative aspect-[21/9] md:aspect-[5/1]">
-                <Image 
-                    src="/images/image3.webp" 
-                    alt="Session Banner" 
-                    fill 
+                <Image
+                    src="/images/image3.webp"
+                    alt="Session Banner"
+                    fill
                     priority
                     className="object-cover"
                 />
                 <div className="absolute inset-0 bg-blue-950/40 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
-                
+
                 {/* Wall-E Mascot Overlay */}
                 <div className="absolute right-4 md:right-12 bottom-0 top-0 w-[30%] md:w-[20%] pointer-events-none z-10 flex items-end justify-end">
                     <div className="relative w-full h-[95%] md:h-[115%] transition-transform duration-700 hover:scale-105">
@@ -356,33 +356,33 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
             </div>
 
             <GlassCard className="relative rounded-[2rem] md:rounded-[3rem] border-white/10 bg-[#09090b]/80 shadow-2xl backdrop-blur-3xl p-4 md:p-16">
-                
+
                 {/* Header */}
                 <div className="mb-6 md:mb-12 border-b border-white/5 pb-6 md:pb-10">
                     <div className="flex flex-wrap items-end justify-between gap-4 md:gap-6 mb-4 md:mb-6">
-                       <div>
-                          <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-3 md:mb-4">
-                             Delegate <span className="text-blue-500">Registration</span>
-                          </h1>
-                          <p className="text-slate-400 leading-relaxed max-w-xl text-xs sm:text-base md:text-lg">
-                              {step === 'returning' 
-                                ? `Welcome back! Confirm your registration for the next session.` 
-                                : `Fill this form out to register yourselves for the BOC Workshop Series.`}
-                          </p>
-                       </div>
-                       <div className="px-4 py-2 md:px-6 md:py-3 bg-blue-500/20 border border-blue-400/40 rounded-lg backdrop-blur-md group transition-all hover:scale-105">
-                          <span className="text-[10px] md:text-xs font-black text-blue-400 uppercase tracking-[0.3em]">Session: {sessionId}</span>
-                       </div>
+                        <div>
+                            <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none mb-3 md:mb-4">
+                                Delegate <span className="text-blue-500">Registration</span>
+                            </h1>
+                            <p className="text-slate-400 leading-relaxed max-w-xl text-xs sm:text-base md:text-lg">
+                                {step === 'returning'
+                                    ? `Welcome back! Confirm your registration for the next session.`
+                                    : `Fill this form out to register yourselves for the BOC Workshop Series.`}
+                            </p>
+                        </div>
+                        <div className="px-4 py-2 md:px-6 md:py-3 bg-blue-500/20 border border-blue-400/40 rounded-lg backdrop-blur-md group transition-all hover:scale-105">
+                            <span className="text-[10px] md:text-xs font-black text-blue-400 uppercase tracking-[0.3em]">Session: {sessionId}</span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Form Logic */}
                 <form onSubmit={handleSubmit} className="space-y-12">
-                    
+
                     <AnimatePresence mode="wait">
                         {/* STEP: INITIAL (Email Check) */}
                         {step === 'initial' && (
-                            <motion.div 
+                            <motion.div
                                 key="initial"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -437,7 +437,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                         {/* STEP: RETURNING (Fast Track) */}
                         {step === 'returning' && (
-                            <motion.div 
+                            <motion.div
                                 key="returning"
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -448,13 +448,13 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                     Known Delegate Detected
                                 </div>
                                 <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight uppercase mb-4">
-                                    Welcome Back,<br/>
+                                    Welcome Back,<br />
                                     <span className="text-blue-500">{returningUser.name.split(' ')[0]}!</span>
                                 </h2>
                                 <p className="text-slate-400 text-lg mb-12 max-w-md mx-auto font-medium">
                                     We found your profile from <span className="text-white font-bold">{returningUser.organization}</span>. Click the button below to register for <span className="text-blue-400 font-black tracking-tight">Session {sessionId}</span>.
                                 </p>
-                                
+
                                 <div className="flex flex-col md:flex-row items-center justify-center gap-4">
                                     <button
                                         type="submit"
@@ -480,7 +480,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                         {/* STEP: NEW (Full Form) */}
                         {step === 'new' && (
-                            <motion.div 
+                            <motion.div
                                 key="new"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -602,7 +602,7 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
 
                                         <AnimatePresence>
                                             {form.isIeeeMember === "Yes" && (
-                                                <motion.div 
+                                                <motion.div
                                                     initial={{ opacity: 0, x: 20 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     exit={{ opacity: 0, x: 20 }}
