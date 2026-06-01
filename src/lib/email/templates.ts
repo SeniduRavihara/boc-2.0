@@ -304,93 +304,58 @@ export const getLightTemplate = (
   }
 
   return `
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beauty of Cloud 2.0</title>
-  <style>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <!--[if !mso]>-->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!--<![endif]-->
+  <meta name="x-apple-disable-message-reformatting" content="" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <style type="text/css">
+    table {
+      border-collapse: separate;
+      table-layout: fixed;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt
+    }
+    table td {
+      border-collapse: collapse
+    }
+    body, a, li, p, h1, h2, h3 {
+      -ms-text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.8;
-      color: #334155;
-      margin: 0;
+      min-width: 100%;
+      Margin: 0px;
+      padding: 0px;
+    }
+    img {
+      Margin: 0;
       padding: 0;
-      background-color: #f8fafc;
+      -ms-interpolation-mode: bicubic
     }
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background: #ffffff;
-      overflow: hidden;
-      border: 1px solid #cbd5e1;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-    .header {
-      background: #ffffff;
-      padding: 30px 20px;
-      text-align: center;
-      border-bottom: 1px solid #cbd5e1;
-    }
-    .logo {
-      max-width: 140px;
-      height: auto;
-    }
-    .header-text {
-      font-size: 10px;
-      font-weight: 800;
-      color: #475569;
-      margin-top: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    .content {
-      padding: 35px 40px 15px 40px;
-      text-align: left;
-      color: #334155;
-      font-size: 16px;
-      white-space: pre-line;
-    }
-    .footer {
-      background: #ffffff;
-      padding: 40px 30px;
-      text-align: center;
-      color: #475569;
-      border-top: 1px solid #cbd5e1;
-    }
-    .footer-logos {
-      margin-bottom: 25px;
-      padding-bottom: 25px;
-      border-bottom: 1px solid #cbd5e1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .footer-logo {
-      height: 35px;
-      width: auto;
-      margin: 0 15px;
-      vertical-align: middle;
-    }
-    .social-links {
-      margin-bottom: 20px;
-    }
-    .social-icon {
-      width: 28px;
-      height: 28px;
-      margin: 0 8px;
-      vertical-align: middle;
-    }
-    .footer-text {
-      font-size: 11px;
-      color: #64748b;
-      line-height: 1.5;
+    h1, h2, h3, p, a {
+      line-height: inherit;
+      overflow-wrap: normal;
+      white-space: normal;
+      word-break: break-word
     }
     a {
-      color: #2563eb;
       text-decoration: none;
+      color: #2563eb;
+    }
+    .content {
+      padding: 35px 50px 15px 50px;
+      text-align: left;
+      color: #333333;
+      font-size: 14px;
+      font-family: 'Roboto', 'Inter', sans-serif;
+      line-height: 22px;
+      white-space: pre-line;
     }
     .voucher-code {
       display: inline-block;
@@ -404,45 +369,149 @@ export const getLightTemplate = (
       font-size: 18px;
       margin: 20px 0;
     }
+    @media (max-width: 480px) {
+      .t140 { padding-left: 30px !important; padding-right: 30px !important; }
+      .content { padding-left: 30px !important; padding-right: 30px !important; }
+    }
   </style>
+  <!--[if !mso]>-->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet" type="text/css" />
+  <!--<![endif]-->
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-        <img src="${baseUrl}/email-and-header/boc.png" alt="Beauty of Cloud 2.0" class="logo">
-        <div class="header-text">2.0 | Cloud Session | Ideathon</div>
-    </div>
-    <div class="content">${content}</div>${signatureHtml ? `<div class="signature-container" style="border-top: 1px solid #cbd5e1; padding: 20px 40px 15px 40px; background-color: #ffffff;">${signatureHtml}</div>` : ''}
-    <div class="footer" style="padding: 28px 20px 32px 20px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
-      <!-- Logos: table forces single row, never wraps -->
-      <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 20px auto; border-collapse: collapse;">
-        <tr>
-          <td style="vertical-align: middle; padding: 0 12px;">
-            <img src="${baseUrl}/email-and-header/ieee-dark.png" alt="IEEE USJ" style="height: 30px; width: auto; display: block;" />
-          </td>
-          <td style="vertical-align: middle; padding: 0;">
-            <div style="width: 1px; height: 30px; background-color: #cbd5e1;"></div>
-          </td>
-          <td style="vertical-align: middle; padding: 0 12px;">
-            <img src="${baseUrl}/email-and-header/IEEE-CS-dark.png" alt="IEEE CS USJ" style="height: 30px; width: auto; display: block;" />
-          </td>
-
-        </tr>
-      </table>
-      <!-- Social icons: Facebook, LinkedIn, Instagram -->
-      <div style="text-align: center; margin-bottom: 18px;">
-        <a href="https://web.facebook.com/profile.php?id=61568293116395" style="margin: 0 6px; text-decoration: none; display: inline-block;"><img src="https://img.icons8.com/color/48/000000/facebook-new.png" style="width: 38px; height: 38px; vertical-align: middle; border: 0; border-radius: 50%;" alt="Facebook"></a>
-        <a href="https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/" style="margin: 0 6px; text-decoration: none; display: inline-block;"><img src="https://img.icons8.com/color/48/000000/linkedin.png" style="width: 38px; height: 38px; vertical-align: middle; border: 0; border-radius: 50%;" alt="LinkedIn"></a>
-        <a href="https://www.instagram.com/ieee_usj_cs/" style="margin: 0 6px; text-decoration: none; display: inline-block;"><img src="https://img.icons8.com/color/48/000000/instagram-new.png" style="width: 38px; height: 38px; vertical-align: middle; border: 0; border-radius: 50%;" alt="Instagram"></a>
-      </div>
-      <!-- Copyright -->
-      <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 500; color: #334155; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">&copy;2026 Beauty of Cloud 2.0</p>
-      <!-- Two-line committee text -->
-      <p style="margin: 0 0 2px 0; font-size: 12px; color: #64748b; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">IEEE Computer Society Student Branch Chapter</p>
-      <p style="margin: 0; font-size: 12px; color: #64748b; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">University of Sri Jayewardenepura</p>
-    </div>
+<body id="body" style="min-width:100%;Margin:0px;padding:0px;background-color:#f8fafc;">
+  <div style="background-color:#f8fafc; padding: 45px 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+      <tr>
+        <td valign="top" align="center">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px; Margin-left:auto; Margin-right:auto; border: 1px solid #cbd5e1; border-radius: 8px; border-collapse: separate;">
+            <tr>
+              <td class="t140" style="background-color:#F8F8F8; padding: 0 50px 0px 50px; border-radius: 8px 8px 0 0;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <tr>
+                    <td style="padding: 0;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" align="left" style="width: 100%;">
+                        <tr>
+                          <!-- Logo 1: BOC (Dark bg block) -->
+                          <td width="177" valign="top" style="width: 177px;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                              <tr>
+                                <td style="overflow:hidden; background: radial-gradient(circle at top right, #1e40af 0%, #020617 80%); padding:30px 10px 30px 10px; border-radius:0 0 10px 10px; text-align: center;">
+                                  <img src="${baseUrl}/email-and-header/boc.png" width="157" alt="BOC 2.0" style="display:block; border:0; height:auto; width:100%; max-width:157px; Margin:0 auto;" />
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                          <!-- Logo 2 & 3: IEEE and IEEE-CS logos vertically aligned -->
+                          <td width="323" valign="middle" style="width: 323px; padding: 0px 10px 0px 25px; text-align: right;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="right">
+                              <tr>
+                                <td style="vertical-align: middle; padding: 0 15px 0 0;">
+                                  <img src="${baseUrl}/email-and-header/ieee-dark.png" width="198" alt="IEEE USJ" style="display:block; border:0; height:auto; max-width:198px;" />
+                                </td>
+                                <td style="vertical-align: middle; padding: 0 0 0 10px;">
+                                  <img src="${baseUrl}/email-and-header/IEEE-CS-dark.png" width="95" alt="IEEE CS USJ" style="display:block; border:0; height:auto; max-width:95px;" />
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- Content Block -->
+            <tr>
+              <td style="background-color:#F8F8F8;">
+                <div class="content">${content}</div>
+                ${signatureHtml ? `<div style="padding: 20px 50px 30px 50px; background-color:#F8F8F8;">${signatureHtml}</div>` : ''}
+              </td>
+            </tr>
+            <!-- Footer Block -->
+            <tr>
+              <td style="background-color:#F8F8F8; padding: 40px 50px; border-radius: 0 0 8px 8px; border-top: 1px solid #cbd5e1;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                  <!-- Contact Us Title -->
+                  <tr>
+                    <td style="padding: 0 0 8px 0; text-align: center;">
+                      <p style="margin:0; font-family: Roboto, sans-serif; line-height:22px; font-weight:800; font-size:18px; color:#333333;">Contact Us</p>
+                    </td>
+                  </tr>
+                  <!-- Contacts Grid -->
+                  <tr>
+                    <td style="border-bottom:1px solid #cbd5e1; padding: 0 0 30px 0;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
+                        <tr>
+                          <!-- Contact 1 -->
+                          <td width="33.33%" valign="top" style="text-align: center; font-family: Roboto, sans-serif; font-size: 12px; color: #333333; line-height: 18px;">
+                            <span style="font-weight: 700;">Waruna Udara</span><br/>
+                            <span style="font-style: italic; color: #64748b;">Project Co-Chair</span><br/>
+                            <span style="font-style: italic; color: #64748b;">+94 70 174 3074</span>
+                          </td>
+                          <!-- Contact 2 -->
+                          <td width="33.33%" valign="top" style="text-align: center; font-family: Roboto, sans-serif; font-size: 12px; color: #333333; line-height: 18px;">
+                            <span style="font-weight: 700;">Nimesha Rathnayake</span><br/>
+                            <span style="font-style: italic; color: #64748b;">Project Co-Chair</span><br/>
+                            <span style="font-style: italic; color: #64748b;">+94 77 488 8701</span>
+                          </td>
+                          <!-- Contact 3 -->
+                          <td width="33.33%" valign="top" style="text-align: center; font-family: Roboto, sans-serif; font-size: 12px; color: #333333; line-height: 18px;">
+                            <span style="font-weight: 700;">Shanki Tharusha</span><br/>
+                            <span style="font-style: italic; color: #64748b;">Industry Relations Head</span><br/>
+                            <span style="font-style: italic; color: #64748b;">+94 76 346 9070</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Social Platform Title -->
+                  <tr>
+                    <td style="padding: 20px 0 0 0; text-align: center;">
+                      <p style="margin:0; font-family: Roboto, sans-serif; line-height:22px; font-weight:800; font-size:16px; color:#64748b;">Reach out through social platforms</p>
+                    </td>
+                  </tr>
+                  <!-- Social Links -->
+                  <tr>
+                    <td style="padding: 10px 0 30px 0; text-align: center;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto;">
+                        <tr>
+                          <td style="padding: 0 10px;">
+                            <a href="https://www.linkedin.com/company/ieee-cs-student-branch-chapter-university-of-sri-jayewardenepura/" target="_blank">
+                              <img src="https://img.icons8.com/color/48/000000/linkedin.png" width="30" height="30" alt="LinkedIn" style="display:block; border:0;" />
+                            </a>
+                          </td>
+                          <td style="padding: 0 10px;">
+                            <a href="https://web.facebook.com/profile.php?id=61568293116395" target="_blank">
+                              <img src="https://img.icons8.com/color/48/000000/facebook-new.png" width="30" height="30" alt="Facebook" style="display:block; border:0;" />
+                            </a>
+                          </td>
+                          <td style="padding: 0 10px;">
+                            <a href="https://www.instagram.com/ieee_usj_cs/" target="_blank">
+                              <img src="https://img.icons8.com/color/48/000000/instagram-new.png" width="30" height="30" alt="Instagram" style="display:block; border:0;" />
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- Copyright / Organizer text -->
+                  <tr>
+                    <td style="text-align: center; font-family: Roboto, sans-serif; font-size: 12px; color: #475569; line-height: 18px;">
+                      <p style="margin: 0 0 4px 0;">&copy;2026 Beauty of Cloud 2.0</p>
+                      <p style="margin: 0 0 2px 0;">IEEE Computer Society Student Branch Chapter</p>
+                      <p style="margin: 0;">University of Sri Jayewardenepura</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </div>
 </body>
 </html>
-`;
+  `;
 };
