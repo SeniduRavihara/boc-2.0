@@ -395,7 +395,7 @@ export const getLightTemplate = (
                           <td width="177" valign="top" style="width: 177px;">
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                               <tr>
-                                <td style="overflow:hidden; background: radial-gradient(circle at top right, #1e40af 0%, #020617 80%); padding:30px 10px 30px 10px; border-radius:0 0 10px 10px; text-align: center;">
+                                <td style="overflow:hidden; background-color: #e2e8f0; border: 1px solid #cbd5e1; padding:30px 10px 30px 10px; border-radius:0 0 10px 10px; text-align: center;">
                                   <img src="${baseUrl}/email-and-header/boc.png" width="157" alt="BOC 2.0" style="display:block; border:0; height:auto; width:100%; max-width:157px; Margin:0 auto;" />
                                 </td>
                               </tr>
