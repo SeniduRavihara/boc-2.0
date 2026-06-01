@@ -53,7 +53,7 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       lenis.destroy();
       gsap.ticker.remove(updateLenis);
     };
-  }, [pathname, shouldDisable]);
+  }, [shouldDisable]);
 
   return <>{children}</>;
 }

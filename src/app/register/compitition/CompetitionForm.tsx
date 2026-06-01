@@ -1,7 +1,7 @@
 'use client';
 
 import { addCompetitionTeam, checkEmailRegisteredInCompetition, checkTeamNameExists } from '@/firebase/api';
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -10,6 +10,15 @@ import { CheckCircle2, AlertCircle, Loader2, Plus, Trash2, Users, School, Sparkl
 export default function CompetitionForm() {
     const [status, setStatus] = useState<"success" | "error" | "loading" | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (redirectTimeoutRef.current) {
+                clearTimeout(redirectTimeoutRef.current);
+            }
+        };
+    }, []);
 
     // Top-level team details
     const [teamName, setTeamName] = useState("");
@@ -130,7 +139,7 @@ export default function CompetitionForm() {
             localStorage.setItem('registered_competition_team', JSON.stringify(finalTeam));
 
             // Optional redirect
-            setTimeout(() => {
+            redirectTimeoutRef.current = setTimeout(() => {
                 window.location.href = "https://chat.whatsapp.com/JUC9aKBmpMW2MdjBnIgl2e?mode=gi_t"; // Redirect to whatsapp or dashboard
             }, 4500);
 
@@ -195,7 +204,13 @@ export default function CompetitionForm() {
                                                 Join WhatsApp Group
                                             </a>
                                             <button
-                                                onClick={() => setStatus(null)}
+                                                onClick={() => {
+                                                    if (redirectTimeoutRef.current) {
+                                                        clearTimeout(redirectTimeoutRef.current);
+                                                        redirectTimeoutRef.current = null;
+                                                    }
+                                                    setStatus(null);
+                                                }}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-xl md:rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
                                             >
                                                 Return to Form
