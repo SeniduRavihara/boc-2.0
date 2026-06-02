@@ -1,16 +1,15 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, ZoomIn, Info, HelpCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Sparkles, Info, HelpCircle } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Gallery Portal Data
 const PORTAL_ITEMS = [
   {
     id: 'boc-neural',
@@ -19,7 +18,7 @@ const PORTAL_ITEMS = [
     category: 'CLOUD ERA',
     year: '2025',
     desc: 'Visualizing Sri Lanka\'s university cloud collaborative networks.',
-    span: 'col-span-2 row-span-2',
+    span: 'col-span-6 row-span-1',
     depth: -40,
     rx: 8,
     ry: -6,
@@ -31,7 +30,7 @@ const PORTAL_ITEMS = [
     category: 'INNOVATION',
     year: '2025',
     desc: 'Exploring the latent potential of student cloud ideas.',
-    span: 'col-span-1 row-span-2',
+    span: 'col-span-6 row-span-1',
     depth: -70,
     rx: -10,
     ry: 8,
@@ -43,7 +42,7 @@ const PORTAL_ITEMS = [
     category: 'MAPPING',
     year: '2025',
     desc: 'Digital mapping infrastructure for Beauty of Cloud.',
-    span: 'col-span-1 row-span-2',
+    span: 'col-span-4 row-span-1',
     depth: -20,
     rx: 6,
     ry: -10,
@@ -55,7 +54,7 @@ const PORTAL_ITEMS = [
     category: 'DESIGN SYSTEM',
     year: '2025',
     desc: 'Geometric architecture of the event branding.',
-    span: 'col-span-2 row-span-2',
+    span: 'col-span-8 row-span-1',
     depth: -50,
     rx: -6,
     ry: 12,
@@ -67,7 +66,7 @@ const PORTAL_ITEMS = [
     category: 'TELEMETRY',
     year: '2025',
     desc: 'Real-time university delegate telemetry tracking.',
-    span: 'col-span-2 row-span-2',
+    span: 'col-span-6 row-span-1',
     depth: -90,
     rx: 12,
     ry: -8,
@@ -79,7 +78,7 @@ const PORTAL_ITEMS = [
     category: 'LIGHT LOGIC',
     year: '2025',
     desc: 'High-speed data packet illumination modeling.',
-    span: 'col-span-1 row-span-2',
+    span: 'col-span-6 row-span-1',
     depth: -30,
     rx: -8,
     ry: 6,
@@ -91,7 +90,7 @@ const PORTAL_ITEMS = [
     category: 'SERVERLESS',
     year: '2025',
     desc: 'Analyzing serverless transaction orchestration pipelines.',
-    span: 'col-span-1 row-span-2',
+    span: 'col-span-4 row-span-1',
     depth: -60,
     rx: 10,
     ry: -10,
@@ -103,7 +102,7 @@ const PORTAL_ITEMS = [
     category: 'VISUAL CORE',
     year: '2025',
     desc: 'Stunning abstracts showcasing computational prisms.',
-    span: 'col-span-2 row-span-2',
+    span: 'col-span-8 row-span-1',
     depth: -40,
     rx: -12,
     ry: 12,
@@ -119,7 +118,7 @@ export function PortalGalleryEntrance() {
   const bgOverlayRef = useRef<HTMLDivElement>(null);
   const isZoomedRef = useRef(false);
 
-  const [lightboxItem, setLightboxItem] = useState<typeof PORTAL_ITEMS[0] | null>(null);
+
 
   useGSAP(() => {
     const container = containerRef.current;
@@ -135,8 +134,8 @@ export function PortalGalleryEntrance() {
 
     // Dynamic scale factor calculation to completely cover the screen while maintaining proportions (aspect ratio 3:2)
     const getScaleFactor = () => {
-      const cardW = 360;
-      const cardH = 240;
+      const cardW = card.offsetWidth || 360;
+      const cardH = card.offsetHeight || 240;
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const scaleX = vw / cardW;
@@ -237,8 +236,20 @@ export function PortalGalleryEntrance() {
     }
 
     // Phase 3 & 4: Seamless zoom portal scale-up to cover the entire screen
+    // We adjust y dynamically to ensure the top of the card aligns with the viewport top when scaled (prevents top row cropping)
     tl.to(card, {
       scale: () => getScaleFactor(),
+      y: () => {
+        const centerY = getCenterY();
+        const scale = getScaleFactor();
+        const cardH = card.offsetHeight || 240;
+        const vh = window.innerHeight;
+        const scaledH = cardH * scale;
+        if (scaledH > vh) {
+          return centerY + (scaledH - vh) / 2;
+        }
+        return centerY;
+      },
       borderRadius: '0px',
       borderWidth: '0px',
       padding: '0px',
@@ -273,29 +284,30 @@ export function PortalGalleryEntrance() {
 
     const gridContainer = card.querySelector('.grid-container');
     if (gridContainer) {
-      // Phase 5.5: Expand grid height from 240px (compact thumbnail) to 960px (large scrollable feed)
-      // This separates the items vertically and expands their dimensions to cover full screens
+      // Phase 5.5: Expand grid height dynamically
+      // Mobile: starts at 400px and expands to 800px (2 rows of 400px)
+      // Desktop: starts at 240px and expands to 400px (2 rows of 200px)
       tl.to(gridContainer, {
-        height: 960,
+        height: () => window.innerWidth < 768 ? 800 : 400,
         duration: 2.0,
         ease: 'power2.inOut',
       }, 1.2); // runs in parallel with the card zoom
 
-      // Phase 6: Scroll through the grid vertically (reveal bottom blocks 2, 3 and 4)
-      // Translates the grid container vertically by three blocks (720px local pixels)
+      // Phase 6: Scroll through the grid vertically
+      // Calculate scroll translation dynamically to align the bottom of the grid container with the screen bottom
       tl.to(gridContainer, {
-        y: -720,
+        y: () => {
+          const scale = getScaleFactor();
+          const vh = window.innerHeight;
+          const expandedHeight = window.innerWidth < 768 ? 800 : 400;
+          return vh / scale - expandedHeight;
+        },
         duration: 2.3,
         ease: 'none',
       }, 3.2); // starts as the zoom finishes (at 3.2)
     }
 
   }, { scope: containerRef });
-
-  const handleItemClick = (item: typeof PORTAL_ITEMS[0]) => {
-    if (!isZoomedRef.current) return;
-    setLightboxItem(item);
-  };
 
   return (
     <div ref={containerRef} className="relative min-h-[600vh] w-full">
@@ -340,14 +352,14 @@ export function PortalGalleryEntrance() {
               style={{ perspective: '1200px' }}
               className="relative"
             >
-              {/* The Zooming Card (Landscape 360x240 for wide aspect ratios) */}
+              {/* The Zooming Card (Portrait 280x400 on mobile, Landscape 360x240 on desktop) */}
               <div 
                 ref={cardRef}
                 style={{ 
                   transformStyle: 'preserve-3d',
                   transform: 'rotateX(8deg) rotateY(-12deg) rotateZ(2deg)'
                 }}
-                className="w-[360px] h-[240px] shrink-0 rounded-3xl bg-[#020617] p-2 border border-slate-300/40 shadow-2xl relative overflow-hidden flex flex-col justify-start origin-center"
+                className="w-[280px] h-[400px] md:w-[360px] md:h-[240px] shrink-0 rounded-3xl bg-[#020617] p-2 border border-slate-300/40 shadow-2xl relative overflow-hidden flex flex-col justify-start origin-center"
               >
                 
                 {/* Miniature Badge Overlap */}
@@ -363,10 +375,10 @@ export function PortalGalleryEntrance() {
                   </span>
                 </div>
 
-                {/* Grid Container (Starts at h-[240px] matching card height, then expands to h-[960px] on zoom) */}
+                {/* Grid Container (Starts at h-[400px] on mobile, h-[240px] on desktop; expands on zoom) */}
                 <div 
-                  className="grid-container grid grid-cols-3 gap-1.5 w-full h-[240px] shrink-0 p-1.5 rounded-2xl relative z-10 [transform-style:preserve-3d] origin-top"
-                  style={{ gridTemplateRows: 'repeat(8, minmax(0, 1fr))', flexShrink: 0 }}
+                  className="grid-container grid grid-cols-12 gap-1.5 w-full h-[400px] md:h-[240px] shrink-0 p-1.5 rounded-2xl relative z-10 [transform-style:preserve-3d] origin-top"
+                  style={{ gridTemplateRows: 'repeat(4, minmax(0, 1fr))', flexShrink: 0 }}
                 >
                   {PORTAL_ITEMS.map((item, idx) => (
                     <div
@@ -374,7 +386,7 @@ export function PortalGalleryEntrance() {
                       data-depth={item.depth}
                       data-rx={item.rx}
                       data-ry={item.ry}
-                      onClick={() => handleItemClick(item)}
+
                       className={`
                         grid-item relative overflow-hidden bg-[#060f21] border border-white/5 cursor-default group/grid
                         ${item.span}
@@ -397,23 +409,7 @@ export function PortalGalleryEntrance() {
                       {/* Black overlay inside card grid */}
                       <div className="absolute inset-0 bg-black/20 group-hover/grid:bg-transparent transition-colors duration-300" />
 
-                      {/* Detailed Metadata Overlay — Only interactive when zoomed */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-0 group-hover/grid:opacity-100 transition-all duration-300 flex flex-col justify-end p-5 details-overlay pointer-events-none">
-                        <span className="text-blue-400 font-mono text-[9px] font-bold tracking-widest uppercase mb-1.5">
-                          {item.category} // {item.year}
-                        </span>
-                        <h4 className="text-white font-black text-base md:text-lg uppercase tracking-tight leading-none mb-1">
-                          {item.title}
-                        </h4>
-                        <p className="text-white/50 text-[10px] leading-snug font-sans hidden md:block max-w-[200px]">
-                          {item.desc}
-                        </p>
-                        
-                        {/* Hover hint */}
-                        <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm border border-white/20 p-1.5 rounded-full hidden md:block">
-                          <ZoomIn className="w-3.5 h-3.5 text-white" />
-                        </div>
-                      </div>
+
 
                     </div>
                   ))}
@@ -428,85 +424,14 @@ export function PortalGalleryEntrance() {
 
       </div>
 
-      {/* Premium Lightbox Modal */}
-      <AnimatePresence>
-        {lightboxItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightboxItem(null)}
-            className="fixed inset-0 z-[1000] bg-black/98 backdrop-blur-2xl flex items-center justify-center p-4 md:p-16 cursor-zoom-out"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setLightboxItem(null)}
-              className="absolute top-8 right-8 z-[1010] w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/15 transition-all duration-300"
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
 
-            {/* Modal Body */}
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.94, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 26, stiffness: 200 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl max-h-[85vh] rounded-3xl overflow-hidden border border-white/10 bg-[#020617] shadow-2xl flex flex-col md:flex-row cursor-default"
-            >
-              {/* Visual Side */}
-              <div className="relative w-full md:w-3/5 aspect-video md:aspect-auto md:h-[60vh] bg-black overflow-hidden">
-                <Image
-                  src={lightboxItem.src}
-                  alt={lightboxItem.title}
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                  quality={90}
-                />
-              </div>
-
-              {/* Data Content Side */}
-              <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center items-start">
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="text-[10px] font-mono uppercase bg-blue-500/10 border border-blue-500/20 text-blue-400 px-3 py-1 rounded">
-                    {lightboxItem.category}
-                  </span>
-                  <span className="text-[10px] font-mono text-white/40">
-                    // {lightboxItem.year}
-                  </span>
-                </div>
-
-                <h3 className="text-3xl md:text-4xl font-black uppercase text-white mb-6 tracking-tighter leading-none">
-                  {lightboxItem.title}
-                </h3>
-
-                <p className="text-slate-400 text-sm leading-relaxed mb-8 font-sans">
-                  {lightboxItem.desc}
-                </p>
-
-                <div className="h-[1px] w-full bg-white/5 mb-8" />
-
-                <button
-                  onClick={() => setLightboxItem(null)}
-                  className="w-full py-4 rounded-xl bg-white text-black font-bold uppercase tracking-widest text-xs hover:bg-blue-600 hover:text-white transition-all duration-500"
-                >
-                  Return to Portal
-                </button>
-              </div>
-
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Global CSS tweaks to enable dynamic behavior */}
       <style jsx global>{`
         /* When zoomed in, enable cursor and zoom-in effects for items */
         .is-zoomed .grid-item {
           pointer-events: auto !important;
-          cursor: pointer !important;
+          cursor: default !important;
           /* Enable transform transition only when zoomed to keep GSAP animations smooth */
           transition: border-color 0.4s ease, filter 0.4s ease, transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s !important;
         }
@@ -517,11 +442,7 @@ export function PortalGalleryEntrance() {
           transform: scale(1.05) translateZ(30px) !important;
         }
 
-        .is-zoomed .grid-item:hover .details-overlay {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-          pointer-events: auto !important;
-        }
+
 
         /* Default styling for item transition — transition: transform removed to avoid GSAP conflict */
         .grid-item {
