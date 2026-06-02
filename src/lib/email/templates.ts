@@ -385,34 +385,23 @@ export const getLightTemplate = (
         <td valign="top" align="center">
           <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px; Margin-left:auto; Margin-right:auto; border: 1px solid #cbd5e1; border-radius: 8px; border-collapse: separate;">
             <tr>
-              <td class="t140" style="background-color:#F8F8F8; padding: 0 50px 0px 50px; border-radius: 8px 8px 0 0;">
+              <td class="t140" style="background: radial-gradient(circle at 0% -10%, #0b3c8f 0%, #000000 42%); padding: 30px 20px; border-radius: 8px 8px 0 0; border-bottom: 1px solid #cbd5e1;">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
                   <tr>
                     <td style="padding: 0;">
-                      <table role="presentation" cellpadding="0" cellspacing="0" align="left" style="width: 100%;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%;">
                         <tr>
-                          <!-- Logo 1: BOC (Dark bg block) -->
-                          <td width="177" valign="top" style="width: 177px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                              <tr>
-                                <td style="overflow:hidden; background-color: #e2e8f0; border: 1px solid #cbd5e1; padding:30px 10px 30px 10px; border-radius:0 0 10px 10px; text-align: center;">
-                                  <img src="${baseUrl}/email-and-header/boc.png" width="157" alt="BOC 2.0" style="display:block; border:0; height:auto; width:100%; max-width:157px; Margin:0 auto;" />
-                                </td>
-                              </tr>
-                            </table>
+                          <!-- Logo 1: BOC (Left) -->
+                          <td width="120" valign="middle" style="width: 120px; text-align: left; vertical-align: middle;">
+                            <img src="${baseUrl}/email-and-header/boc.png" width="120" alt="BOC 2.0" style="display:block; border:0; height:auto; max-width:120px;" />
                           </td>
-                          <!-- Logo 2 & 3: IEEE and IEEE-CS logos vertically aligned -->
-                          <td width="323" valign="middle" style="width: 323px; padding: 0px 10px 0px 25px; text-align: right;">
-                            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="right">
-                              <tr>
-                                <td style="vertical-align: middle; padding: 0 15px 0 0;">
-                                  <img src="${baseUrl}/email-and-header/ieee-dark.png" width="198" alt="IEEE USJ" style="display:block; border:0; height:auto; max-width:198px;" />
-                                </td>
-                                <td style="vertical-align: middle; padding: 0 0 0 10px;">
-                                  <img src="${baseUrl}/email-and-header/IEEE-CS-dark.png" width="95" alt="IEEE CS USJ" style="display:block; border:0; height:auto; max-width:95px;" />
-                                </td>
-                              </tr>
-                            </table>
+                          <!-- Logo 2: IEEE USJ (Middle) -->
+                          <td valign="middle" style="text-align: center; vertical-align: middle; padding: 0 10px;">
+                            <img src="${baseUrl}/email-and-header/ieee.png" width="250" alt="IEEE USJ" style="display:inline-block; border:0; height:auto; max-width:250px; vertical-align: middle;" />
+                          </td>
+                          <!-- Logo 3: IEEE CS USJ (Right) -->
+                          <td width="115" valign="middle" style="width: 115px; text-align: right; vertical-align: middle;">
+                            <img src="${baseUrl}/email-and-header/IEEE-CS.png" width="105" alt="IEEE CS USJ" style="display:block; border:0; height:auto; max-width:105px; margin-left: auto;" />
                           </td>
                         </tr>
                       </table>
