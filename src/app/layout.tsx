@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Beauty of Cloud 2.0 | Cloud Ideathon",
     description: "Sri Lanka's first student-led inter-university cloud ideathon. Empowering the next generation of cloud engineers.",
-    images: ["/open-graph.webp"],
+    images: ["/og.webp"],
     creator: "@beautyofcloud",
   },
   alternates: {
