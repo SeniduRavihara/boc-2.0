@@ -321,8 +321,7 @@ export function PortalGalleryEntrance() {
               <GradientShinyTitle text="Our Memories" speed={2} delay={0.7} />
             </motion.h2>
             <p className="text-slate-400 font-sans text-xs md:text-sm max-w-xs leading-relaxed mb-6">
-              RELIVE THE CLOUD REVOLUTION. SCROLL DOWN TO PASS THROUGH THE PORTAL
-              MATRIX AND ENTER THE BOC 1.0 HIGHLIGHTS.
+              RELIVE THE MOMENTS. SCROLL DOWN TO ENTER THE BEAUTY OF CLOUD 1.0 HIGHLIGHTS.
             </p>
             <div className="flex items-center gap-3">
               <span className="w-8 h-[2px] bg-blue-500" />

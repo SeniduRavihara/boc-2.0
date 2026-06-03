@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "Beauty of Cloud 2.0",
     images: [
       {
-        url: "/open-graph.webp",
+        url: "/og.webp",
         width: 1200,
         height: 630,
         alt: "Beauty of Cloud 2.0 Social Preview",
