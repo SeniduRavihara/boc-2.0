@@ -1,0 +1,63 @@
+{
+  "title": "Venue Directions",
+  "subtitle": "Follow these landmarks from the main entrance to reach the session conducting hall.",
+  "destination": {
+    "name": "Session Conducting Hall",
+    "description": "Main hall for Beauty of Cloud 2.0 workshops and sessions."
+  },
+  "map": {
+    "buildingName": "New Faculty Building (English & Computing Training Center)",
+    "address": "VW33+599, Nugegoda, Sri Lanka",
+    "placeId": "0x3ae25b6f8d9afc3d:0x74a2a62e37f60b2c",
+    "latitude": 6.853,
+    "longitude": 79.903417,
+    "zoom": 19,
+    "googleMapsUrl": "https://maps.app.goo.gl/ou1yerztSnB9D2ai6?g_st=aw"
+  },
+  "steps": [
+    {
+      "id": "step-1",
+      "order": 1,
+      "landmark": "Main Entrance",
+      "instruction": "Arrive at the university main entrance on Gangodawila Road. This is your starting point — look for the main gate signage and security post.",
+      "image": "/venue-directions/01-main-entrance.jpg"
+    },
+    {
+      "id": "step-2",
+      "order": 2,
+      "landmark": "Security & Reception",
+      "instruction": "After entering, check in at the security desk or reception counter. Present your registration confirmation if asked.",
+      "image": "/venue-directions/02-security-reception.jpg"
+    },
+    {
+      "id": "step-3",
+      "order": 3,
+      "landmark": "Main Walkway",
+      "instruction": "Walk straight along the main internal road or paved walkway. Follow event signage pointing toward the Faculty of Applied Sciences / Computing area.",
+      "image": "/venue-directions/03-main-walkway.jpg",
+      "tip": "Volunteers in BOC shirts are usually stationed along this route."
+    },
+    {
+      "id": "step-4",
+      "order": 4,
+      "landmark": "Faculty Building Entrance",
+      "instruction": "Enter the faculty building through the marked entrance. Use the stairs or lift as directed by on-site volunteers.",
+      "image": "/venue-directions/04-faculty-entrance.jpg"
+    },
+    {
+      "id": "step-5",
+      "order": 5,
+      "landmark": "Corridor Junction",
+      "instruction": "At the corridor junction, turn in the direction indicated by BOC direction boards (typically toward the seminar / lecture block).",
+      "image": "/venue-directions/05-corridor-junction.jpg"
+    },
+    {
+      "id": "step-6",
+      "order": 6,
+      "landmark": "Session Conducting Hall",
+      "instruction": "You have arrived at the session conducting hall. Enter and take a seat — sessions start at the scheduled time shown in the event program.",
+      "image": "/venue-directions/06-session-hall.jpg",
+      "tip": "This is your final destination for workshops and main sessions."
+    }
+  ]
+}
