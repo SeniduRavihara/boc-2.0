@@ -14,7 +14,7 @@ import { AboutNew } from "./sections/AboutNew";
 import { ContactSection } from "./sections/ContactSection";
 import { CTASection } from "./sections/CTASection";
 import { FallingScene } from "./sections/FallingScene";
-import { GalleryNew } from "./sections/GalleryNew";
+import { PortalGalleryEntrance } from "./sections/PortalGalleryEntrance";
 import { Partners } from "./sections/Partners";
 import { PrizePool } from "./sections/PrizePool";
 import { Timeline } from "./sections/Timeline";
@@ -723,7 +723,7 @@ export function HomeClient() {
       {/* <AboutNew /> */}
       {/* <PortalSection2 /> */}
       {/* <PortalSection3 /> */}
-      <GalleryNew />
+      <PortalGalleryEntrance />
       <Partners />
       <ContactSection />
       <CTASection />

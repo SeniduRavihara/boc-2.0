@@ -18,8 +18,8 @@ gsap.registerPlugin(ScrollTrigger);
 const GALLERY_CONFIG = {
   mobile: {
     width: 130,
-    height: 250,
-    expandedGridHeight: 500, // Usually 2x the height to allow smooth scrolling inside
+    height: 150,
+    expandedGridHeight: 600, // Usually 2x the height to allow smooth scrolling inside
   },
   desktop: {
     width: 360,
@@ -33,49 +33,81 @@ const PORTAL_ITEMS = [
   {
     id: 'boc-neural',
     src: '/gallery/535402715_122240866520212355_8124034634747307157_n 1.webp',
-    span: 'col-span-12 md:col-span-6 row-span-1',
+    title: 'Neural Convergence',
+    category: 'CLOUD ERA',
+    year: '2025',
+    desc: "Visualizing Sri Lanka's university cloud collaborative networks.",
+    span: 'col-span-6 row-span-1',
     depth: -40, rx: 8, ry: -6,
   },
   {
     id: 'boc-nebula',
     src: '/gallery/535554370_122240866814212355_5298821791634180236_n 1.webp',
-    span: 'col-span-12 md:col-span-6 row-span-1',
+    title: 'Data Nebula',
+    category: 'INNOVATION',
+    year: '2025',
+    desc: 'Exploring the latent potential of student cloud ideas.',
+    span: 'col-span-6 row-span-1',
     depth: -70, rx: -10, ry: 8,
   },
   {
     id: 'boc-shard',
     src: '/gallery/536284330_122240866082212355_6148099243555502993_n 1.webp',
-    span: 'col-span-12 md:col-span-4 row-span-1',
+    title: 'Infinite Shard',
+    category: 'MAPPING',
+    year: '2025',
+    desc: 'Digital mapping infrastructure for Beauty of Cloud.',
+    span: 'col-span-4 row-span-1',
     depth: -20, rx: 6, ry: -10,
   },
   {
     id: 'boc-monolith',
     src: '/gallery/536502129_122240864120212355_2064198593439261121_n 1.webp',
-    span: 'col-span-12 md:col-span-8 row-span-1',
+    title: 'Digital Monolith',
+    category: 'DESIGN SYSTEM',
+    year: '2025',
+    desc: 'Geometric architecture of the event branding.',
+    span: 'col-span-8 row-span-1',
     depth: -50, rx: -6, ry: 12,
   },
   {
     id: 'boc-pulse',
     src: '/gallery/537424474_122240865374212355_3166245579080254582_n 3.webp',
-    span: 'col-span-12 md:col-span-6 row-span-1',
+    title: 'Cloud Pulse',
+    category: 'TELEMETRY',
+    year: '2025',
+    desc: 'Real-time university delegate telemetry tracking.',
+    span: 'col-span-6 row-span-1',
     depth: -90, rx: 12, ry: -8,
   },
   {
     id: 'boc-spectral',
     src: '/gallery/537483229_122240864276212355_3196250950373039991_n 2.webp',
-    span: 'col-span-12 md:col-span-6 row-span-1',
+    title: 'Spectral Array',
+    category: 'LIGHT LOGIC',
+    year: '2025',
+    desc: 'High-speed data packet illumination modeling.',
+    span: 'col-span-6 row-span-1',
     depth: -30, rx: -8, ry: 6,
   },
   {
     id: 'boc-vortex',
     src: '/gallery/538341720_122240863028212355_4189567101984455264_n 1.webp',
-    span: 'col-span-12 md:col-span-4 row-span-1',
+    title: 'Vortex Core',
+    category: 'SERVERLESS',
+    year: '2025',
+    desc: 'Analyzing serverless transaction orchestration pipelines.',
+    span: 'col-span-4 row-span-1',
     depth: -60, rx: 10, ry: -10,
   },
   {
     id: 'boc-prism',
     src: '/gallery/fffff 2.webp',
-    span: 'col-span-12 md:col-span-8 row-span-1',
+    title: 'Prism Void',
+    category: 'VISUAL CORE',
+    year: '2025',
+    desc: 'Stunning abstracts showcasing computational prisms.',
+    span: 'col-span-8 row-span-1',
     depth: -40, rx: -12, ry: 12,
   },
 ];
@@ -100,25 +132,6 @@ export function PortalGalleryEntrance() {
     const gridContainer = card.querySelector('.grid-container');
     const gridItems = card.querySelectorAll('.grid-item');
     const isMobile = window.innerWidth < 768;
-
-    if (isMobile) {
-      gridItems.forEach((item, index) => {
-        // Dynamic alternating 3D accordion/float effect on mobile
-        const depth = -40 - (index % 3) * 25; // -40, -65, -90...
-        const rx = index % 2 === 0 ? 8 : -8;
-        const ry = index % 2 === 0 ? -12 : 12;
-
-        item.setAttribute('data-depth', depth.toString());
-        item.setAttribute('data-rx', rx.toString());
-        item.setAttribute('data-ry', ry.toString());
-
-        gsap.set(item, {
-          z: depth,
-          rotateX: rx,
-          rotateY: ry,
-        });
-      });
-    }
 
     if (gridContainer) {
       gsap.set(gridContainer, { y: 0 });
@@ -356,6 +369,7 @@ export function PortalGalleryEntrance() {
               <div
                 className="grid-container dynamic-gallery-card grid grid-cols-12 gap-1.5 w-full shrink-0 p-1.5 rounded-2xl relative z-10 origin-top"
                 style={{
+                  gridTemplateRows: 'repeat(4, minmax(0, 1fr))',
                   flexShrink: 0,
                   transformStyle: 'preserve-3d',
                 }}
@@ -374,10 +388,11 @@ export function PortalGalleryEntrance() {
                   >
                     <Image
                       src={item.src}
-                      alt={item.id}
+                      alt={item.title}
                       fill
-                      unoptimized
                       className="object-cover transition-all duration-700 grayscale group-hover/grid:grayscale-0 group-hover/grid:scale-105"
+                      sizes="(max-width: 768px) 100vw, 80vw"
+                      quality={85}
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover/grid:bg-transparent transition-colors duration-300" />
                   </div>
@@ -395,18 +410,9 @@ export function PortalGalleryEntrance() {
           height: ${GALLERY_CONFIG.mobile.height}px;
         }
 
-        .grid-container {
-          grid-template-rows: repeat(8, minmax(0, 1fr));
-          height: ${GALLERY_CONFIG.mobile.expandedGridHeight}px;
-        }
-
         @media (min-width: 768px) {
           .dynamic-gallery-card {
             width: ${GALLERY_CONFIG.desktop.width}px;
-            height: ${GALLERY_CONFIG.desktop.height}px;
-          }
-          .grid-container {
-            grid-template-rows: repeat(4, minmax(0, 1fr));
             height: ${GALLERY_CONFIG.desktop.height}px;
           }
         }
@@ -415,9 +421,6 @@ export function PortalGalleryEntrance() {
           pointer-events: auto !important;
           cursor: default !important;
           transition: filter 0.4s ease, transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), z-index 0s !important;
-          will-change: transform;
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
         }
         .is-zoomed .grid-item:hover {
           filter: grayscale(0%) !important;
@@ -427,9 +430,6 @@ export function PortalGalleryEntrance() {
         .grid-item {
           pointer-events: none;
           transition: filter 0.4s ease, z-index 0s;
-          will-change: transform;
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
         }
         .animate-spin-slow {
           animation: spin 8s linear infinite;
