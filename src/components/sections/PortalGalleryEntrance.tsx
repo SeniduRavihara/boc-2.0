@@ -223,7 +223,7 @@ export function PortalGalleryEntrance() {
       scale: () => getScaleFactor(),
       x: () => initialTranslateX,
       y: () => initialTranslateY,
-      duration: 4.0,
+      duration: 3.6,
       ease: 'power2.inOut',
       invalidateOnRefresh: true,
     }, 0);
@@ -318,7 +318,7 @@ export function PortalGalleryEntrance() {
               viewport={{ once: true }}
               className="font-reglo text-5xl md:text-7xl font-black tracking-tighter mb-4"
             >
-              <GradientShinyTitle text="Our Partners" speed={2} delay={0.7} />
+              <GradientShinyTitle text="Our Memories" speed={2} delay={0.7} />
             </motion.h2>
             <p className="text-slate-400 font-sans text-xs md:text-sm max-w-xs leading-relaxed mb-6">
               RELIVE THE CLOUD REVOLUTION. SCROLL DOWN TO PASS THROUGH THE PORTAL
