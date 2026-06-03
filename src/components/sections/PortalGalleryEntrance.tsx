@@ -131,37 +131,27 @@ export function PortalGalleryEntrance() {
 
     const gridItems = card.querySelectorAll('.grid-item');
     const badge = card.querySelector('.preview-badge');
+    const gridContainer = card.querySelector('.grid-container');
 
-    // Dynamic scale factor calculation to completely cover the screen while maintaining proportions (aspect ratio 3:2)
-    const getScaleFactor = () => {
-      const cardW = card.offsetWidth || 360;
-      const cardH = card.offsetHeight || 240;
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const scaleX = vw / cardW;
-      const scaleY = vh / cardH;
-      return Math.max(scaleX, scaleY) * 1.05; // 5% overlap to avoid rounding gaps
-    };
+    const isMobile = window.innerWidth < 768;
 
-    // Calculate X and Y coordinates to center the card from its starting position
-    // We measure the static cardWrapperRef which doesn't undergo scaling or translations
-    const getCenterX = () => {
-      const wrapperEl = cardWrapperRef.current;
-      if (!wrapperEl) return 0;
-      const rect = wrapperEl.getBoundingClientRect();
-      const center = rect.left + rect.width / 2;
-      const screenCenter = window.innerWidth / 2;
-      return screenCenter - center;
-    };
+    // Set initial card dimensions and transform state dynamically (avoids SSR mismatch)
+    gsap.set(card, {
+      width: isMobile ? 280 : 360,
+      height: isMobile ? 400 : 240,
+      x: 0,
+      y: 0,
+      rotateX: 8,
+      rotateY: -12,
+      rotateZ: 2,
+    });
 
-    const getCenterY = () => {
-      const wrapperEl = cardWrapperRef.current;
-      if (!wrapperEl) return 0;
-      const rect = wrapperEl.getBoundingClientRect();
-      const center = rect.top + rect.height / 2;
-      const screenCenter = window.innerHeight / 2;
-      return screenCenter - center;
-    };
+    if (gridContainer) {
+      gsap.set(gridContainer, {
+        height: isMobile ? 400 : 240,
+        y: 0,
+      });
+    }
 
     // Create GSAP ScrollTrigger timeline
     // Note: We use browser CSS sticky for pinning stickyRef, avoiding double-pinning bugs
@@ -173,8 +163,8 @@ export function PortalGalleryEntrance() {
         scrub: 1.2,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          // Reaches zoom completion around progress 0.53 (timeline pos 3.2 out of 6.0)
-          const isZoomed = self.progress > 0.53;
+          // Reaches expanded state around progress 0.58 (timeline pos 3.5 out of 5.8)
+          const isZoomed = self.progress > 0.58;
           isZoomedRef.current = isZoomed;
           
           if (isZoomed) {
@@ -186,45 +176,6 @@ export function PortalGalleryEntrance() {
       }
     });
 
-    // Phase 1: Smooth parallax layout offset
-    tl.to(text, {
-      y: -30,
-      duration: 0.8,
-      ease: 'none'
-    }, 0);
-
-    tl.to(card, {
-      y: 40,
-      duration: 0.8,
-      ease: 'none'
-    }, 0);
-
-    // Phase 2: Heading text fades & scales down, card centers itself, background turns dark
-    tl.to(text, {
-      opacity: 0,
-      scale: 0.85,
-      y: -100,
-      duration: 1.6,
-      ease: 'power2.inOut',
-    }, 0.6);
-
-    tl.to(bgOverlay, {
-      backgroundColor: '#020617',
-      duration: 1.6,
-      ease: 'power2.inOut',
-    }, 0.6);
-
-    tl.to(card, {
-      x: () => getCenterX(),
-      y: () => getCenterY(),
-      rotateX: 0,
-      rotateY: 0,
-      rotateZ: 0,
-      borderColor: 'rgba(255, 255, 255, 0.05)',
-      duration: 1.6,
-      ease: 'power2.inOut',
-    }, 0.6);
-
     // Fade out preview card indicator badge early
     if (badge) {
       tl.to(badge, {
@@ -232,38 +183,45 @@ export function PortalGalleryEntrance() {
         scale: 0.7,
         duration: 0.8,
         ease: 'power2.out',
-      }, 0.4);
+      }, 0.2);
     }
 
-    // Phase 3 & 4: Seamless zoom portal scale-up to cover the entire screen
-    // We adjust y dynamically to ensure the top of the card aligns with the viewport top when scaled (prevents top row cropping)
+    // Phase 1 & 2: Heading text scales up dramatically and flies outward/past the viewer in 3D Z space
+    tl.to(text, {
+      scale: 6,
+      z: 900,
+      opacity: 0,
+      duration: 1.8,
+      ease: 'power2.in',
+    }, 0);
+
+    // Background darkens as the camera "enters" the portal
+    tl.to(bgOverlay, {
+      backgroundColor: '#020617',
+      duration: 1.8,
+      ease: 'power2.inOut',
+    }, 0);
+
+    // Phase 3 & 4: Card expands to fill viewport and flattens
     tl.to(card, {
-      scale: () => getScaleFactor(),
-      y: () => {
-        const centerY = getCenterY();
-        const scale = getScaleFactor();
-        const cardH = card.offsetHeight || 240;
-        const vh = window.innerHeight;
-        const scaledH = cardH * scale;
-        if (scaledH > vh) {
-          return centerY + (scaledH - vh) / 2;
-        }
-        return centerY;
-      },
+      width: '100vw',
+      height: '100vh',
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: 0,
       borderRadius: '0px',
       borderWidth: '0px',
       padding: '0px',
       duration: 2.0,
-      ease: 'power3.in',
-    }, 1.2);
+      ease: 'power3.inOut',
+    }, 1.5);
 
-    // Phase 5: Align & flatten individual grid items inside the scaled container
+    // Phase 5: Align & flatten individual grid items inside the container
     gridItems.forEach((item) => {
       const depth = parseFloat(item.getAttribute('data-depth') || '0');
       const rx = parseFloat(item.getAttribute('data-rx') || '0');
       const ry = parseFloat(item.getAttribute('data-ry') || '0');
 
-      // Stagger items to move forward/flatten out during the camera fly-through
       tl.fromTo(item,
         {
           z: depth,
@@ -278,33 +236,24 @@ export function PortalGalleryEntrance() {
           duration: 2.0,
           ease: 'power2.out',
         },
-        1.2
+        1.5
       );
     });
 
-    const gridContainer = card.querySelector('.grid-container');
     if (gridContainer) {
-      // Phase 5.5: Expand grid height dynamically
-      // Mobile: starts at 400px and expands to 800px (2 rows of 400px)
-      // Desktop: starts at 240px and expands to 400px (2 rows of 200px)
+      // Expand grid height to 200vh to fit exactly 4 images per viewport height (2 rows of 2 images per 100vh)
       tl.to(gridContainer, {
-        height: () => window.innerWidth < 768 ? 800 : 400,
+        height: '200vh',
         duration: 2.0,
         ease: 'power2.inOut',
-      }, 1.2); // runs in parallel with the card zoom
+      }, 1.5);
 
       // Phase 6: Scroll through the grid vertically
-      // Calculate scroll translation dynamically to align the bottom of the grid container with the screen bottom
       tl.to(gridContainer, {
-        y: () => {
-          const scale = getScaleFactor();
-          const vh = window.innerHeight;
-          const expandedHeight = window.innerWidth < 768 ? 800 : 400;
-          return vh / scale - expandedHeight;
-        },
+        y: '-100vh',
         duration: 2.3,
         ease: 'none',
-      }, 3.2); // starts as the zoom finishes (at 3.2)
+      }, 3.5);
     }
 
   }, { scope: containerRef });
@@ -312,119 +261,115 @@ export function PortalGalleryEntrance() {
   return (
     <div ref={containerRef} className="relative min-h-[600vh] w-full">
       
-      {/* Dynamic Background Overlay */}
+      {/* Sticky Viewport Container with 3D Perspective */}
       <div 
-        ref={bgOverlayRef} 
-        className="absolute inset-0 bg-[#f8fafc] pointer-events-none" 
-      />
-
-      {/* Sticky Viewport Container */}
-      <div ref={stickyRef} className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
+        ref={stickyRef} 
+        style={{ perspective: '1200px' }}
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
+      >
         
-        {/* Layout Grid */}
-        <div className="container mx-auto px-6 w-full max-w-7xl flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
-          
-          {/* Left Column: Heading Typography */}
-          <div ref={textRef} className="flex flex-col items-start select-none max-w-lg md:pr-8">
-            <span className="text-blue-600 font-mono text-xs tracking-[0.4em] uppercase mb-4 font-bold">
-              02 // Archive Portal
+        {/* Dynamic Background Overlay */}
+        <div 
+          ref={bgOverlayRef} 
+          className="absolute inset-0 bg-[#f8fafc] pointer-events-none" 
+        />
+
+        {/* Center-aligned Heading Typography */}
+        <div 
+          ref={textRef} 
+          className="absolute inset-0 flex flex-col items-center justify-center text-center select-none max-w-2xl mx-auto px-6 z-20 pointer-events-none origin-center"
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          <span className="text-blue-600 font-mono text-xs tracking-[0.4em] uppercase mb-4 font-bold">
+            02 // Archive Portal
+          </span>
+          <h2 className="text-7xl md:text-[9.5rem] font-black uppercase tracking-tighter leading-[0.75] text-slate-900 mb-8">
+            Our<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Memories</span>
+          </h2>
+          <p className="text-slate-500 font-sans text-sm max-w-sm leading-relaxed mb-8">
+            RELIVE THE CLOUD REVOLUTION. SCROLL DOWN TO PASS THROUGH THE PORTAL MATRIX AND ENTER THE BOC 1.0 HIGHLIGHTS.
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-[2px] bg-blue-600"></span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-blue-600 font-black animate-pulse">
+              SCROLL TO IMMERSE
             </span>
-            <h2 className="text-7xl md:text-[9.5rem] font-black uppercase tracking-tighter leading-[0.75] text-slate-900 mb-8">
-              Our<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Memories</span>
-            </h2>
-            <p className="text-slate-500 font-sans text-sm max-w-sm leading-relaxed mb-8">
-              RELIVE THE CLOUD REVOLUTION. SCROLL DOWN TO PASS THROUGH THE PORTAL MATRIX AND ENTER THE BOC 1.0 HIGHLIGHTS.
-            </p>
-            <div className="flex items-center gap-3">
-              <span className="w-8 h-[2px] bg-blue-600"></span>
-              <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-blue-600 font-black animate-pulse">
-                SCROLL TO IMMERSE
-              </span>
-            </div>
           </div>
+        </div>
 
-          {/* Right Column: Miniature Gallery Preview Card */}
-          <div ref={cardWrapperRef} className="relative flex items-center justify-center">
-            
-            {/* 3D Perspective Card Wrapper */}
+        {/* Miniature Gallery Preview Card Wrapper (centered behind text overlay) */}
+        <div 
+          ref={cardWrapperRef} 
+          className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"
+        >
+          {/* 3D Perspective Card Wrapper */}
+          <div 
+            style={{ perspective: '1200px' }}
+            className="relative flex items-center justify-center"
+          >
+            {/* The Zooming Card */}
             <div 
-              style={{ perspective: '1200px' }}
-              className="relative"
+              ref={cardRef}
+              style={{ transformStyle: 'preserve-3d' }}
+              className="shrink-0 rounded-3xl bg-[#020617] p-2 border border-slate-300/40 shadow-2xl relative overflow-hidden flex flex-col justify-start origin-center pointer-events-auto"
             >
-              {/* The Zooming Card (Portrait 280x400 on mobile, Landscape 360x240 on desktop) */}
-              <div 
-                ref={cardRef}
-                style={{ 
-                  transformStyle: 'preserve-3d',
-                  transform: 'rotateX(8deg) rotateY(-12deg) rotateZ(2deg)'
-                }}
-                className="w-[280px] h-[400px] md:w-[360px] md:h-[240px] shrink-0 rounded-3xl bg-[#020617] p-2 border border-slate-300/40 shadow-2xl relative overflow-hidden flex flex-col justify-start origin-center"
-              >
-                
-                {/* Miniature Badge Overlap */}
-                <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-20 rounded-3xl preview-badge pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-3">
-                    <Sparkles className="w-5 h-5 text-white animate-spin-slow" />
-                  </div>
-                  <span className="text-[10px] font-mono text-white tracking-[0.4em] font-black uppercase">
-                    ENTER PORTAL
-                  </span>
-                  <span className="text-[7px] font-mono text-white/40 tracking-[0.2em] mt-1 uppercase">
-                    SCROLL DOWN TO ZOOM
-                  </span>
+              
+              {/* Miniature Badge Overlap */}
+              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-20 rounded-3xl preview-badge pointer-events-none">
+                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-3">
+                  <Sparkles className="w-5 h-5 text-white animate-spin-slow" />
                 </div>
-
-                {/* Grid Container (Starts at h-[400px] on mobile, h-[240px] on desktop; expands on zoom) */}
-                <div 
-                  className="grid-container grid grid-cols-12 gap-1.5 w-full h-[400px] md:h-[240px] shrink-0 p-1.5 rounded-2xl relative z-10 [transform-style:preserve-3d] origin-top"
-                  style={{ gridTemplateRows: 'repeat(4, minmax(0, 1fr))', flexShrink: 0 }}
-                >
-                  {PORTAL_ITEMS.map((item, idx) => (
-                    <div
-                      key={item.id}
-                      data-depth={item.depth}
-                      data-rx={item.rx}
-                      data-ry={item.ry}
-
-                      className={`
-                        grid-item relative overflow-hidden bg-[#060f21] border border-white/5 cursor-default group/grid
-                        ${item.span}
-                      `}
-                      style={{ 
-                        transformStyle: 'preserve-3d',
-                        transform: `translateZ(${item.depth}px) rotateX(${item.rx}deg) rotateY(${item.ry}deg)`
-                      }}
-                    >
-                      {/* Image */}
-                      <Image
-                        src={item.src}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition-all duration-700 grayscale group-hover/grid:grayscale-0 group-hover/grid:scale-105"
-                        sizes="(max-width: 768px) 100vw, 80vw"
-                        quality={85}
-                      />
-
-                      {/* Black overlay inside card grid */}
-                      <div className="absolute inset-0 bg-black/20 group-hover/grid:bg-transparent transition-colors duration-300" />
-
-
-
-                    </div>
-                  ))}
-                </div>
-
+                <span className="text-[10px] font-mono text-white tracking-[0.4em] font-black uppercase">
+                  ENTER PORTAL
+                </span>
+                <span className="text-[7px] font-mono text-white/40 tracking-[0.2em] mt-1 uppercase">
+                  SCROLL DOWN TO ZOOM
+                </span>
               </div>
-            </div>
 
+              {/* Grid Container (Dimensions set by GSAP dynamically) */}
+              <div 
+                className="grid-container grid grid-cols-12 gap-1.5 w-full shrink-0 p-1.5 rounded-2xl relative z-10 [transform-style:preserve-3d] origin-top"
+                style={{ gridTemplateRows: 'repeat(4, minmax(0, 1fr))', flexShrink: 0 }}
+              >
+                {PORTAL_ITEMS.map((item) => (
+                  <div
+                    key={item.id}
+                    data-depth={item.depth}
+                    data-rx={item.rx}
+                    data-ry={item.ry}
+                    className={`
+                      grid-item relative overflow-hidden bg-[#060f21] border border-white/5 cursor-default group/grid
+                      ${item.span}
+                    `}
+                    style={{ 
+                      transformStyle: 'preserve-3d',
+                      transform: `translateZ(${item.depth}px) rotateX(${item.rx}deg) rotateY(${item.ry}deg)`
+                    }}
+                  >
+                    {/* Image */}
+                    <Image
+                      src={item.src}
+                      alt={item.title}
+                      fill
+                      className="object-cover transition-all duration-700 grayscale group-hover/grid:grayscale-0 group-hover/grid:scale-105"
+                      sizes="(max-width: 768px) 100vw, 80vw"
+                      quality={85}
+                    />
+
+                    {/* Black overlay inside card grid */}
+                    <div className="absolute inset-0 bg-black/20 group-hover/grid:bg-transparent transition-colors duration-300" />
+                  </div>
+                ))}
+              </div>
+
+            </div>
           </div>
 
         </div>
 
       </div>
-
-
 
       {/* Global CSS tweaks to enable dynamic behavior */}
       <style jsx global>{`
@@ -441,8 +386,6 @@ export function PortalGalleryEntrance() {
           z-index: 50 !important;
           transform: scale(1.05) translateZ(30px) !important;
         }
-
-
 
         /* Default styling for item transition — transition: transform removed to avoid GSAP conflict */
         .grid-item {
