@@ -120,7 +120,7 @@ export function FallingScene() {
 
         {/* ── Mission text (appearing at bottom) ── */}
         <motion.div
-          className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex justify-center pointer-events-none"
+          className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none"
           style={{ opacity: textOpacity }}
         >
           <motion.div
