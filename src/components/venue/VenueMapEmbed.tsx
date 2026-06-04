@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { buildVenueMapIframeFallbackUrl } from '@/lib/venue-map-embed';
-import type { VenueMapInfo } from '@/types/venue-directions';
+import type { VenueMapInfo, VenueDirectionStep } from '@/types/venue-directions';
 
 const VenueMapGoogle = dynamic(
   () => import('./VenueMapGoogle').then((m) => m.VenueMapGoogle),
@@ -47,7 +47,7 @@ function VenueMapIframeFallback({ map }: { map: VenueMapInfo }) {
   );
 }
 
-export function VenueMapEmbed({ map }: { map: VenueMapInfo }) {
+export function VenueMapEmbed({ map, steps }: { map: VenueMapInfo; steps?: VenueDirectionStep[] }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
@@ -58,5 +58,5 @@ export function VenueMapEmbed({ map }: { map: VenueMapInfo }) {
     );
   }
 
-  return <VenueMapGoogle map={map} apiKey={apiKey} />;
+  return <VenueMapGoogle map={map} apiKey={apiKey} steps={steps} />;
 }

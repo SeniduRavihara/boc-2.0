@@ -69,7 +69,7 @@ export default function VenueDirectionsPage() {
             </a>
           </div>
           <div className="rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-black/30 aspect-[16/10] md:aspect-[21/9] bg-[#0f172a]">
-            <VenueMapEmbed map={data.map} />
+            <VenueMapEmbed map={data.map} steps={sortedSteps} />
           </div>
         </section>
 

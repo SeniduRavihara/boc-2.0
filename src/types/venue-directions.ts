@@ -5,6 +5,8 @@ export interface VenueDirectionStep {
   instruction: string;
   image: string;
   tip?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface VenueMapInfo {

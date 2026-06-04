@@ -20,44 +20,46 @@
       "order": 1,
       "landmark": "Main Entrance",
       "instruction": "Arrive at the university main entrance on Gangodawila Road. This is your starting point — look for the main gate signage and security post.",
-      "image": "/venue-directions/01-main-entrance.jpg"
+      "image": "/locations/main-gate.jpeg",
+      "latitude": 6.853710,
+      "longitude": 79.906157
     },
     {
       "id": "step-2",
       "order": 2,
-      "landmark": "Security & Reception",
+      "landmark": "Sumangala Statue & Security",
       "instruction": "After entering, check in at the security desk or reception counter. Present your registration confirmation if asked.",
-      "image": "/venue-directions/02-security-reception.jpg"
+      "image": "/locations/sumangala-statue.jpeg",
+      "latitude": 6.8536615,
+      "longitude": 79.9054578
     },
     {
       "id": "step-3",
       "order": 3,
-      "landmark": "Main Walkway",
+      "landmark": "Budumedura & Main Walkway",
       "instruction": "Walk straight along the main internal road or paved walkway. Follow event signage pointing toward the Faculty of Applied Sciences / Computing area.",
-      "image": "/venue-directions/03-main-walkway.jpg",
-      "tip": "Volunteers in BOC shirts are usually stationed along this route."
+      "image": "/locations/budumedura.jpeg",
+      "tip": "Volunteers in BOC shirts are usually stationed along this route.",
+      "latitude": 6.8533183,
+      "longitude": 79.9049334
     },
     {
       "id": "step-4",
       "order": 4,
-      "landmark": "Faculty Building Entrance",
+      "landmark": "Traffic Junction (ට්‍රැෆික් හන්දිය)",
       "instruction": "Enter the faculty building through the marked entrance. Use the stairs or lift as directed by on-site volunteers.",
-      "image": "/venue-directions/04-faculty-entrance.jpg"
+      "image": "/locations/trafic-handiya.jpg",
+      "latitude": 6.8529689,
+      "longitude": 79.9050509
     },
     {
       "id": "step-5",
       "order": 5,
-      "landmark": "Corridor Junction",
+      "landmark": "Next to the Building",
       "instruction": "At the corridor junction, turn in the direction indicated by BOC direction boards (typically toward the seminar / lecture block).",
-      "image": "/venue-directions/05-corridor-junction.jpg"
-    },
-    {
-      "id": "step-6",
-      "order": 6,
-      "landmark": "Session Conducting Hall",
-      "instruction": "You have arrived at the session conducting hall. Enter and take a seat — sessions start at the scheduled time shown in the event program.",
-      "image": "/venue-directions/06-session-hall.jpg",
-      "tip": "This is your final destination for workshops and main sessions."
+      "image": "/locations/next to the building.jpeg",
+      "latitude": 6.853107,
+      "longitude": 79.903653
     }
   ]
 }

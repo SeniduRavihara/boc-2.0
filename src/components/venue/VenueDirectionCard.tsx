@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { MapPin, Navigation } from 'lucide-react';
 import type { VenueDirectionStep } from '@/types/venue-directions';
@@ -30,12 +29,11 @@ export function VenueDirectionCard({
         <div className="flex flex-col md:flex-row">
           <div className="relative w-full md:w-[42%] aspect-[4/3] md:aspect-auto md:min-h-[220px] bg-[#060f21] shrink-0">
             {!imageError ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={step.image}
                 alt={step.landmark}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 40vw"
+                className="absolute inset-0 w-full h-full object-cover"
                 onError={() => setImageError(true)}
               />
             ) : (
