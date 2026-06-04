@@ -91,8 +91,13 @@ export function VenueMapGoogle({
     (step) => step.latitude !== undefined && step.longitude !== undefined
   ) as (VenueDirectionStep & { latitude: number; longitude: number })[];
 
-  // Coordinates array for drawing the route polyline path
-  const pathPoints = milestones.map((m) => ({ lat: m.latitude, lng: m.longitude }));
+  // Coordinates array for drawing the route polyline path (Step 3 is skipped on the line to connect 2 -> 4 directly)
+  const pathPoints = [
+    ...milestones
+      .filter((m) => m.id !== 'step-3')
+      .map((m) => ({ lat: m.latitude, lng: m.longitude })),
+    center, // Connect the final step to the destination building marker
+  ];
 
   const mapRef = useMap();
 
