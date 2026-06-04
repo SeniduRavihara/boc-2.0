@@ -6,7 +6,7 @@
     "description": "Main hall for Beauty of Cloud 2.0 workshops and sessions."
   },
   "map": {
-    "buildingName": "New Faculty Building (English & Computing Training Center)",
+    "buildingName": "New Faculty Building (English & Computing Training Center / Management Faculty New Building)",
     "address": "VW33+599, Nugegoda, Sri Lanka",
     "placeId": "0x3ae25b6f8d9afc3d:0x74a2a62e37f60b2c",
     "latitude": 6.853,
@@ -27,7 +27,7 @@
     {
       "id": "step-2",
       "order": 2,
-      "landmark": "Sumangala Statue & Security",
+      "landmark": "Sumangala Statue",
       "instruction": "After entering, check in at the security desk or reception counter. Present your registration confirmation if asked.",
       "image": "/locations/sumangala-statue.jpeg",
       "latitude": 6.8536615,
@@ -36,7 +36,7 @@
     {
       "id": "step-3",
       "order": 3,
-      "landmark": "Budumedura & Main Walkway",
+      "landmark": "Budumedura (බුදු මැදුර)",
       "instruction": "Walk straight along the main internal road or paved walkway. Follow event signage pointing toward the Faculty of Applied Sciences / Computing area.",
       "image": "/locations/budumedura.jpeg",
       "tip": "Volunteers in BOC shirts are usually stationed along this route.",

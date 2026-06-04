@@ -159,14 +159,14 @@ export function VenueMapGoogle({
             />
           ))}
 
-          {/* InfoWindow displaying step thumbnail image and instructions */}
+          {/* InfoWindow displaying step thumbnail image */}
           {selectedStep && selectedStep.latitude !== undefined && selectedStep.longitude !== undefined && (
             <InfoWindow
               position={{ lat: selectedStep.latitude, lng: selectedStep.longitude }}
               onCloseClick={() => setSelectedStep(null)}
             >
               <div className="text-slate-900 text-xs p-1.5 max-w-[220px]">
-                <h4 className="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-1.5 flex items-center gap-1.5">
+                <h4 className="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-1 flex items-center gap-1.5">
                   <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-mono font-bold shrink-0">
                     {selectedStep.order}
                   </span>
@@ -177,14 +177,8 @@ export function VenueMapGoogle({
                   <img
                     src={selectedStep.image}
                     alt={selectedStep.landmark}
-                    className="w-full h-24 object-cover my-1.5 rounded-lg border border-slate-200"
+                    className="w-full h-24 object-cover mt-1.5 rounded-lg border border-slate-200"
                   />
-                )}
-                <p className="text-[10px] text-slate-600 leading-relaxed">{selectedStep.instruction}</p>
-                {selectedStep.tip && (
-                  <p className="text-[9px] text-blue-600 font-mono mt-1 leading-normal italic">
-                    💡 Tip: {selectedStep.tip}
-                  </p>
                 )}
               </div>
             </InfoWindow>

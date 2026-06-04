@@ -49,19 +49,12 @@ export function VenueDirectionCard({
           </div>
 
           <div className="flex flex-col justify-center p-6 md:p-8 md:w-[58%]">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2">
               <Navigation className="w-4 h-4 text-blue-400 shrink-0" />
               <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tight">
                 {step.landmark}
               </h3>
             </div>
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed">{step.instruction}</p>
-            {step.tip && (
-              <p className="mt-4 text-xs text-blue-300/90 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 leading-relaxed">
-                <span className="font-bold uppercase tracking-wider text-blue-400">Tip: </span>
-                {step.tip}
-              </p>
-            )}
           </div>
         </div>
       </article>
