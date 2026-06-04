@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, Trash2 } from "lucide-react";
 
 import { SESSIONS } from "@/constants/sessions";
+import * as XLSX from 'xlsx';
 
 export default function AdminRegistrationsPage() {
     const [activeSession, setActiveSession] = useState("1");
@@ -40,10 +41,19 @@ export default function AdminRegistrationsPage() {
             // Map attendance for the active session
             const map: Record<string, Set<string>> = {};
             attRes.forEach(record => {
-                if (!map[record.email]) map[record.email] = new Set();
-                map[record.email].add(record.sessionId);
+                const emailKey = record.email.toLowerCase().trim();
+                if (!map[emailKey]) map[emailKey] = new Set();
+                map[emailKey].add(record.sessionId);
             });
-            setAttendanceMap(prev => ({ ...prev, ...map }));
+            setAttendanceMap(prev => {
+                const newMap = { ...prev };
+                Object.entries(map).forEach(([email, sessions]) => {
+                    const normalizedEmail = email.toLowerCase().trim();
+                    if (!newMap[normalizedEmail]) newMap[normalizedEmail] = new Set();
+                    sessions.forEach(s => newMap[normalizedEmail].add(s));
+                });
+                return newMap;
+            });
             
         } catch (err) {
             console.error(err);
@@ -116,33 +126,27 @@ export default function AdminRegistrationsPage() {
         }
     };
 
-    const exportToCSV = () => {
-        const headers = ["Name", "Email", "Phone", "Organization", "Attendance", "Registered At"];
-        const rows = filteredRegistrations.map(reg => [
-            reg.name,
-            reg.email,
-            reg.phone || "N/A",
-            reg.organization || "Independent",
-            attendanceMap[reg.email]?.has(activeSession) ? "PRESENT" : "ABSENT",
-            reg.sessionRegistrationTimes?.[activeSession] 
+    const exportToExcel = () => {
+        const data = filteredRegistrations.map(reg => ({
+            "Registration ID": reg.id || "N/A",
+            "Name": reg.name,
+            "Email": reg.email,
+            "Phone": reg.phone || "N/A",
+            "Organization": reg.organization || "Independent",
+            "Faculty / Dept": reg.faculty || "N/A",
+            "Is IEEE Member": reg.isIeeeMember?.toLowerCase() === 'yes' ? "YES" : "NO",
+            "IEEE ID": reg.ieeeId || "N/A",
+            "Thoughts / Expectations": reg.thoughts || "N/A",
+            "Attendance Status": attendanceMap[reg.email.toLowerCase().trim()]?.has(activeSession) ? "PRESENT" : "ABSENT",
+            "Registered At": reg.sessionRegistrationTimes?.[activeSession] 
                 ? new Date(reg.sessionRegistrationTimes[activeSession].toDate()).toLocaleString()
                 : reg.createdAt ? new Date(reg.createdAt.toDate()).toLocaleString() : 'N/A'
-        ]);
+        }));
 
-        const csvContent = [
-            headers.join(","),
-            ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
-        ].join("\n");
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", `BOC_Session_${activeSession}_Registrations.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Registrations");
+        XLSX.writeFile(workbook, `BOC_Session_${activeSession}_Registrations.xlsx`);
     };
 
     const filteredRegistrations = registrations.filter(reg => {
@@ -152,7 +156,7 @@ export default function AdminRegistrationsPage() {
             reg.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
             reg.phone?.includes(searchQuery);
         
-        const isPresent = attendanceMap[reg.email]?.has(activeSession);
+        const isPresent = attendanceMap[reg.email.toLowerCase().trim()]?.has(activeSession);
         
         if (attendanceFilter === 'present') return matchesSearch && isPresent;
         if (attendanceFilter === 'absent') return matchesSearch && !isPresent;
@@ -188,10 +192,10 @@ export default function AdminRegistrationsPage() {
                         </button>
                     )}
                     <button 
-                        onClick={exportToCSV}
+                        onClick={exportToExcel}
                         className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-slate-300 transition-all"
                     >
-                        <Download size={16} /> Export CSV
+                        <Download size={16} /> Export Excel
                     </button>
                 </div>
             </div>
@@ -240,13 +244,13 @@ export default function AdminRegistrationsPage() {
                                 onClick={() => setAttendanceFilter('present')}
                                 className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${attendanceFilter === 'present' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                             >
-                                Present ({registrations.filter(r => attendanceMap[r.email]?.has(activeSession)).length})
+                                Present ({registrations.filter(r => attendanceMap[r.email.toLowerCase().trim()]?.has(activeSession)).length})
                             </button>
                             <button 
                                 onClick={() => setAttendanceFilter('absent')}
                                 className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${attendanceFilter === 'absent' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                             >
-                                Absent ({registrations.filter(r => !attendanceMap[r.email]?.has(activeSession)).length})
+                                Absent ({registrations.filter(r => !attendanceMap[r.email.toLowerCase().trim()]?.has(activeSession)).length})
                             </button>
                         </div>
 
@@ -328,7 +332,7 @@ export default function AdminRegistrationsPage() {
                                                     </td>
                                                     <td className="px-8 py-6">
                                                         <div className="flex items-center justify-center">
-                                                            {attendanceMap[reg.email]?.has(activeSession) ? (
+                                                            {attendanceMap[reg.email.toLowerCase().trim()]?.has(activeSession) ? (
                                                                 <div className="flex items-center gap-2 text-emerald-500">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                                     <span className="text-[10px] font-black uppercase tracking-widest">Present</span>
@@ -458,8 +462,8 @@ export default function AdminRegistrationsPage() {
                                         <div className="space-y-6">
                                             <div>
                                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">IEEE Membership</label>
-                                                <p className={`${selectedRegistration.isIeeeMember === 'yes' ? 'text-emerald-400' : 'text-rose-400'} font-bold`}>
-                                                    {selectedRegistration.isIeeeMember === 'yes' ? `Yes (${selectedRegistration.ieeeId})` : 'No'}
+                                                <p className={`${selectedRegistration.isIeeeMember?.toLowerCase() === 'yes' ? 'text-emerald-400' : 'text-rose-400'} font-bold`}>
+                                                    {selectedRegistration.isIeeeMember?.toLowerCase() === 'yes' ? `Yes (${selectedRegistration.ieeeId})` : 'No'}
                                                 </p>
                                             </div>
                                             <div>

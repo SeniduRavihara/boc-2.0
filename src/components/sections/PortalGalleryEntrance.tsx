@@ -24,7 +24,7 @@ const GALLERY_CONFIG = {
   desktop: {
     width: 360,
     height: 240,
-    expandedGridHeight: 400, // Usually 1.5x - 2x the height 
+    expandedGridHeight: 480, // 2x the height to show exactly 2 rows before and after zoom
   }
 };
 // =========================================================================
@@ -301,7 +301,7 @@ export function PortalGalleryEntrance() {
         >
 
           {/* ── LEFT / TOP: Text column ───────────────────────────────────── */}
-          <div className="flex flex-col items-start select-none max-w-sm md:max-w-md shrink-0">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left select-none max-w-sm md:max-w-md shrink-0">
             {/* <span className="text-blue-500 font-mono text-xs tracking-[0.4em] uppercase mb-4 font-bold">
               02 // Archive Portal
             </span> */}
@@ -406,7 +406,7 @@ export function PortalGalleryEntrance() {
           }
           .grid-container {
             grid-template-rows: repeat(4, minmax(0, 1fr));
-            height: ${GALLERY_CONFIG.desktop.height}px;
+            height: ${GALLERY_CONFIG.desktop.expandedGridHeight}px;
           }
         }
 
