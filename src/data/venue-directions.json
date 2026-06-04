@@ -1,0 +1,65 @@
+{
+  "title": "Venue Directions",
+  "subtitle": "Follow these landmarks from the main entrance to reach the session conducting hall.",
+  "destination": {
+    "name": "Session Conducting Hall",
+    "description": "Main hall for Beauty of Cloud 2.0 workshops and sessions."
+  },
+  "map": {
+    "buildingName": "New Faculty Building (English & Computing Training Center)",
+    "address": "VW33+599, Nugegoda, Sri Lanka",
+    "placeId": "0x3ae25b6f8d9afc3d:0x74a2a62e37f60b2c",
+    "latitude": 6.853,
+    "longitude": 79.903417,
+    "zoom": 19,
+    "googleMapsUrl": "https://maps.app.goo.gl/ou1yerztSnB9D2ai6?g_st=aw"
+  },
+  "steps": [
+    {
+      "id": "step-1",
+      "order": 1,
+      "landmark": "Main Entrance",
+      "instruction": "Arrive at the university main entrance on Gangodawila Road. This is your starting point — look for the main gate signage and security post.",
+      "image": "/locations/main-gate.jpeg",
+      "latitude": 6.853710,
+      "longitude": 79.906157
+    },
+    {
+      "id": "step-2",
+      "order": 2,
+      "landmark": "Sumangala Statue & Security",
+      "instruction": "After entering, check in at the security desk or reception counter. Present your registration confirmation if asked.",
+      "image": "/locations/sumangala-statue.jpeg",
+      "latitude": 6.8536615,
+      "longitude": 79.9054578
+    },
+    {
+      "id": "step-3",
+      "order": 3,
+      "landmark": "Budumedura & Main Walkway",
+      "instruction": "Walk straight along the main internal road or paved walkway. Follow event signage pointing toward the Faculty of Applied Sciences / Computing area.",
+      "image": "/locations/budumedura.jpeg",
+      "tip": "Volunteers in BOC shirts are usually stationed along this route.",
+      "latitude": 6.8533183,
+      "longitude": 79.9049334
+    },
+    {
+      "id": "step-4",
+      "order": 4,
+      "landmark": "Traffic Junction (ට්‍රැෆික් හන්දිය)",
+      "instruction": "Enter the faculty building through the marked entrance. Use the stairs or lift as directed by on-site volunteers.",
+      "image": "/locations/trafic-handiya.jpg",
+      "latitude": 6.8529689,
+      "longitude": 79.9050509
+    },
+    {
+      "id": "step-5",
+      "order": 5,
+      "landmark": "Next to the Building",
+      "instruction": "At the corridor junction, turn in the direction indicated by BOC direction boards (typically toward the seminar / lecture block).",
+      "image": "/locations/next to the building.jpeg",
+      "latitude": 6.853107,
+      "longitude": 79.903653
+    }
+  ]
+}
