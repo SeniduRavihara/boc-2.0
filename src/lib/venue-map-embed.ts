@@ -7,7 +7,7 @@ export const VENUE_MAP_TYPE_OPTIONS: { id: VenueMapType; label: string }[] = [
   { id: 'hybrid', label: 'Satellite' },
 ];
 
-export const DEFAULT_VENUE_MAP_TYPE: VenueMapType = 'hybrid';
+export const DEFAULT_VENUE_MAP_TYPE: VenueMapType = 'roadmap';
 
 export function toGoogleMapTypeId(type: VenueMapType): google.maps.MapTypeId {
   return type as google.maps.MapTypeId;

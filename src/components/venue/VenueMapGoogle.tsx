@@ -19,7 +19,7 @@ function MapTypeControl({
 }) {
   return (
     <div
-      className="absolute top-3 right-3 z-20 flex flex-col gap-0.5 p-1 rounded-xl bg-[#0f172a]/95 border border-white/10 shadow-lg backdrop-blur-sm"
+      className="absolute top-3 left-3 z-20 flex flex-row gap-0.5 p-1 rounded-xl bg-[#0f172a]/95 border border-white/10 shadow-lg backdrop-blur-sm"
       role="group"
       aria-label="Map type"
     >
@@ -29,7 +29,7 @@ function MapTypeControl({
           type="button"
           onClick={() => onChange(id)}
           aria-pressed={mapType === id}
-          className={`px-3 py-2 text-left text-[11px] font-mono uppercase tracking-wider rounded-lg transition-colors ${
+          className={`px-3 py-2 text-center text-[11px] font-mono uppercase tracking-wider rounded-lg transition-colors ${
             mapType === id
               ? 'bg-blue-600 text-white font-bold'
               : 'text-slate-400 hover:text-white hover:bg-white/5'

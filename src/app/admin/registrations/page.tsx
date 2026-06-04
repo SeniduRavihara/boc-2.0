@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings, getAttendanceByUser, deleteRegistration } from "@/firebase/api";
 import { Registration } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, Trash2 } from "lucide-react";
+import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, Trash2, Copy } from "lucide-react";
 
 import { SESSIONS } from "@/constants/sessions";
 import * as XLSX from 'xlsx';
@@ -25,6 +25,7 @@ export default function AdminRegistrationsPage() {
     const [attendanceFilter, setAttendanceFilter] = useState<'all' | 'present' | 'absent'>('all');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const fetchData = async (sessionId: string) => {
         setLoading(true);
@@ -149,6 +150,13 @@ export default function AdminRegistrationsPage() {
         XLSX.writeFile(workbook, `BOC_Session_${activeSession}_Registrations.xlsx`);
     };
 
+    const copyEmailsToClipboard = () => {
+        const emails = filteredRegistrations.map(reg => reg.email.trim()).filter(Boolean).join(', ');
+        navigator.clipboard.writeText(emails);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     const filteredRegistrations = registrations.filter(reg => {
         const matchesSearch = 
             reg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,6 +199,12 @@ export default function AdminRegistrationsPage() {
                             Open Attendance
                         </button>
                     )}
+                    <button 
+                        onClick={copyEmailsToClipboard}
+                        className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 rounded-xl text-xs font-bold text-purple-400 transition-all"
+                    >
+                        <Copy size={16} /> {copied ? "Emails Copied!" : "Copy Emails"}
+                    </button>
                     <button 
                         onClick={exportToExcel}
                         className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-slate-300 transition-all"
