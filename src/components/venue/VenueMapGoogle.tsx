@@ -72,6 +72,44 @@ function MapPath({ points }: { points: { lat: number; lng: number }[] }) {
   return null;
 }
 
+/**
+ * Controller to automatically fit map bounds to show all markers
+ */
+function MapBoundsController({
+  center,
+  milestones,
+}: {
+  center: { lat: number; lng: number };
+  milestones: { latitude: number; longitude: number }[];
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || milestones.length === 0) return;
+
+    const google = (window as any).google;
+    if (!google || !google.maps) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    // Extend bounds for destination center
+    bounds.extend(center);
+    // Extend bounds for all steps
+    milestones.forEach((m) => {
+      bounds.extend({ lat: m.latitude, lng: m.longitude });
+    });
+
+    // Fit map bounds with padding
+    map.fitBounds(bounds, {
+      top: 50,
+      right: 50,
+      bottom: 50,
+      left: 50,
+    });
+  }, [map, milestones, center]);
+
+  return null;
+}
+
 export function VenueMapGoogle({
   map,
   apiKey,
@@ -99,32 +137,6 @@ export function VenueMapGoogle({
     center, // Connect the final step to the destination building marker
   ];
 
-  const mapRef = useMap();
-
-  // Automatically adjust map boundaries to fit all milestones and the destination
-  useEffect(() => {
-    if (!mapRef || milestones.length === 0) return;
-
-    const google = (window as any).google;
-    if (!google || !google.maps) return;
-
-    const bounds = new google.maps.LatLngBounds();
-    // Extend bounds for destination center
-    bounds.extend(center);
-    // Extend bounds for all steps
-    milestones.forEach((m) => {
-      bounds.extend({ lat: m.latitude, lng: m.longitude });
-    });
-
-    // Fit map bounds with padding
-    mapRef.fitBounds(bounds, {
-      top: 50,
-      right: 50,
-      bottom: 50,
-      left: 50,
-    });
-  }, [mapRef, milestones, center]);
-
   return (
     <APIProvider apiKey={apiKey} language="en" region="LK">
       <div className="relative w-full h-full">
@@ -140,6 +152,9 @@ export function VenueMapGoogle({
           className="w-full h-full"
           style={{ width: '100%', height: '100%' }}
         >
+          {/* Adjust map boundaries to fit all milestones and the destination */}
+          <MapBoundsController center={center} milestones={milestones} />
+
           {/* Main Destination Marker */}
           <Marker position={center} title={map.buildingName} />
 

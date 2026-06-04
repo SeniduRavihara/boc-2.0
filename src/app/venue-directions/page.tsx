@@ -4,6 +4,7 @@ import venueDirections from '@/data/venue-directions.json';
 import { VenueDirectionCard } from '@/components/venue/VenueDirectionCard';
 import { VenueMapEmbed } from '@/components/venue/VenueMapEmbed';
 import type { VenueDirectionsData } from '@/types/venue-directions';
+import MainFooter from '@/components/layout/MainFooter';
 
 const data = venueDirections as VenueDirectionsData;
 
@@ -79,6 +80,7 @@ export default function VenueDirectionsPage() {
           </ol>
         </section>
       </div>
+      <MainFooter />
     </main>
   );
 }

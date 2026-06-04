@@ -75,6 +75,7 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
 
   const navLinks = [
     { name: "Home", href: "/" },
+    { name: "Venue Directions", href: "/venue-directions" },
     { name: "Flyer", href: "/flyer-generator" },
     { name: "About Us", href: "/#about" },
     { name: "Competition", href: "/#competition" },
