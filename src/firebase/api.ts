@@ -422,6 +422,12 @@ export const markAttendance = async (attendance: Omit<AttendanceRecord, "id" | "
   });
 };
 
+export const removeAttendance = async (email: string, sessionId: string) => {
+  const firestore = requireDb();
+  const attendanceRef = doc(firestore, ATTENDANCE_COLLECTION, `${sessionId}_${email}`);
+  return await deleteDoc(attendanceRef);
+};
+
 export const getAttendanceBySession = async (sessionId: string): Promise<AttendanceRecord[]> => {
   const firestore = requireDb();
   const attendanceRef = collection(firestore, ATTENDANCE_COLLECTION);
