@@ -10,7 +10,7 @@ import { SESSIONS } from "@/constants/sessions";
 import * as XLSX from 'xlsx';
 
 export default function AdminRegistrationsPage() {
-    const [activeSession, setActiveSession] = useState("1");
+    const [activeSession, setActiveSession] = useState("4");
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -78,6 +78,12 @@ export default function AdminRegistrationsPage() {
         fetchData(activeSession);
     }, [activeSession]);
 
+    useEffect(() => {
+        updateGlobalSettings({ activeAttendanceSession: "4" })
+            .then(() => setLiveSession("4"))
+            .catch((err) => console.error("Failed to set live session:", err));
+    }, []);
+
     // Fetch full attendance history when a user is selected
     useEffect(() => {
         const fetchUserHistory = async () => {
@@ -117,8 +123,6 @@ export default function AdminRegistrationsPage() {
     };
 
     const handleAttendanceToggle = async (reg: Registration, present: boolean) => {
-        if (activeSession !== "3") return;
-
         const emailKey = reg.email.toLowerCase().trim();
         setTogglingAttendanceEmail(emailKey);
 
@@ -391,16 +395,14 @@ export default function AdminRegistrationsPage() {
                                                     </td>
                                                     <td className="px-8 py-6">
                                                         <div className="flex items-center justify-center gap-3">
-                                                            {activeSession === "3" && (
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={!!isPresent}
-                                                                    disabled={togglingAttendanceEmail === emailKey}
-                                                                    onChange={(e) => handleAttendanceToggle(reg, e.target.checked)}
-                                                                    aria-label={`Mark ${reg.name} as present`}
-                                                                    className="h-4 w-4 rounded border-white/20 bg-black/40 text-emerald-500 focus:ring-emerald-500/50 focus:ring-offset-0 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
-                                                                />
-                                                            )}
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!isPresent}
+                                                                disabled={togglingAttendanceEmail === emailKey}
+                                                                onChange={(e) => handleAttendanceToggle(reg, e.target.checked)}
+                                                                aria-label={`Mark ${reg.name} as present for session ${activeSession}`}
+                                                                className="h-4 w-4 rounded border-white/20 bg-black/40 text-emerald-500 focus:ring-emerald-500/50 focus:ring-offset-0 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                                                            />
                                                             {isPresent ? (
                                                                 <div className="flex items-center gap-2 text-emerald-500">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

@@ -1,7 +1,7 @@
 'use client';
 
 import { addRegistration, checkRegistrationExists, checkUserRegistration, markAttendance, checkAttendanceExists, getRegistrationsBySession } from '@/firebase/api';
-import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
+import { useEffect, useState, ChangeEvent, FormEvent, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +18,23 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
     const [returningUser, setReturningUser] = useState<any>(null);
     const [isCheckingEmail, setIsCheckingEmail] = useState(false);
     const [regCount, setRegCount] = useState<number | null>(null);
+    const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const clearRedirectTimeout = () => {
+        if (redirectTimeoutRef.current) {
+            clearTimeout(redirectTimeoutRef.current);
+            redirectTimeoutRef.current = null;
+        }
+    };
+
+    const scheduleRedirect = (url: string, delay: number) => {
+        clearRedirectTimeout();
+        redirectTimeoutRef.current = setTimeout(() => {
+            window.location.href = url;
+        }, delay);
+    };
+
+    useEffect(() => () => clearRedirectTimeout(), []);
 
     const [form, setForm] = useState({
         name: "",
@@ -172,11 +189,11 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                     });
                                 }
                                 setStatus('success');
-                                setTimeout(() => { window.location.href = meetingUrl; }, 1500);
+                                scheduleRedirect(meetingUrl, 1500);
                             } else {
                                 // No meeting URL, just redirect back to the attendance page without marking attendance
                                 setStatus('success');
-                                setTimeout(() => { window.location.href = redirectUrl; }, 1500);
+                                scheduleRedirect(redirectUrl, 1500);
                             }
                             return;
                         }
@@ -185,15 +202,13 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     }
                     // Non-attendance redirect
                     setStatus('success');
-                    setTimeout(() => { window.location.href = redirectUrl; }, 3500);
+                    scheduleRedirect(redirectUrl, 3500);
                     return;
                 }
 
                 // No redirect — go to WhatsApp
                 setStatus('success');
-                setTimeout(() => {
-                    window.location.href = "https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t";
-                }, 3500);
+                scheduleRedirect("https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t", 3500);
             };
 
             if (alreadyInSession) {
@@ -304,7 +319,10 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                                 </a>
                                             )}
                                             <button
-                                                onClick={() => setStatus(null)}
+                                                onClick={() => {
+                                                    clearRedirectTimeout();
+                                                    setStatus(null);
+                                                }}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
                                             >
                                                 Return to Portal

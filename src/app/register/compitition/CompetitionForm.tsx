@@ -10,15 +10,24 @@ import { CheckCircle2, AlertCircle, Loader2, Plus, Trash2, Users, School, Sparkl
 export default function CompetitionForm() {
     const [status, setStatus] = useState<"success" | "error" | "loading" | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const clearRedirectTimeout = () => {
+        if (redirectTimeoutRef.current) {
+            clearTimeout(redirectTimeoutRef.current);
+            redirectTimeoutRef.current = null;
+        }
+    };
 
     useEffect(() => {
-        return () => {
-            if (redirectTimeoutRef.current) {
-                clearTimeout(redirectTimeoutRef.current);
-            }
-        };
+        return () => clearRedirectTimeout();
     }, []);
+
+    useEffect(() => {
+        if (status !== 'success') {
+            clearRedirectTimeout();
+        }
+    }, [status]);
 
     // Top-level team details
     const [teamName, setTeamName] = useState("");
@@ -139,6 +148,7 @@ export default function CompetitionForm() {
             localStorage.setItem('registered_competition_team', JSON.stringify(finalTeam));
 
             // Optional redirect
+            clearRedirectTimeout();
             redirectTimeoutRef.current = setTimeout(() => {
                 window.location.href = "https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"; // Redirect to whatsapp or dashboard
             }, 4500);
@@ -205,10 +215,7 @@ export default function CompetitionForm() {
                                             </a>
                                             <button
                                                 onClick={() => {
-                                                    if (redirectTimeoutRef.current) {
-                                                        clearTimeout(redirectTimeoutRef.current);
-                                                        redirectTimeoutRef.current = null;
-                                                    }
+                                                    clearRedirectTimeout();
                                                     setStatus(null);
                                                 }}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-xl md:rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
