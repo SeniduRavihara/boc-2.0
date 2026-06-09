@@ -160,10 +160,21 @@ export default function EmailToolPage() {
   const [filterSender, setFilterSender] = useState('');
   const [customAttachments, setCustomAttachments] = useState<{ filename: string; content: string }[]>([]);
 
+  const MAX_FILE_BYTES = 7 * 1024 * 1024;
+  const [attachmentError, setAttachmentError] = useState('');
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
+    setAttachmentError('');
+
     const files = Array.from(e.target.files);
-    
+
+    const oversized = files.find(f => f.size > MAX_FILE_BYTES);
+    if (oversized) {
+      setAttachmentError(`"${oversized.name}" is ${(oversized.size / 1024 / 1024).toFixed(1)} MB — maximum is 7 MB per file.`);
+      return;
+    }
+
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -1188,6 +1199,13 @@ Warm regards,
                     />
                   </label>
                 </div>
+
+                {attachmentError && (
+                  <p className="text-[11px] text-red-400 flex items-center gap-1.5 mt-2">
+                    <AlertCircle size={12} />
+                    {attachmentError}
+                  </p>
+                )}
                 
                 {customAttachments.length > 0 ? (
                   <div className="space-y-2 mt-2 max-h-36 overflow-y-auto custom-scrollbar">
