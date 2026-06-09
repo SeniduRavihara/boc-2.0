@@ -21,7 +21,7 @@ export async function sendMail(params: {
   fontFamily?: string;
   customAttachments?: {
     filename: string;
-    content: string;
+    url: string;
   }[];
 }) {
   const { to, subject, content, cc, bcc, attachInvitation = false, senderName, metadata, fontFamily, customAttachments = [] } = params;
@@ -68,16 +68,12 @@ export async function sendMail(params: {
     }
 
     if (customAttachments && customAttachments.length > 0) {
+      console.log(`[Mailbox] Passing ${customAttachments.length} custom attachment URL(s) directly to Resend...`);
       for (const att of customAttachments) {
-        try {
-          const buffer = Buffer.from(att.content, 'base64');
-          attachments.push({
-            filename: att.filename,
-            content: buffer,
-          });
-        } catch (err) {
-          console.error(`[Mailbox] Failed to read custom attachment ${att.filename}:`, err);
-        }
+        attachments.push({
+          filename: att.filename,
+          path: att.url,
+        });
       }
     }
 

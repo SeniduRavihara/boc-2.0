@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity, Reply, ReplyAll, Paperclip } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { getMessages, sendMail, markAsRead, updateMailFolder, deleteMailMessageAction } from '@/app/actions/mailbox';
@@ -8,6 +8,8 @@ import { MailMessage, MailFolder, getQuizzes, getQuizSubmissions } from '@/fireb
 import { getBaseTemplate, getLightTemplate } from '@/lib/email/templates';
 import { Quiz, QuizSubmission } from '@/types';
 import { format } from 'date-fns';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/firebase/config';
 
 export const getAWSTemplate = (name: string, code: string) => `Dear ${name},
 
@@ -158,36 +160,62 @@ export default function EmailToolPage() {
   const [attachInvitation, setAttachInvitation] = useState(false);
   const [sending, setSending] = useState(false);
   const [filterSender, setFilterSender] = useState('');
-  const [customAttachments, setCustomAttachments] = useState<{ filename: string; content: string }[]>([]);
+  const [customAttachments, setCustomAttachments] = useState<{ filename: string; url: string }[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState<{ id: string; filename: string; progress: number }[]>([]);
+  const uploadIdRef = useRef(0);
 
-  const MAX_FILE_BYTES = 7 * 1024 * 1024;
+  const MAX_FILE_BYTES = 25 * 1024 * 1024;
+  const MAX_ATTACHMENTS = 5;
   const [attachmentError, setAttachmentError] = useState('');
+  const [sendError, setSendError] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
+    const fbStorage = storage;
+    if (!fbStorage) {
+      setAttachmentError('Firebase Storage is not available.');
+      return;
+    }
     setAttachmentError('');
 
     const files = Array.from(e.target.files);
 
     const oversized = files.find(f => f.size > MAX_FILE_BYTES);
     if (oversized) {
-      setAttachmentError(`"${oversized.name}" is ${(oversized.size / 1024 / 1024).toFixed(1)} MB — maximum is 7 MB per file.`);
+      setAttachmentError(`"${oversized.name}" is ${(oversized.size / 1024 / 1024).toFixed(1)} MB — maximum is 25 MB per file.`);
+      return;
+    }
+
+    if (customAttachments.length + uploadingFiles.length + files.length > MAX_ATTACHMENTS) {
+      setAttachmentError('Maximum 5 attachments allowed per email.');
       return;
     }
 
     files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64Content = (event.target?.result as string).split(',')[1];
-        setCustomAttachments(prev => [
-          ...prev,
-          {
-            filename: file.name,
-            content: base64Content
-          }
-        ]);
-      };
-      reader.readAsDataURL(file);
+      const uploadId = String(++uploadIdRef.current);
+      const storageRef = ref(fbStorage, `email-attachments/${Date.now()}-${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setUploadingFiles(prev => [...prev, { id: uploadId, filename: file.name, progress: 0 }]);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadingFiles(prev =>
+            prev.map(f => f.id === uploadId ? { ...f, progress } : f)
+          );
+        },
+        (error) => {
+          console.error(`[Upload] Failed to upload ${file.name}:`, error);
+          setUploadingFiles(prev => prev.filter(f => f.id !== uploadId));
+          setAttachmentError(`Failed to upload "${file.name}". Please try again.`);
+        },
+        async () => {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          setCustomAttachments(prev => [...prev, { filename: file.name, url: downloadUrl }]);
+          setUploadingFiles(prev => prev.filter(f => f.id !== uploadId));
+        }
+      );
     });
   };
 
@@ -353,6 +381,7 @@ export default function EmailToolPage() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
+    setSendError('');
     
     const ccList = composeCc.split(',').map(e => e.trim()).filter(e => e !== "");
     const bccList = composeBcc.split(',').map(e => e.trim()).filter(e => e !== "");
@@ -376,10 +405,11 @@ export default function EmailToolPage() {
       setComposeSubject('');
       setComposeContent('');
       setCustomAttachments([]);
+      setUploadingFiles([]);
       setShowPreview(false);
       if (activeFolder === 'sent') loadMessages();
     } else {
-      alert("Protocol Failure: " + result.error);
+      setSendError(result.error || 'Unknown error');
     }
     setSending(false);
   };
@@ -1041,7 +1071,7 @@ Warm regards,
                 </div>
                 <h2 className="text-xl font-black text-white uppercase tracking-tight">New Transmission</h2>
               </div>
-              <button onClick={() => { setIsComposeOpen(false); setCustomAttachments([]); }} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
+              <button onClick={() => { setIsComposeOpen(false); setCustomAttachments([]); setUploadingFiles([]); setSendError(''); }} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
                 Cancel
               </button>
             </div>
@@ -1206,8 +1236,24 @@ Warm regards,
                     {attachmentError}
                   </p>
                 )}
-                
-                {customAttachments.length > 0 ? (
+
+                {uploadingFiles.length > 0 && (
+                  <div className="space-y-2 mt-2">
+                    {uploadingFiles.map(f => (
+                      <div key={f.id} className="flex items-center justify-between bg-blue-500/5 border border-blue-500/10 px-3 py-2 rounded-none text-xs">
+                        <span className="text-slate-300 font-medium truncate max-w-[180px]">{f.filename}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-20 bg-white/5 rounded-none overflow-hidden">
+                            <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${f.progress}%` }} />
+                          </div>
+                          <span className="text-[10px] font-mono text-blue-400 w-8 text-right">{Math.round(f.progress)}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {customAttachments.length > 0 && (
                   <div className="space-y-2 mt-2 max-h-36 overflow-y-auto custom-scrollbar">
                     {customAttachments.map((file, idx) => (
                       <div key={idx} className="flex items-center justify-between bg-white/[0.03] border border-white/5 px-3 py-2 rounded-none text-xs">
@@ -1222,14 +1268,23 @@ Warm regards,
                       </div>
                     ))}
                   </div>
-                ) : (
+                )}
+
+                {uploadingFiles.length === 0 && customAttachments.length === 0 && (
                   <div className="text-[11px] text-slate-500 italic mt-1 pl-1">
                     No custom attachments added
                   </div>
                 )}
               </div>
 
-              <div className="pt-4 flex justify-end gap-4">
+              <div className="pt-4 flex flex-col gap-3">
+                {sendError && (
+                  <p className="text-[11px] text-red-400 flex items-center gap-1.5">
+                    <AlertCircle size={12} />
+                    {sendError}
+                  </p>
+                )}
+                <div className="flex justify-end">
                 <button 
                   type="submit" 
                   disabled={sending}
@@ -1238,6 +1293,7 @@ Warm regards,
                   {sending ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
                   Execute Transmission
                 </button>
+                </div>
               </div>
                 </form>
               </div>
