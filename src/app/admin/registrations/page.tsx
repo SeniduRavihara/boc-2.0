@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings, getAttendanceByUser, deleteRegistration } from "@/firebase/api";
+import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings, getAttendanceByUser, deleteRegistration, markAttendance, removeAttendance } from "@/firebase/api";
 import { Registration } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, Trash2, Copy } from "lucide-react";
@@ -10,7 +10,7 @@ import { SESSIONS } from "@/constants/sessions";
 import * as XLSX from 'xlsx';
 
 export default function AdminRegistrationsPage() {
-    const [activeSession, setActiveSession] = useState("1");
+    const [activeSession, setActiveSession] = useState("4");
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -26,6 +26,7 @@ export default function AdminRegistrationsPage() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [togglingAttendanceEmail, setTogglingAttendanceEmail] = useState<string | null>(null);
 
     const fetchData = async (sessionId: string) => {
         setLoading(true);
@@ -77,6 +78,12 @@ export default function AdminRegistrationsPage() {
         fetchData(activeSession);
     }, [activeSession]);
 
+    useEffect(() => {
+        updateGlobalSettings({ activeAttendanceSession: "4" })
+            .then(() => setLiveSession("4"))
+            .catch((err) => console.error("Failed to set live session:", err));
+    }, []);
+
     // Fetch full attendance history when a user is selected
     useEffect(() => {
         const fetchUserHistory = async () => {
@@ -113,6 +120,44 @@ export default function AdminRegistrationsPage() {
             alert("Failed to delete registration.");
         }
         setIsDeleting(false);
+    };
+
+    const handleAttendanceToggle = async (reg: Registration, present: boolean) => {
+        const emailKey = reg.email.toLowerCase().trim();
+        setTogglingAttendanceEmail(emailKey);
+
+        try {
+            if (present) {
+                await markAttendance({
+                    sessionId: activeSession,
+                    email: reg.email,
+                    userName: reg.name,
+                    organization: reg.organization || "",
+                });
+                setAttendanceMap((prev) => {
+                    const next = { ...prev };
+                    if (!next[emailKey]) next[emailKey] = new Set();
+                    next[emailKey] = new Set(next[emailKey]);
+                    next[emailKey].add(activeSession);
+                    return next;
+                });
+            } else {
+                await removeAttendance(reg.email, activeSession);
+                setAttendanceMap((prev) => {
+                    const next = { ...prev };
+                    if (next[emailKey]) {
+                        next[emailKey] = new Set(next[emailKey]);
+                        next[emailKey].delete(activeSession);
+                    }
+                    return next;
+                });
+            }
+        } catch (err) {
+            console.error("Error updating attendance:", err);
+            alert("Failed to update attendance.");
+        }
+
+        setTogglingAttendanceEmail(null);
     };
 
     const handleDirectDelete = async (id: string, name: string) => {
@@ -326,7 +371,11 @@ export default function AdminRegistrationsPage() {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-white/5">
-                                            {filteredRegistrations.map((reg) => (
+                                            {filteredRegistrations.map((reg) => {
+                                                const emailKey = reg.email.toLowerCase().trim();
+                                                const isPresent = attendanceMap[emailKey]?.has(activeSession);
+
+                                                return (
                                                 <tr key={reg.id} className="group hover:bg-white/5 transition-all">
                                                     <td className="px-8 py-6">
                                                         <div className="flex flex-col">
@@ -345,8 +394,16 @@ export default function AdminRegistrationsPage() {
                                                         </span>
                                                     </td>
                                                     <td className="px-8 py-6">
-                                                        <div className="flex items-center justify-center">
-                                                            {attendanceMap[reg.email.toLowerCase().trim()]?.has(activeSession) ? (
+                                                        <div className="flex items-center justify-center gap-3">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!isPresent}
+                                                                disabled={togglingAttendanceEmail === emailKey}
+                                                                onChange={(e) => handleAttendanceToggle(reg, e.target.checked)}
+                                                                aria-label={`Mark ${reg.name} as present for session ${activeSession}`}
+                                                                className="h-4 w-4 rounded border-white/20 bg-black/40 text-emerald-500 focus:ring-emerald-500/50 focus:ring-offset-0 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                                                            />
+                                                            {isPresent ? (
                                                                 <div className="flex items-center gap-2 text-emerald-500">
                                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                                     <span className="text-[10px] font-black uppercase tracking-widest">Present</span>
@@ -376,7 +433,8 @@ export default function AdminRegistrationsPage() {
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            ))}
+                                            );
+                                            })}
                                         </tbody>
                                     </table>
                                 </motion.div>

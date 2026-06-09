@@ -22,6 +22,17 @@ export default function AttendancePage() {
   const { sessionId } = useParams() as { sessionId: string };
   const searchParams = useSearchParams();
   const meetingUrl = searchParams.get('meetingUrl') || "";
+  const isQrFlow = searchParams.get('qr') === '1';
+  const shouldMarkAttendance = Boolean(meetingUrl) || isQrFlow;
+
+  const buildRegisterUrl = (emailVal: string) => {
+    const attendanceParams = new URLSearchParams();
+    if (meetingUrl) attendanceParams.set('meetingUrl', meetingUrl);
+    if (isQrFlow) attendanceParams.set('qr', '1');
+    const qs = attendanceParams.toString();
+    const callback = `/attendance/${sessionId}${qs ? `?${qs}` : ''}`;
+    return `/register/session/${sessionId}?redirect=${encodeURIComponent(callback)}&email=${encodeURIComponent(emailVal)}`;
+  };
 
   const [pageState, setPageState] = useState<PageState>('init');
   const [email, setEmail] = useState("");
@@ -60,7 +71,10 @@ export default function AttendancePage() {
           registration.sessionId === sessionId;
 
         if (!isRegistered) {
-          // Known user but not registered for this session — pre-fill email and show form
+          if (isQrFlow) {
+            window.location.href = buildRegisterUrl(registration.email);
+            return;
+          }
           setEmail(registration.email || "");
           setPageState('input');
           return;
@@ -69,11 +83,11 @@ export default function AttendancePage() {
         // Refresh local cache with latest DB data
         localStorage.setItem('last_registered_user', JSON.stringify(registration));
 
-        // Registered — mark attendance silently only if there is a meeting URL
+        // Registered — mark attendance when live meeting or QR scan flow
         setEmail(registration.email);
         setUserName(registration.name || "");
 
-        if (meetingUrl) {
+        if (shouldMarkAttendance) {
           const exists = await checkAttendanceExists(registration.email, sessionId);
           if (exists) {
             setAlreadyMarked(true);
@@ -96,13 +110,7 @@ export default function AttendancePage() {
     };
 
     autoCheck();
-  }, [sessionId]);
-
-  // Build the register redirect callback with meetingUrl preserved
-  const buildRegisterUrl = (emailVal: string) => {
-    const callback = `/attendance/${sessionId}${meetingUrl ? `?meetingUrl=${encodeURIComponent(meetingUrl)}` : ''}`;
-    return `/register/session/${sessionId}?redirect=${encodeURIComponent(callback)}&email=${encodeURIComponent(emailVal)}`;
-  };
+  }, [sessionId, meetingUrl, isQrFlow, shouldMarkAttendance]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,8 +139,7 @@ export default function AttendancePage() {
         return;
       }
 
-      // Registered — mark attendance only if session is live
-      if (meetingUrl) {
+      if (shouldMarkAttendance) {
         const exists = await checkAttendanceExists(registration.email, sessionId);
         if (exists) {
           setAlreadyMarked(true);
@@ -191,7 +198,9 @@ export default function AttendancePage() {
               transition={{ delay: 0.2 }}
               className="text-slate-500 text-sm font-medium"
             >
-              Enter your email to mark attendance and join the live session.
+              {isQrFlow
+                ? 'Scan confirmed — enter your email to mark attendance.'
+                : 'Enter your email to mark attendance and join the live session.'}
             </motion.p>
           </header>
 
@@ -252,6 +261,10 @@ export default function AttendancePage() {
                     >
                       <Video size={22} /> Join the Meeting
                     </a>
+                  ) : isQrFlow ? (
+                    <div className="w-full h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl font-bold text-sm flex items-center justify-center gap-2">
+                      <UserCheck size={18} /> Attendance recorded — you&apos;re all set
+                    </div>
                   ) : (
                     <div className="w-full h-14 bg-slate-800 text-slate-400 rounded-2xl font-bold text-sm flex items-center justify-center gap-2">
                       <Video size={18} /> No meeting link configured
