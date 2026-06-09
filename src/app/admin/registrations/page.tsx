@@ -9,6 +9,24 @@ import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, 
 import { SESSIONS } from "@/constants/sessions";
 import * as XLSX from 'xlsx';
 
+function dedupeRegistrationsByEmail(regs: Registration[]): Registration[] {
+    const byEmail = new Map<string, Registration>();
+    for (const reg of regs) {
+        const emailKey = reg.email.toLowerCase().trim();
+        const existing = byEmail.get(emailKey);
+        const regTime = reg.createdAt?.toMillis?.() ?? 0;
+        const existingTime = existing?.createdAt?.toMillis?.() ?? 0;
+        if (!existing || regTime >= existingTime) {
+            byEmail.set(emailKey, reg);
+        }
+    }
+    return Array.from(byEmail.values()).sort((a, b) => {
+        const timeA = a.createdAt?.toMillis?.() ?? 0;
+        const timeB = b.createdAt?.toMillis?.() ?? 0;
+        return timeB - timeA;
+    });
+}
+
 export default function AdminRegistrationsPage() {
     const [activeSession, setActiveSession] = useState("4");
     const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -37,25 +55,16 @@ export default function AdminRegistrationsPage() {
                 getGlobalSettings()
             ]);
             
-            setRegistrations(regRes);
+            setRegistrations(dedupeRegistrationsByEmail(regRes));
             if (settings) setLiveSession(settings.activeAttendanceSession);
             
-            // Map attendance for the active session
             const map: Record<string, Set<string>> = {};
             attRes.forEach(record => {
                 const emailKey = record.email.toLowerCase().trim();
                 if (!map[emailKey]) map[emailKey] = new Set();
                 map[emailKey].add(record.sessionId);
             });
-            setAttendanceMap(prev => {
-                const newMap = { ...prev };
-                Object.entries(map).forEach(([email, sessions]) => {
-                    const normalizedEmail = email.toLowerCase().trim();
-                    if (!newMap[normalizedEmail]) newMap[normalizedEmail] = new Set();
-                    sessions.forEach(s => newMap[normalizedEmail].add(s));
-                });
-                return newMap;
-            });
+            setAttendanceMap(map);
             
         } catch (err) {
             console.error(err);
@@ -331,36 +340,25 @@ export default function AdminRegistrationsPage() {
 
                     {/* Table View */}
                     <div className="relative">
-                        <AnimatePresence mode="wait">
-                            {loading ? (
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="p-20 flex flex-col items-center justify-center space-y-4"
+                        {loading ? (
+                            <div className="p-20 flex flex-col items-center justify-center space-y-4">
+                                <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                                <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Accessing encrypted database...</p>
+                            </div>
+                        ) : filteredRegistrations.length === 0 ? (
+                            <div className="p-20 text-center">
+                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-600">
+                                    <Filter size={32} />
+                                </div>
+                                <h3 className="text-white font-bold text-lg mb-2">No results found</h3>
+                                <p className="text-slate-500 text-sm">Try adjusting your search or switching sessions.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table
+                                    key={`${activeSession}-${attendanceFilter}-${searchQuery}`}
+                                    className="w-full border-collapse"
                                 >
-                                    <div className="w-10 h-10 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                                    <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">Accessing encrypted database...</p>
-                                </motion.div>
-                            ) : filteredRegistrations.length === 0 ? (
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="p-20 text-center"
-                                >
-                                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-600">
-                                        <Filter size={32} />
-                                    </div>
-                                    <h3 className="text-white font-bold text-lg mb-2">No results found</h3>
-                                    <p className="text-slate-500 text-sm">Try adjusting your search or switching sessions.</p>
-                                </motion.div>
-                            ) : (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="overflow-x-auto"
-                                >
-                                    <table className="w-full border-collapse">
                                         <thead>
                                             <tr className="border-b border-white/5">
                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Delegate</th>
@@ -437,9 +435,8 @@ export default function AdminRegistrationsPage() {
                                             })}
                                         </tbody>
                                     </table>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                            </div>
+                        )}
                     </div>
 
                     {/* Footer Stats */}
