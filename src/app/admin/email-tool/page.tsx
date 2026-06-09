@@ -163,6 +163,7 @@ export default function EmailToolPage() {
   const [customAttachments, setCustomAttachments] = useState<{ filename: string; url: string }[]>([]);
   const [uploadingFiles, setUploadingFiles] = useState<{ id: string; filename: string; progress: number }[]>([]);
   const uploadIdRef = useRef(0);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const MAX_FILE_BYTES = 25 * 1024 * 1024;
   const MAX_ATTACHMENTS = 5;
@@ -373,6 +374,7 @@ export default function EmailToolPage() {
 
   const loadMessages = async () => {
     setLoading(true);
+    setSelectedIds(new Set());
     const data = await getMessages(activeFolder as MailFolder);
     setMessages(data);
     setLoading(false);
@@ -426,6 +428,7 @@ export default function EmailToolPage() {
     const result = await updateMailFolder(id, 'archive');
     if (result.success) {
       setSelectedMessage(null);
+      setSelectedIds(new Set());
       loadMessages();
     } else {
       alert("Failed to archive: " + result.error);
@@ -436,6 +439,7 @@ export default function EmailToolPage() {
     const result = await updateMailFolder(id, 'trash');
     if (result.success) {
       setSelectedMessage(null);
+      setSelectedIds(new Set());
       loadMessages();
     } else {
       alert("Failed to move to trash: " + result.error);
@@ -447,10 +451,43 @@ export default function EmailToolPage() {
     const result = await deleteMailMessageAction(id);
     if (result.success) {
       setSelectedMessage(null);
+      setSelectedIds(new Set());
       loadMessages();
     } else {
       alert("Failed to delete: " + result.error);
     }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredMessages.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredMessages.map(m => m.id)));
+    }
+  };
+
+  const handleBulkArchive = async () => {
+    if (selectedIds.size === 0) return;
+    await Promise.all(Array.from(selectedIds).map(id => updateMailFolder(id, 'archive')));
+    setSelectedIds(new Set());
+    setSelectedMessage(null);
+    loadMessages();
+  };
+
+  const handleBulkTrash = async () => {
+    if (selectedIds.size === 0) return;
+    await Promise.all(Array.from(selectedIds).map(id => updateMailFolder(id, 'trash')));
+    setSelectedIds(new Set());
+    setSelectedMessage(null);
+    loadMessages();
   };
 
   const handleReply = () => {
@@ -804,7 +841,7 @@ Warm regards,
           <>
         {/* Message List */}
         <div className="w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col">
-          <div className="p-6 border-b border-white/5">
+          <div className="p-6 border-b border-white/5 space-y-4">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input 
@@ -815,6 +852,17 @@ Warm regards,
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            {selectedIds.size > 0 && (
+              <div className="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-none">
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 flex-1">{selectedIds.size} selected</span>
+                <button onClick={handleBulkArchive} className="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-all flex items-center gap-1.5">
+                  <Archive size={12} /> Archive All
+                </button>
+                <button onClick={handleBulkTrash} className="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all flex items-center gap-1.5">
+                  <Trash2 size={12} /> Trash All
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -832,24 +880,33 @@ Warm regards,
               filteredMessages.map((msg) => (
                 <div 
                   key={msg.id}
-                  onClick={() => handleSelectMessage(msg)}
-                  className={`p-6 border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.03] group relative ${selectedMessage?.id === msg.id ? 'bg-blue-500/[0.05]' : ''}`}
+                  className={`flex items-start p-6 border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.03] group relative ${selectedMessage?.id === msg.id ? 'bg-blue-500/[0.05]' : ''}`}
                 >
-                  {!msg.is_read && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-none" />}
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`text-xs font-black truncate max-w-[150px] ${!msg.is_read ? 'text-blue-400' : 'text-slate-400'}`}>
-                      {msg.direction === 'incoming' ? msg.from_email : `To: ${msg.to_email}`}
-                    </span>
-                    <span className="text-[10px] text-slate-600 font-mono">
-                      {msg.createdAt && format(new Date(msg.createdAt), 'HH:mm')}
-                    </span>
+                  <div className="pt-0.5 pr-4 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(msg.id)}
+                      onChange={() => toggleSelect(msg.id)}
+                      className="w-4 h-4 rounded-none border-white/20 bg-white/5 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer"
+                    />
                   </div>
-                  <h4 className={`text-sm mb-1 truncate ${!msg.is_read ? 'text-white font-bold' : 'text-slate-300 font-medium'}`}>
-                    {msg.subject}
-                  </h4>
-                  <p className="text-xs text-slate-500 line-clamp-1">
-                    {msg.content_text}
-                  </p>
+                  <div className="flex-1 min-w-0" onClick={() => handleSelectMessage(msg)}>
+                    {!msg.is_read && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-none" />}
+                    <div className="flex justify-between items-start mb-2">
+                      <span className={`text-xs font-black truncate max-w-[150px] ${!msg.is_read ? 'text-blue-400' : 'text-slate-400'}`}>
+                        {msg.direction === 'incoming' ? msg.from_email : `To: ${msg.to_email}`}
+                      </span>
+                      <span className="text-[10px] text-slate-600 font-mono">
+                        {msg.createdAt && format(new Date(msg.createdAt), 'HH:mm')}
+                      </span>
+                    </div>
+                    <h4 className={`text-sm mb-1 truncate ${!msg.is_read ? 'text-white font-bold' : 'text-slate-300 font-medium'}`}>
+                      {msg.subject}
+                    </h4>
+                    <p className="text-xs text-slate-500 line-clamp-1">
+                      {msg.content_text}
+                    </p>
+                  </div>
                 </div>
               ))
             )}
