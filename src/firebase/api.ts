@@ -239,13 +239,25 @@ export const getRegistrationsBySession = async (sessionId: string): Promise<Regi
   const q2 = query(registrationsRef, where("sessionIds", "array-contains", sessionId));
 
   const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-  const results = new Map<string, Registration>();
+  const byDocId = new Map<string, Registration>();
 
   [...snap1.docs, ...snap2.docs].forEach(doc => {
-    results.set(doc.id, { id: doc.id, ...doc.data() } as Registration);
+    byDocId.set(doc.id, { ...doc.data(), id: doc.id } as Registration);
   });
 
-  return Array.from(results.values()).sort((a, b) => {
+  const byEmail = new Map<string, Registration>();
+  for (const reg of byDocId.values()) {
+    const emailKey = reg.email?.toLowerCase().trim();
+    if (!emailKey) continue;
+    const existing = byEmail.get(emailKey);
+    const regTime = reg.createdAt?.toMillis?.() ?? 0;
+    const existingTime = existing?.createdAt?.toMillis?.() ?? 0;
+    if (!existing || regTime >= existingTime) {
+      byEmail.set(emailKey, reg);
+    }
+  }
+
+  return Array.from(byEmail.values()).sort((a, b) => {
     const timeA = a.createdAt?.toMillis() || 0;
     const timeB = b.createdAt?.toMillis() || 0;
     return timeB - timeA;
@@ -259,7 +271,7 @@ export const checkUserRegistration = async (email: string): Promise<Registration
   const querySnapshot = await getDocs(q);
   if (!querySnapshot.empty) {
     const doc = querySnapshot.docs[0];
-    return { id: doc.id, ...doc.data() } as Registration;
+    return { ...doc.data(), id: doc.id } as Registration;
   }
   return null;
 };
