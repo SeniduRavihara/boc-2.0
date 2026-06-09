@@ -65,9 +65,34 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
         const saved = localStorage.getItem('last_registered_user');
 
         if (urlEmail) {
-            // Priority 1: Email from URL (likely coming from attendance redirect)
             setForm(prev => ({ ...prev, email: urlEmail }));
-            setStep('initial');
+            const redirect = searchParams.get('redirect');
+            if (redirect?.includes('/attendance/')) {
+                checkUserRegistration(urlEmail).then(existing => {
+                    if (existing && sessionId !== "1") {
+                        setReturningUser(existing);
+                        setForm(prev => ({
+                            ...prev,
+                            name: existing.name || "",
+                            phone: existing.phone || "",
+                            organization: existing.organization || ""
+                        }));
+                        setStep('returning');
+                    } else if (existing && sessionId === "1") {
+                        setForm(prev => ({
+                            ...prev,
+                            name: existing.name || "",
+                            phone: existing.phone || "",
+                            organization: existing.organization || ""
+                        }));
+                        setStep('new');
+                    } else {
+                        setStep('new');
+                    }
+                }).catch(() => setStep('initial'));
+            } else {
+                setStep('initial');
+            }
         } else if (saved) {
             // Priority 2: Saved user from storage
             try {
@@ -174,11 +199,11 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                     try {
                         const redirectParsed = new URL(redirectUrl, window.location.origin);
                         const meetingUrl = redirectParsed.searchParams.get('meetingUrl');
+                        const isQrFlow = redirectParsed.searchParams.get('qr') === '1';
                         const isFromAttendance = redirectParsed.pathname.startsWith('/attendance/');
 
                         if (isFromAttendance) {
-                            // Only mark attendance if there is a meeting link (session is live)
-                            if (meetingUrl) {
+                            if (meetingUrl || isQrFlow) {
                                 const alreadyMarked = await checkAttendanceExists(emailToUse, sessionId);
                                 if (!alreadyMarked) {
                                     await markAttendance({
@@ -189,9 +214,12 @@ export default function RegisterForm({ sessionId }: { sessionId: string }) {
                                     });
                                 }
                                 setStatus('success');
-                                scheduleRedirect(meetingUrl, 1500);
+                                if (meetingUrl) {
+                                    scheduleRedirect(meetingUrl, 1500);
+                                } else {
+                                    scheduleRedirect(redirectUrl, 1500);
+                                }
                             } else {
-                                // No meeting URL, just redirect back to the attendance page without marking attendance
                                 setStatus('success');
                                 scheduleRedirect(redirectUrl, 1500);
                             }
