@@ -1287,7 +1287,7 @@ Warm regards,
                 <div className="flex justify-end">
                 <button 
                   type="submit" 
-                  disabled={sending}
+                  disabled={sending || uploadingFiles.length > 0}
                   className="bg-white text-black px-10 py-4 rounded-none font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50 flex items-center gap-2"
                 >
                   {sending ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
