@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getRegistrationsBySession, getAttendanceBySession, getGlobalSettings, updateGlobalSettings, getAttendanceByUser, deleteRegistration, markAttendance, removeAttendance } from "@/firebase/api";
 import { Registration } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,24 +8,6 @@ import { Users, Filter, Download, Search, ChevronRight, Zap, Activity, Loader2, 
 
 import { SESSIONS } from "@/constants/sessions";
 import * as XLSX from 'xlsx';
-
-function dedupeRegistrationsByEmail(regs: Registration[]): Registration[] {
-    const byEmail = new Map<string, Registration>();
-    for (const reg of regs) {
-        const emailKey = reg.email.toLowerCase().trim();
-        const existing = byEmail.get(emailKey);
-        const regTime = reg.createdAt?.toMillis?.() ?? 0;
-        const existingTime = existing?.createdAt?.toMillis?.() ?? 0;
-        if (!existing || regTime >= existingTime) {
-            byEmail.set(emailKey, reg);
-        }
-    }
-    return Array.from(byEmail.values()).sort((a, b) => {
-        const timeA = a.createdAt?.toMillis?.() ?? 0;
-        const timeB = b.createdAt?.toMillis?.() ?? 0;
-        return timeB - timeA;
-    });
-}
 
 export default function AdminRegistrationsPage() {
     const [activeSession, setActiveSession] = useState("4");
@@ -55,7 +37,7 @@ export default function AdminRegistrationsPage() {
                 getGlobalSettings()
             ]);
             
-            setRegistrations(dedupeRegistrationsByEmail(regRes));
+            setRegistrations(regRes);
             if (settings) setLiveSession(settings.activeAttendanceSession);
             
             const map: Record<string, Set<string>> = {};
@@ -211,19 +193,21 @@ export default function AdminRegistrationsPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const filteredRegistrations = registrations.filter(reg => {
-        const matchesSearch = 
-            reg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            reg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            reg.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            reg.phone?.includes(searchQuery);
-        
-        const isPresent = attendanceMap[reg.email.toLowerCase().trim()]?.has(activeSession);
-        
-        if (attendanceFilter === 'present') return matchesSearch && isPresent;
-        if (attendanceFilter === 'absent') return matchesSearch && !isPresent;
-        return matchesSearch;
-    });
+    const filteredRegistrations = useMemo(() => {
+        return registrations.filter(reg => {
+            const matchesSearch = 
+                reg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                reg.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                reg.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                reg.phone?.includes(searchQuery);
+            
+            const isPresent = attendanceMap[reg.email.toLowerCase().trim()]?.has(activeSession);
+            
+            if (attendanceFilter === 'present') return matchesSearch && isPresent;
+            if (attendanceFilter === 'absent') return matchesSearch && !isPresent;
+            return matchesSearch;
+        });
+    }, [registrations, searchQuery, attendanceFilter, attendanceMap, activeSession]);
 
     return (
         <div className="space-y-8 pb-20">
@@ -355,10 +339,7 @@ export default function AdminRegistrationsPage() {
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
-                                <table
-                                    key={`${activeSession}-${attendanceFilter}-${searchQuery}`}
-                                    className="w-full border-collapse"
-                                >
+                                <table className="w-full border-collapse">
                                         <thead>
                                             <tr className="border-b border-white/5">
                                                 <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Delegate</th>
@@ -374,7 +355,7 @@ export default function AdminRegistrationsPage() {
                                                 const isPresent = attendanceMap[emailKey]?.has(activeSession);
 
                                                 return (
-                                                <tr key={reg.id} className="group hover:bg-white/5 transition-all">
+                                                <tr key={emailKey} className="group hover:bg-white/5 transition-all">
                                                     <td className="px-8 py-6">
                                                         <div className="flex flex-col">
                                                             <span className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors uppercase tracking-tight">{reg.name}</span>
