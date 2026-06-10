@@ -263,9 +263,12 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       const srcCanvas = await domToCanvas(target, {
         width: W,
         height: H,
-        backgroundColor: '#1a1a2e',
+        backgroundColor: '#050812',
         style: {
           transform: 'none',
+          left: '0',
+          top: '0',
+          position: 'relative',
         }
       });
 
@@ -324,21 +327,23 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
-    if (shatterProgress > 0 || preCapture) {
+    if (shatterProgress > 0) {
       if (!builtRef.current) {
         captureAndSwap(false);
-      } else if (shatterProgress > 0) {
+      } else {
         overlay.style.display = 'block';
         target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => applyPhysics(shatterProgress));
       }
     } else {
-      if (builtRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        overlay.style.display = 'none';
-        target.style.visibility = 'visible';
-        applyPhysics(0);
+      cancelAnimationFrame(rafRef.current);
+      overlay.style.display = 'none';
+      target.style.visibility = 'visible';
+      applyPhysics(0);
+
+      if (preCapture && !builtRef.current) {
+        captureAndSwap(false);
       }
     }
   }, [shatterProgress, preCapture, captureAndSwap, applyPhysics]);
@@ -386,16 +391,21 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       {/* 3. Offscreen clone for pre-capture */}
       {mounted && typeof document !== 'undefined' && !builtRef.current && createPortal(
         <div 
-          ref={offscreenRef} 
-          className="fixed w-screen h-screen"
           style={{
+            position: 'fixed',
             left: '-9999px',
             top: '-9999px',
+            width: '100vw',
+            height: '100vh',
+            overflow: 'hidden',
             zIndex: -1000,
             pointerEvents: 'none',
           }}
         >
-          <div className="w-full h-full bg-[#1a1a2e]">
+          <div 
+            ref={offscreenRef} 
+            className="w-full h-full bg-[#050812]"
+          >
             <LinuxEnvironment />
           </div>
         </div>,

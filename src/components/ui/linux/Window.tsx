@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
-import { AppState } from './types';
+import React, { useRef, useCallback, useEffect } from 'react';
+import { AppState, AppId } from './types';
 
 interface WindowProps {
   app: AppState;
@@ -27,15 +27,34 @@ export const Window: React.FC<WindowProps> = ({
   const winRef = useRef<HTMLDivElement>(null);
   const dragPos = useRef({ x: 0, y: 0, startX: 0, startY: 0, dragging: false });
 
+  // Reset inline position styles when window is maximized or resized to mobile view
+  useEffect(() => {
+    const el = winRef.current;
+    if (!el) return;
+    if (app.isMaximised || isMobile) {
+      el.style.left = '';
+      el.style.top = '';
+      el.style.transform = '';
+    }
+  }, [app.isMaximised, isMobile]);
+
   const onTitlePointerDown = useCallback((e: React.PointerEvent) => {
     if (isMobile || app.isMaximised) return;
     onFocus();
     const el = winRef.current;
     if (!el) return;
-    const rect = el.getBoundingClientRect();
-    dragPos.current = { x: rect.left, y: rect.top, startX: e.clientX, startY: e.clientY, dragging: true };
-    el.style.left = rect.left + 'px';
-    el.style.top = rect.top + 'px';
+    
+    // Use offsetLeft and offsetTop which are relative to the parent container
+    dragPos.current = { 
+      x: el.offsetLeft, 
+      y: el.offsetTop, 
+      startX: e.clientX, 
+      startY: e.clientY, 
+      dragging: true 
+    };
+    
+    el.style.left = el.offsetLeft + 'px';
+    el.style.top = el.offsetTop + 'px';
     el.style.transform = 'none';
     el.setPointerCapture(e.pointerId);
   }, [isMobile, app.isMaximised, onFocus]);
@@ -47,9 +66,22 @@ export const Window: React.FC<WindowProps> = ({
     if (!el || !container) return;
     const dx = e.clientX - dragPos.current.startX;
     const dy = e.clientY - dragPos.current.startY;
-    const bounds = container.getBoundingClientRect();
-    const newX = Math.max(0, Math.min(dragPos.current.x + dx, bounds.width - el.offsetWidth));
-    const newY = Math.max(0, Math.min(dragPos.current.y + dy, bounds.height - el.offsetHeight));
+    
+    // Bounds check using container client size
+    const clientW = container.clientWidth;
+    const clientH = container.clientHeight;
+    
+    // Allow dragging off-screen left/right, but keep at least 100px visible
+    const minX = 100 - el.offsetWidth;
+    const maxX = clientW - 100;
+    
+    // Keep title bar (height ~40px) below the top panel, and allow dragging down
+    const minY = 0;
+    const maxY = clientH - 40;
+    
+    const newX = Math.max(minX, Math.min(dragPos.current.x + dx, maxX));
+    const newY = Math.max(minY, Math.min(dragPos.current.y + dy, maxY));
+    
     el.style.left = newX + 'px';
     el.style.top = newY + 'px';
   }, [constraintsRef]);
@@ -60,7 +92,19 @@ export const Window: React.FC<WindowProps> = ({
 
   if (!app.isOpen || app.isMinimised) return null;
 
-  const isCalculator = app.id === 'calculator';
+  const getWindowSizeClass = (id: AppId) => {
+    switch (id) {
+      case 'viewer':
+        return 'w-[94vw] md:w-[940px] h-[80vh] md:h-[600px]';
+      case 'terminal':
+        return 'w-[90vw] md:w-[680px] h-[62vh] md:h-[440px]';
+      case 'files':
+      case 'trash':
+        return 'w-[90vw] md:w-[650px] h-[60vh] md:h-[440px]';
+      default:
+        return 'w-[90vw] md:w-[700px] h-[60vh] md:h-[450px]';
+    }
+  };
 
   return (
     <div
@@ -69,43 +113,67 @@ export const Window: React.FC<WindowProps> = ({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       style={{ zIndex: app.zIndex, animation: 'winOpen 0.15s ease-out forwards' }}
-      className={`absolute ${app.isMaximised || isMobile ? 'top-0 left-0 w-full h-full rounded-none' : `top-10 left-1/2 -translate-x-1/2 md:translate-x-0 ${isCalculator ? 'md:left-[35%] w-[340px] h-[520px]' : 'md:left-[20%] w-[90vw] md:w-[700px] h-[60vh] md:h-[450px]'} rounded-xl`} bg-[#1e1e1e] shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col overflow-hidden pointer-events-auto`}
+      className={`absolute ${
+        app.isMaximised && !isMobile
+          ? 'top-0 left-14 w-[calc(100%-3.5rem)] h-full rounded-none'
+          : (isMobile
+              ? 'top-0 left-0 w-full h-full rounded-none'
+              : `top-10 md:top-14 left-[calc(50%+1.75rem)] -translate-x-1/2 ${getWindowSizeClass(app.id)} rounded-xl`
+            )
+      } bg-[#1e1e1e] shadow-[0_20px_60px_rgba(0,0,0,0.5)] border border-white/10 flex flex-col overflow-hidden pointer-events-auto`}
     >
       {/* Title Bar */}
       <div 
-        className={`bg-[#2d2d2d] flex items-center justify-between px-4 select-none border-b border-black/50 ${isMobile ? 'h-12' : 'h-10 cursor-grab active:cursor-grabbing'}`}
+        className={`bg-[#2c2c2c] flex items-center justify-between px-4 select-none border-b border-black/40 ${isMobile ? 'h-12' : 'h-10 cursor-grab active:cursor-grabbing'}`}
         onDoubleClick={onMaximise}
         onPointerDown={onTitlePointerDown}
       >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <button 
-              onClick={(e) => { e.stopPropagation(); onClose(); }} 
-              onPointerDown={(e) => e.stopPropagation()}
-              className="w-4 h-4 rounded-full bg-[#ff5f56] flex items-center justify-center hover:bg-[#ff5f56]/80 group transition-colors shadow-sm"
-            >
-              <img src="/linux-icons/actions/16/window-close-symbolic.svg" alt="close" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
-            </button>
-            <button 
-              onClick={(e) => { e.stopPropagation(); onMinimise(); }} 
-              onPointerDown={(e) => e.stopPropagation()}
-              className="w-4 h-4 rounded-full bg-[#ffbd2e] flex items-center justify-center hover:bg-[#ffbd2e]/80 group transition-colors shadow-sm"
-            >
-              <img src="/linux-icons/actions/16/window-minimize-symbolic.svg" alt="minimize" className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
-            </button>
-            <button 
-              onClick={(e) => { e.stopPropagation(); onMaximise(); }} 
-              onPointerDown={(e) => e.stopPropagation()}
-              className={`w-4 h-4 rounded-full bg-[#27c93f] items-center justify-center hover:bg-[#27c93f]/80 group transition-colors shadow-sm ${isMobile ? 'hidden' : 'flex'}`}
-            >
-              <img src="/linux-icons/actions/16/window-maximize-symbolic.svg" alt={app.isMaximised ? 'restore' : 'maximize'} className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity brightness-0 invert" />
-            </button>
-          </div>
+        {/* Left: App Title */}
+        <div className="flex items-center gap-2 select-none pointer-events-none">
+          <span className="text-white/95 text-[13px] font-semibold tracking-wide font-mono">
+            {app.title}
+          </span>
         </div>
-        <div className="absolute left-1/2 -translate-x-1/2 text-white/50 text-[13px] font-medium tracking-wide">
-          {app.title}
+
+        {/* Right: Window Controls */}
+        <div className="flex items-center gap-1.5">
+          {/* Minimize */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); onMinimise(); }} 
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-6.5 h-6.5 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors text-white/50 hover:text-white"
+            title="Minimize"
+          >
+            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+          
+          {/* Maximize */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); onMaximise(); }} 
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`w-6.5 h-6.5 rounded-full hover:bg-white/10 items-center justify-center transition-colors text-white/50 hover:text-white ${isMobile ? 'hidden' : 'flex'}`}
+            title="Maximize"
+          >
+            <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <rect x="3" y="3" width="18" height="18" rx="1" />
+            </svg>
+          </button>
+          
+          {/* Close */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); onClose(); }} 
+            onPointerDown={(e) => e.stopPropagation()}
+            className="w-6.5 h-6.5 rounded-full hover:bg-[#e04f1a] flex items-center justify-center transition-colors text-white/50 hover:text-white"
+            title="Close"
+          >
+            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
-        <div className="w-10" />
       </div>
       <div className="flex-1 overflow-hidden relative">
         {content}

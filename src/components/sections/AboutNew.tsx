@@ -50,14 +50,18 @@ function StatCard({
 import { OrbitingCircles } from "@/components/ui/orbiting-circles";
 import Image from "next/image";
 
-export function AboutNew() {
+export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = {}) {
   const headingRef = useRef(null);
   const headingView = useInView(headingRef, { once: true });
 
   return (
     <section
       id="about-us"
-      className="w-full bg-[#050812] relative overflow-x-hidden py-24 md:py-32 lg:min-h-screen lg:py-0 flex lg:items-center"
+      className={`w-full bg-[#050812] relative overflow-x-hidden flex items-center ${
+        isWindowMode 
+          ? "py-8 md:py-12 min-h-0" 
+          : "py-24 md:py-32 lg:min-h-screen lg:py-0 lg:items-center"
+      }`}
     >
       {/* Background Pattern with Fade */}
       <div
@@ -81,10 +85,12 @@ export function AboutNew() {
         }}
       />
 
-      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 relative z-10">
+      <div className={`w-full mx-auto px-4 sm:px-6 relative z-10 ${isWindowMode ? "max-w-[900px]" : "max-w-[1280px]"}`}>
         <div
           ref={headingRef}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative"
+          className={`grid grid-cols-1 gap-8 items-center relative ${
+            isWindowMode ? "md:grid-cols-2 md:gap-10" : "lg:grid-cols-2 lg:gap-16"
+          }`}
         >
           {/* ── Left Column: Text ── */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left relative z-20">
@@ -101,7 +107,9 @@ export function AboutNew() {
               initial={{ opacity: 0, y: 30 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-reglo text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-[1.1] mb-6 min-w-0"
+              className={`font-reglo font-black tracking-tighter leading-[1.1] mb-4 min-w-0 ${
+                isWindowMode ? "text-3xl md:text-5xl" : "text-5xl sm:text-6xl md:text-7xl"
+              }`}
             >
               <GradientShinyTitle
                 text="About "
@@ -119,17 +127,21 @@ export function AboutNew() {
 
             <motion.div
               initial={{ width: 0 }}
-              whileInView={{ width: "120px" }}
+              whileInView={{ width: "80px" }}
               viewport={{ once: true }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="h-1 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] mb-8"
+              className={`h-1 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] ${
+                isWindowMode ? "mb-4" : "mb-8"
+              }`}
             />
  
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={headingView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.25 }}
-              className="font-uncut text-slate-400 text-lg sm:text-xl leading-relaxed min-w-0 max-w-2xl lg:max-w-none"
+              className={`font-uncut text-slate-400 leading-relaxed min-w-0 max-w-2xl lg:max-w-none ${
+                isWindowMode ? "text-sm md:text-base" : "text-lg sm:text-xl"
+              }`}
             >
               Beauty of Cloud 2.0 is Sri Lanka&apos;s first and premier
               undergraduate cloud computing competition — a platform where the
@@ -143,15 +155,17 @@ export function AboutNew() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={headingView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 1, delay: 0.4, type: "spring" }}
-            className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden"
+            className={`relative flex w-full flex-col items-center justify-center overflow-hidden ${
+              isWindowMode ? "h-[320px]" : "h-[500px]"
+            }`}
           >
             {/* Center Core */}
             <div className="relative z-10 flex items-center justify-center pointer-events-none drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]">
               <Image
                 src="/email-and-header/boc.webp"
                 alt="BOC Logo"
-                width={120}
-                height={120}
+                width={isWindowMode ? 80 : 120}
+                height={isWindowMode ? 80 : 120}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
@@ -161,30 +175,30 @@ export function AboutNew() {
             <OrbitingCircles
               duration={20}
               delay={0}
-              radius={100}
-              iconSize={50}
+              radius={isWindowMode ? 65 : 100}
+              iconSize={isWindowMode ? 32 : 50}
             >
               <Image
                 src="/service-icons/aws 1.webp"
                 alt="AWS"
-                width={28}
-                height={28}
+                width={20}
+                height={20}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/icons8-azure-96 3.webp"
                 alt="Azure"
-                width={28}
-                height={28}
+                width={20}
+                height={20}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/icons8-google-cloud-144 2.webp"
                 alt="GCP"
-                width={30}
-                height={30}
+                width={22}
+                height={22}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
@@ -192,41 +206,41 @@ export function AboutNew() {
 
             {/* Outer Orbit (DevOps Tools) */}
             <OrbitingCircles
-              radius={180}
+              radius={isWindowMode ? 115 : 180}
               duration={30}
               delay={10}
               reverse
-              iconSize={60}
+              iconSize={isWindowMode ? 38 : 60}
             >
               <Image
                 src="/service-icons/icons8-docker-144 2.webp"
                 alt="Docker"
-                width={35}
-                height={35}
+                width={24}
+                height={24}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/kubanaties.webp"
                 alt="Kubernetes"
-                width={35}
-                height={35}
+                width={24}
+                height={24}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/icons8-terraform-144 2.webp"
                 alt="Terraform"
-                width={35}
-                height={35}
+                width={24}
+                height={24}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
               <Image
                 src="/service-icons/github_logo.webp"
                 alt="GitHub"
-                width={35}
-                height={35}
+                width={24}
+                height={24}
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />

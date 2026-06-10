@@ -5,15 +5,15 @@ import React, { useState, useEffect, useRef } from 'react';
 // Sub-components
 import { AppId, AppState } from './linux/types';
 import { TerminalContent } from './linux/TerminalContent';
-import { BrowserContent } from './linux/BrowserContent';
-import { CalculatorContent } from './linux/CalculatorContent';
 import { DocumentViewerContent } from './linux/DocumentViewerContent';
+import { TrashContent } from './linux/TrashContent';
 import { Window } from './linux/Window';
 import { QuickSettings } from './linux/QuickSettings';
 import { AppDrawer } from './linux/AppDrawer';
 import { CalendarPopover } from './linux/CalendarPopover';
 import { TopBar } from './linux/TopBar';
 import { Dock } from './linux/Dock';
+import { Monitor, Folder, Trash2, HardDrive } from 'lucide-react';
 
 export const LinuxEnvironment: React.FC = () => {
   const [time, setTime] = useState(new Date());
@@ -30,30 +30,20 @@ export const LinuxEnvironment: React.FC = () => {
   const [nightLight, setNightLight] = useState(false);
   const [darkStyle, setDarkStyle] = useState(true);
   const [airplaneMode, setAirplaneMode] = useState(false);
-  const [currentSiteUrl, setCurrentSiteUrl] = useState('about:blank');
   const [isMobile, setIsMobile] = useState(false);
   
   const desktopRef = useRef<HTMLDivElement>(null);
   
   const [apps, setApps] = useState<AppState[]>([
-    { id: 'terminal', title: 'Terminal', isOpen: true, isMinimised: false, isMaximised: false, zIndex: 10 },
-    { id: 'browser', title: 'BOC Browser', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 12 },
-    { id: 'files', title: 'Files', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 1 },
-    { id: 'editor', title: 'Code Editor', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 1 },
-    { id: 'calculator', title: 'Calculator', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 1 },
     { id: 'viewer', title: 'Document Viewer', isOpen: true, isMinimised: false, isMaximised: false, zIndex: 11 },
+    { id: 'files', title: 'Files', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 1 },
+    { id: 'terminal', title: 'Terminal', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 10 },
+    { id: 'trash', title: 'Trash', isOpen: false, isMinimised: false, isMaximised: false, zIndex: 1 },
   ]);
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const { origin, pathname } = window.location;
-    const safePath = (pathname === '/test' || pathname === '/linux') ? '/' : pathname;
-    setCurrentSiteUrl(`${origin}${safePath}`);
   }, []);
 
   useEffect(() => {
@@ -114,33 +104,65 @@ export const LinuxEnvironment: React.FC = () => {
   const getAppContent = (id: AppId) => {
     switch (id) {
       case 'terminal': return <TerminalContent />;
-      case 'browser': return <BrowserContent currentUrl={currentSiteUrl} />;
       case 'files': return <div className="p-8 text-white/50 font-mono text-sm">Files directory empty.</div>;
-      case 'editor': return <div className="p-8 text-white/50 font-mono text-sm">Visual Studio Code Insiders.</div>;
-      case 'calculator': return <CalculatorContent />;
       case 'viewer': return <DocumentViewerContent />;
+      case 'trash': return <TrashContent />;
       default: return null;
     }
   };
 
   return (
     <div 
-      className="w-full h-full bg-[#1a1a2e] relative overflow-hidden select-none font-sans cursor-default outline-none" 
+      className="w-full h-full bg-[#050812] relative overflow-hidden select-none font-sans cursor-default outline-none" 
       onClick={() => { setShowQuickSettings(false); setShowCalendar(false); }}
     >
       {/* — Wallpaper — */}
-      <div className="absolute inset-0 z-0 bg-black">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center opacity-60" />
+      <div className="absolute inset-0 z-0 select-none pointer-events-none">
+        <img 
+          src="/images/image3.webp" 
+          alt="Desktop Background" 
+          className="w-full h-full object-cover opacity-45 select-none pointer-events-none"
+        />
+        {/* Blue theme color tint and overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/35 via-[#050812]/25 to-[#050812]/85" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[120px]" />
       </div>
 
       {/* — Desktop Icons — */}
-      <div className="absolute top-12 left-6 z-[10] flex flex-col gap-6">
-        <div onDoubleClick={() => openApp('viewer')} className="flex flex-col items-center gap-1 group cursor-pointer w-20">
+      <div className="absolute top-14 left-20 z-[10] flex flex-col gap-6">
+        <div onDoubleClick={() => openApp('viewer')} className="flex flex-col items-center gap-1 group cursor-pointer w-20 text-center">
           <div className="w-14 h-14 rounded-xl bg-white/5 group-hover:bg-white/15 flex items-center justify-center transition-all backdrop-blur-md border border-white/5 shadow-lg group-active:scale-95">
-            <img src="/linux-icons/apps/48/internet-web-browser.svg" alt="About" className="w-9 h-9 object-contain" />
+            <Monitor className="w-8 h-8 text-cyan-300 drop-shadow-md" />
           </div>
-          <span className="text-white text-[11px] font-medium drop-shadow-md text-center px-1 py-0.5 rounded group-hover:bg-blue-600/50 transition-colors">
-            About BOC 2.0
+          <span className="text-white text-[11px] font-medium drop-shadow-md px-1 py-0.5 rounded group-hover:bg-blue-600/50 transition-colors">
+            Computer
+          </span>
+        </div>
+
+        <div onDoubleClick={() => openApp('files')} className="flex flex-col items-center gap-1 group cursor-pointer w-20 text-center">
+          <div className="w-14 h-14 rounded-xl bg-white/5 group-hover:bg-white/15 flex items-center justify-center transition-all backdrop-blur-md border border-white/5 shadow-lg group-active:scale-95">
+            <Folder className="w-8 h-8 text-amber-400 drop-shadow-md" />
+          </div>
+          <span className="text-white text-[11px] font-medium drop-shadow-md px-1 py-0.5 rounded group-hover:bg-blue-600/50 transition-colors">
+            guest's Home
+          </span>
+        </div>
+
+        <div onDoubleClick={() => openApp('files')} className="flex flex-col items-center gap-1 group cursor-pointer w-20 text-center">
+          <div className="w-14 h-14 rounded-xl bg-white/5 group-hover:bg-white/15 flex items-center justify-center transition-all backdrop-blur-md border border-white/5 shadow-lg group-active:scale-95">
+            <HardDrive className="w-8 h-8 text-slate-400 drop-shadow-md" />
+          </div>
+          <span className="text-white text-[11px] font-medium drop-shadow-md px-1 py-0.5 rounded group-hover:bg-blue-600/50 transition-colors">
+            File System
+          </span>
+        </div>
+
+        <div onDoubleClick={() => openApp('trash')} className="flex flex-col items-center gap-1 group cursor-pointer w-20 text-center">
+          <div className="w-14 h-14 rounded-xl bg-white/5 group-hover:bg-white/15 flex items-center justify-center transition-all backdrop-blur-md border border-white/5 shadow-lg group-active:scale-95">
+            <Trash2 className="w-8 h-8 text-rose-500 drop-shadow-md" />
+          </div>
+          <span className="text-white text-[11px] font-medium drop-shadow-md px-1 py-0.5 rounded group-hover:bg-blue-600/50 transition-colors">
+            Trash
           </span>
         </div>
       </div>

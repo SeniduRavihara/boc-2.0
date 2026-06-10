@@ -8,7 +8,7 @@ import Link from "next/link";
 import ScreenLoader from "@/components/ui/screen-loader";
 
 import Image from "next/image";
-import { Users } from "lucide-react";
+import { Users, BookOpen, Download } from "lucide-react";
 import MainFooter from "@/components/layout/MainFooter";
 import { AboutNew } from "./sections/AboutNew";
 import { ContactSection } from "./sections/ContactSection";
@@ -271,7 +271,28 @@ export function HomeClient() {
           scrub: touch ? 0.8 : 1,
           invalidateOnRefresh: true,
           refreshPriority: 1,
+          snap: {
+            snapTo: (value) => {
+              const t = value * 10;
+              // Shatter region starts at t = 2.6 and ends at t = 6.6
+              // If the user stops in the early shatter stage (t between 2.6 and 3.0, i.e., <10% shatter progress),
+              // snap back to t = 2.6 (0.26 progress) to restore the intact Linux environment.
+              if (t > 2.6 && t < 3.0) {
+                return 0.26;
+              }
+              return value;
+            },
+            duration: { min: 0.1, max: 0.25 },
+            delay: 0.05,
+            ease: "power2.out",
+          },
         },
+      });
+
+      tl.eventCallback("onUpdate", () => {
+        if (tl.time() <= 2.6) {
+          setShatterProgress(0);
+        }
       });
 
       // ── PHASE 1 (0.0 -> 2.0) ──
@@ -683,7 +704,6 @@ export function HomeClient() {
                     Open Soon
                   </span>
                 </button>
-
                 {/* <a 
                   href="/Delegate_Booklet.pdf" 
                   target="_blank" 
