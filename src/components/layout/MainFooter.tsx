@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Mail, ShieldCheck } from 'lucide-react';
+import { Mail, ShieldCheck, Loader2 } from 'lucide-react';
 import AdminLoginModal from "@/components/ui/AdminLoginModal";
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { checkAndInitializeUser } from '@/firebase/api';
 
 // Custom SVG icons for compatibility with legacy Lucide version
 const FacebookIcon = (props: any) => (
@@ -44,6 +47,31 @@ interface MainFooterProps {
 const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
   const currentYear = new Date().getFullYear();
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
+
+  const handleAdminClick = async () => {
+    if (!user) {
+      setIsAdminModalOpen(true);
+      return;
+    }
+
+    setCheckingAdmin(true);
+    try {
+      const role = await checkAndInitializeUser(user.uid, user.email, user.displayName);
+      if (role === 'admin') {
+        router.push('/admin');
+      } else {
+        setIsAdminModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Failed to check admin role:", error);
+      setIsAdminModalOpen(true);
+    } finally {
+      setCheckingAdmin(false);
+    }
+  };
 
   const socialLinks = [
     { 
@@ -210,11 +238,18 @@ const MainFooter: React.FC<MainFooterProps> = ({ hideTopStyling = false }) => {
               </p>
               
               <button 
-                onClick={() => setIsAdminModalOpen(true)}
-                className="group flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all duration-300 mx-auto md:mr-0"
+                onClick={handleAdminClick}
+                disabled={checkingAdmin}
+                className="group flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all duration-300 mx-auto md:mr-0 disabled:opacity-50"
               >
-                <ShieldCheck size={14} className="text-blue-500 group-hover:animate-pulse" />
-                <span className="text-[10px] uppercase tracking-widest font-mono font-bold text-white/40 group-hover:text-white">Admin</span>
+                {checkingAdmin ? (
+                  <Loader2 size={14} className="text-blue-500 animate-spin" />
+                ) : (
+                  <ShieldCheck size={14} className="text-blue-500 group-hover:animate-pulse" />
+                )}
+                <span className="text-[10px] uppercase tracking-widest font-mono font-bold text-white/40 group-hover:text-white">
+                  {checkingAdmin ? "Checking..." : "Admin"}
+                </span>
               </button>
             </div>
           </div>
