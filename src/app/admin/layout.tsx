@@ -56,7 +56,7 @@ export default function AdminLayout({
             }`}
           >
             {/* Scrollable Main Tag (Sri Lanka Business Pattern) */}
-            <main className="flex-1 overflow-y-auto w-full custom-scrollbar p-6 md:p-10">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden w-full min-w-0 max-w-full custom-scrollbar p-4 sm:p-6 md:p-10 flex flex-col min-h-0">
               {children}
             </main>
           </div>

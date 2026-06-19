@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity, Reply, ReplyAll, Paperclip } from 'lucide-react';
+import { Mail, Send, Inbox, Archive, Trash2, Search, Plus, Loader2, ChevronRight, Check, AlertCircle, Ticket, User, ExternalLink, RefreshCw, Trophy, Activity, Reply, ReplyAll, Paperclip, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { getMessages, sendMail, markAsRead, updateMailFolder, deleteMailMessageAction } from '@/app/actions/mailbox';
 import { MailMessage, MailFolder, getQuizzes, getQuizSubmissions } from '@/firebase/api';
@@ -515,6 +515,12 @@ export default function EmailToolPage() {
     setIsComposeOpen(true);
   };
 
+  const switchFolder = (folder: MailFolder | 'aws_vouchers') => {
+    setActiveFolder(folder);
+    setSelectedMessage(null);
+    setSelectedIds(new Set());
+  };
+
   const filteredMessages = messages.filter(msg => {
     const matchesSearch = 
       msg.subject.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -535,15 +541,15 @@ export default function EmailToolPage() {
   });
 
   return (
-    <div className="min-h-[800px] h-auto lg:h-[calc(100vh-120px)] flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-6 min-h-0 flex-1 lg:h-[calc(100vh-120px)]">
       
       {/* Header Area */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between shrink-0">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tighter uppercase mb-1">Administrative <span className="text-blue-500">Mailbox</span></h1>
-          <p className="text-slate-400 text-sm">Secure communications protocol v2.0</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase mb-1">Administrative <span className="text-blue-500">Mailbox</span></h1>
+          <p className="text-slate-400 text-xs sm:text-sm">Secure communications protocol v2.0</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-stretch lg:items-center gap-2 sm:gap-3">
           {/* Global Member Filter Dropdown */}
           <div className="relative w-full sm:min-w-[220px] sm:w-auto">
             <select
@@ -586,10 +592,11 @@ Warm regards,
               setAttachInvitation(true);
               setIsComposeOpen(true);
             }}
-            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-5 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-sm border border-blue-500/30 w-full sm:w-auto justify-center"
+            className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-4 sm:px-5 py-3 rounded-none flex items-center gap-2 transition-all font-bold text-xs sm:text-sm border border-blue-500/30 w-full sm:w-auto justify-center"
           >
             <Check size={18} />
-            SPEAKER TEMPLATE
+            <span className="sm:hidden">SPEAKER</span>
+            <span className="hidden sm:inline">SPEAKER TEMPLATE</span>
           </button>
           <button 
             onClick={() => {
@@ -609,55 +616,59 @@ Warm regards,
       </div>
 
       {/* Main Mailbox Interface */}
-      <GlassCard className="flex-1 flex flex-col lg:flex-row overflow-hidden border-white/5 rounded-none">
+      <GlassCard className="flex-1 flex flex-col lg:flex-row overflow-hidden border-white/5 rounded-none min-h-0 max-h-[calc(100dvh-11.5rem)] lg:max-h-none min-w-0 max-w-full">
         
-        {/* Navigation Sidebar */}
-        <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 bg-white/[0.02] flex flex-col p-6 gap-2 overflow-y-auto custom-scrollbar">
-          <NavItem 
-            icon={<Inbox size={18} />} 
-            label="Inbox" 
-            active={activeFolder === 'inbox'} 
-            onClick={() => setActiveFolder('inbox')} 
-          />
-          <NavItem 
-            icon={<Send size={18} />} 
-            label="Sent" 
-            active={activeFolder === 'sent'} 
-            onClick={() => setActiveFolder('sent')} 
-          />
-          <NavItem 
-            icon={<Archive size={18} />} 
-            label="Archive" 
-            active={activeFolder === 'archive'} 
-            onClick={() => setActiveFolder('archive')} 
-          />
-          <NavItem 
-            icon={<Trash2 size={18} />} 
-            label="Trash" 
-            active={activeFolder === 'trash'} 
-            onClick={() => setActiveFolder('trash')} 
-          />
-          <div className="mt-6 pt-6 border-t border-white/5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 mb-4 block px-4">Special Operations</label>
-            <NavItem 
-              icon={<Ticket size={18} />} 
-              label="AWS Vouchers" 
-              active={activeFolder === 'aws_vouchers'} 
-              onClick={() => setActiveFolder('aws_vouchers')} 
-            />
+        {/* Navigation Sidebar — horizontal tabs on mobile, vertical on desktop */}
+        <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-white/5 bg-white/[0.02] shrink-0">
+          <div className="flex lg:flex-col gap-2 p-3 lg:p-6 overflow-x-auto lg:overflow-y-auto custom-scrollbar lg:max-h-full">
+            <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0 lg:w-full">
+              <NavItem 
+                icon={<Inbox size={18} />} 
+                label="Inbox" 
+                active={activeFolder === 'inbox'} 
+                onClick={() => switchFolder('inbox')} 
+              />
+              <NavItem 
+                icon={<Send size={18} />} 
+                label="Sent" 
+                active={activeFolder === 'sent'} 
+                onClick={() => switchFolder('sent')} 
+              />
+              <NavItem 
+                icon={<Archive size={18} />} 
+                label="Archive" 
+                active={activeFolder === 'archive'} 
+                onClick={() => switchFolder('archive')} 
+              />
+              <NavItem 
+                icon={<Trash2 size={18} />} 
+                label="Trash" 
+                active={activeFolder === 'trash'} 
+                onClick={() => switchFolder('trash')} 
+              />
+            </div>
+            <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0 lg:w-full lg:mt-6 lg:pt-6 lg:border-t border-white/5 pl-2 lg:pl-0 border-l lg:border-l-0">
+              <label className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-slate-600 mb-2 px-4">Special Operations</label>
+              <NavItem 
+                icon={<Ticket size={18} />} 
+                label="AWS Vouchers" 
+                active={activeFolder === 'aws_vouchers'} 
+                onClick={() => switchFolder('aws_vouchers')} 
+              />
+            </div>
           </div>
         </div>
 
         {/* Message List or AWS Voucher Interface */}
         {activeFolder === 'aws_vouchers' ? (
-          <div className="flex-1 flex flex-col overflow-hidden bg-white/[0.01]">
-            <div className="p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="flex-1 flex flex-col overflow-hidden bg-white/[0.01] min-h-0">
+            <div className="p-4 sm:p-6 lg:p-8 border-b border-white/5 flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight uppercase">AWS Voucher <span className="text-blue-500">Distribution</span></h2>
-                <p className="text-slate-400 text-sm mt-1">Distribute 30 vouchers to top quiz performers</p>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight uppercase">AWS Voucher <span className="text-blue-500">Distribution</span></h2>
+                <p className="text-slate-400 text-xs sm:text-sm mt-1">Distribute 30 vouchers to top quiz performers</p>
               </div>
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="relative min-w-[240px]">
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 w-full lg:w-auto lg:flex lg:flex-wrap lg:items-center lg:gap-4">
+                <div className="relative w-full min-w-0">
                   <select 
                     value={selectedQuizId}
                     onChange={(e) => setSelectedQuizId(e.target.value)}
@@ -670,7 +681,7 @@ Warm regards,
                   </select>
                   <ChevronRight size={14} className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-slate-500 pointer-events-none" />
                 </div>
-                <div className="relative min-w-[200px]">
+                <div className="relative w-full min-w-0">
                   <select 
                     value={emailType}
                     onChange={(e) => setEmailType(e.target.value as any)}
@@ -684,29 +695,29 @@ Warm regards,
                 <button 
                   onClick={loadTopPerformers}
                   disabled={!selectedQuizId || loadingVouchers}
-                  className="p-2.5 bg-white/[0.03] border border-white/5 rounded-none text-slate-400 hover:text-white transition-all disabled:opacity-30"
+                  className="p-2.5 bg-white/[0.03] border border-white/5 rounded-none text-slate-400 hover:text-white transition-all disabled:opacity-30 w-full sm:w-auto flex items-center justify-center"
                 >
                   <RefreshCw size={18} className={loadingVouchers ? 'animate-spin' : ''} />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col xl:flex-row overflow-hidden">
+            <div className="flex-1 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden min-h-0 custom-scrollbar">
               {/* List of mapped students */}
-              <div className="flex-1 border-b xl:border-b-0 xl:border-r border-white/5 flex flex-col">
-                <div className="p-4 bg-white/[0.02] border-b border-white/5 flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-2">Mapped Performers ({topSubmissions.length}/30)</span>
-                  <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-32 bg-white/5 rounded-none overflow-hidden">
+              <div className="flex flex-col shrink-0 xl:shrink xl:flex-1 xl:min-h-0 xl:border-r border-white/5 border-b xl:border-b-0">
+                <div className="p-3 sm:p-4 bg-white/[0.02] border-b border-white/5 flex flex-col gap-2 shrink-0">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-0 sm:ml-2">Mapped Performers ({topSubmissions.length}/30)</span>
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="h-1.5 flex-1 max-w-full bg-white/5 rounded-none overflow-hidden">
                       <div 
                         className="h-full bg-blue-500 transition-all duration-500" 
-                        style={{ width: `${(sentCount / topSubmissions.length) * 100}%` }}
+                        style={{ width: `${topSubmissions.length ? (sentCount / topSubmissions.length) * 100 : 0}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-blue-400">{sentCount}/{topSubmissions.length}</span>
+                    <span className="text-[10px] font-mono text-blue-400 shrink-0">{sentCount}/{topSubmissions.length}</span>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <div className="min-h-[160px] xl:flex-1 xl:overflow-y-auto custom-scrollbar p-4 sm:p-6">
                   {loadingVouchers ? (
                     <div className="h-full flex flex-col items-center justify-center opacity-30 gap-4">
                       <Loader2 className="animate-spin text-blue-500" size={32} />
@@ -721,19 +732,22 @@ Warm regards,
                   ) : (
                     <div className="grid grid-cols-1 gap-3">
                       {topSubmissions.map((sub, i) => (
-                        <div key={i} className="p-4 rounded-none bg-white/[0.02] border border-white/5 flex items-center gap-4 hover:border-white/10 transition-all group">
-                          <div className="w-8 h-8 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-black text-blue-400">
-                            {i + 1}
+                        <div key={i} className="p-3 sm:p-4 rounded-none bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:border-white/10 transition-all group">
+                          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                            <div className="w-8 h-8 shrink-0 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xs font-black text-blue-400">
+                              {i + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-bold text-white truncate">{sub.userName}</h4>
+                              <p className="text-[10px] text-slate-500 truncate">{sub.userEmail}</p>
+                            </div>
+                            <p className="text-[10px] text-slate-600 uppercase font-black tracking-tighter sm:hidden shrink-0">{sub.totalScore} PTS</p>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-bold text-white truncate">{sub.userName}</h4>
-                            <p className="text-[10px] text-slate-500 truncate">{sub.userEmail}</p>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-xs font-mono text-blue-400 font-bold bg-blue-500/5 px-2 py-1 rounded-none border border-blue-500/10">
+                          <div className="flex items-center justify-between sm:block sm:text-right gap-2 pl-11 sm:pl-0">
+                            <div className="text-[10px] sm:text-xs font-mono text-blue-400 font-bold bg-blue-500/5 px-2 py-1 rounded-none border border-blue-500/10 break-all max-w-full">
                               {sub.voucher}
                             </div>
-                            <p className="text-[10px] text-slate-600 mt-1 uppercase font-black tracking-tighter">{sub.totalScore} PTS</p>
+                            <p className="hidden sm:block text-[10px] text-slate-600 mt-1 uppercase font-black tracking-tighter">{sub.totalScore} PTS</p>
                           </div>
                         </div>
                       ))}
@@ -743,7 +757,7 @@ Warm regards,
               </div>
 
               {/* Actions & Template Preview */}
-              <div className="w-full xl:w-96 flex flex-col p-6 md:p-8 gap-8">
+              <div className="w-full xl:w-96 shrink-0 flex flex-col p-4 sm:p-6 md:p-8 gap-6 sm:gap-8 xl:overflow-y-auto xl:min-h-0 custom-scrollbar">
                 {/* Testing Section */}
                 <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
@@ -840,8 +854,8 @@ Warm regards,
         ) : (
           <>
         {/* Message List */}
-        <div className="w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-white/5 flex flex-col">
-          <div className="p-6 border-b border-white/5 space-y-4">
+        <div className={`w-full lg:w-96 border-b lg:border-b-0 lg:border-r border-white/5 flex-col min-h-0 ${selectedMessage ? 'hidden lg:flex' : 'flex'} flex-1 lg:flex-none lg:max-w-[24rem]`}>
+          <div className="p-4 sm:p-6 border-b border-white/5 space-y-3 sm:space-y-4 shrink-0">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input 
@@ -853,19 +867,21 @@ Warm regards,
               />
             </div>
             {selectedIds.size > 0 && (
-              <div className="flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-none">
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 flex-1">{selectedIds.size} selected</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 bg-blue-500/10 border border-blue-500/20 px-3 sm:px-4 py-2 rounded-none">
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 sm:flex-1">{selectedIds.size} selected</span>
+                <div className="flex flex-wrap gap-3">
                 <button onClick={handleBulkArchive} className="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-all flex items-center gap-1.5">
                   <Archive size={12} /> Archive All
                 </button>
                 <button onClick={handleBulkTrash} className="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all flex items-center gap-1.5">
                   <Trash2 size={12} /> Trash All
                 </button>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 opacity-50">
                 <Loader2 className="animate-spin text-blue-500" />
@@ -880,7 +896,7 @@ Warm regards,
               filteredMessages.map((msg) => (
                 <div 
                   key={msg.id}
-                  className={`flex items-start p-6 border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.03] group relative ${selectedMessage?.id === msg.id ? 'bg-blue-500/[0.05]' : ''}`}
+                  className={`flex items-start p-4 sm:p-6 border-b border-white/5 cursor-pointer transition-all hover:bg-white/[0.03] group relative ${selectedMessage?.id === msg.id ? 'bg-blue-500/[0.05]' : ''}`}
                 >
                   <div className="pt-0.5 pr-4 shrink-0" onClick={(e) => e.stopPropagation()}>
                     <input
@@ -893,7 +909,7 @@ Warm regards,
                   <div className="flex-1 min-w-0" onClick={() => handleSelectMessage(msg)}>
                     {!msg.is_read && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-none" />}
                     <div className="flex justify-between items-start mb-2">
-                      <span className={`text-xs font-black truncate max-w-[150px] ${!msg.is_read ? 'text-blue-400' : 'text-slate-400'}`}>
+                      <span className={`text-xs font-black truncate max-w-[55vw] sm:max-w-[150px] ${!msg.is_read ? 'text-blue-400' : 'text-slate-400'}`}>
                         {msg.direction === 'incoming' ? msg.from_email : `To: ${msg.to_email}`}
                       </span>
                       <span className="text-[10px] text-slate-600 font-mono">
@@ -914,26 +930,34 @@ Warm regards,
         </div>
 
         {/* Message Content View */}
-        <div className="flex-1 bg-white/[0.01] flex flex-col">
+        <div className={`flex-1 bg-white/[0.01] flex-col min-h-0 min-w-0 overflow-hidden max-w-full ${!selectedMessage ? 'hidden lg:flex' : 'flex'}`}>
           {selectedMessage ? (
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="p-6 sm:p-8 lg:p-10 border-b border-white/5 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
-                <div>
-                  <h2 className="text-2xl font-black text-white tracking-tight mb-4">{selectedMessage.subject}</h2>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-black">
+            <div className="flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 max-w-full">
+              <div className="p-4 sm:p-6 lg:p-10 border-b border-white/5 flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-start shrink-0">
+                <div className="min-w-0 flex-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedMessage(null)}
+                    className="lg:hidden inline-flex items-center gap-2 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-3 hover:text-blue-300 transition-colors"
+                  >
+                    <ArrowLeft size={14} />
+                    Back to list
+                  </button>
+                  <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight mb-3 sm:mb-4 break-words">{selectedMessage.subject}</h2>
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-black text-sm">
                       {selectedMessage.from_email.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-white">{selectedMessage.from_email}</p>
-                      <p className="text-xs text-slate-500">to {selectedMessage.to_email} · {selectedMessage.createdAt && format(new Date(selectedMessage.createdAt), 'PPP p')}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{selectedMessage.from_email}</p>
+                      <p className="text-[11px] sm:text-xs text-slate-500 break-words">to {selectedMessage.to_email} · {selectedMessage.createdAt && format(new Date(selectedMessage.createdAt), 'PPP p')}</p>
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto">
                   <button 
                     onClick={handleReply}
-                    className="px-4 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 rounded-none transition-all flex items-center gap-2 font-bold text-xs"
+                    className="flex-1 sm:flex-none px-4 py-2.5 bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 rounded-none transition-all flex items-center justify-center gap-2 font-bold text-xs"
                   >
                     <Reply size={14} /> REPLY
                   </button>
@@ -965,13 +989,25 @@ Warm regards,
                   )}
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-10 custom-scrollbar min-h-0 min-w-0 max-w-full">
+                <div className="w-full min-w-0 max-w-full overflow-hidden">
                 <iframe
                   srcDoc={`
                     <!DOCTYPE html>
                     <html>
                       <head>
+                        <meta charset="utf-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <style>
+                          *, *::before, *::after {
+                            box-sizing: border-box;
+                          }
+                          html {
+                            width: 100%;
+                            max-width: 100%;
+                            overflow-x: hidden;
+                            -webkit-text-size-adjust: 100%;
+                          }
                           ::-webkit-scrollbar {
                             width: 8px;
                             height: 8px;
@@ -989,20 +1025,44 @@ Warm regards,
                           body {
                             margin: 0;
                             padding: 0;
+                            width: 100%;
+                            max-width: 100%;
+                            overflow-x: hidden;
                             background-color: #020617;
                             color: #cbd5e1;
                             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                             line-height: 1.6;
                             font-size: 14px;
+                            word-wrap: break-word;
+                            overflow-wrap: anywhere;
                           }
-                          /* Ensure images do not overflow and behave responsively */
                           img {
+                            max-width: 100% !important;
+                            height: auto !important;
+                          }
+                          table {
+                            max-width: 100% !important;
+                            width: 100% !important;
+                            table-layout: fixed !important;
+                            border-collapse: collapse;
+                          }
+                          td, th {
+                            word-wrap: break-word;
+                            overflow-wrap: anywhere;
+                          }
+                          pre {
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            overflow-wrap: anywhere;
                             max-width: 100%;
-                            height: auto;
+                          }
+                          a {
+                            word-break: break-word;
                           }
                           /* Scope template elements inside the iframe */
                           .container {
                             max-width: 100%;
+                            width: 100%;
                             margin: 0 auto;
                             background: #0f172a;
                             border-radius: 16px;
@@ -1011,7 +1071,7 @@ Warm regards,
                           }
                           .header {
                             background: radial-gradient(circle at top right, #1e40af 0%, #020617 80%);
-                            padding: 20px;
+                            padding: 16px;
                             text-align: center;
                             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                           }
@@ -1019,12 +1079,12 @@ Warm regards,
                             max-width: 120px;
                           }
                           .content {
-                            padding: 25px;
+                            padding: 16px;
                             color: #f1f5f9;
                           }
                           .footer {
                             background: #020617;
-                            padding: 30px 20px;
+                            padding: 24px 16px;
                             text-align: center;
                             color: #475569;
                             border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -1033,6 +1093,7 @@ Warm regards,
                             height: 24px;
                             margin: 0 10px;
                             opacity: 0.4;
+                            max-width: 100%;
                           }
                           blockquote {
                             border-left: 2px solid #3b82f6;
@@ -1055,9 +1116,10 @@ Warm regards,
                       </body>
                     </html>
                   `}
-                  className="w-full h-[420px] sm:h-[520px] lg:h-[550px] border border-white/5 rounded-none bg-[#020617] mb-6 shadow-inner"
+                  className="w-full max-w-full h-[55dvh] sm:h-[420px] lg:h-[550px] border border-white/5 rounded-none bg-[#020617] shadow-inner block"
                   title="Email Transmission Body"
                 />
+                </div>
 
                 {/* Attachments rendering */}
                 {selectedMessage.metadata?.attachments && Array.isArray(selectedMessage.metadata.attachments) && selectedMessage.metadata.attachments.length > 0 && (
@@ -1109,7 +1171,7 @@ Warm regards,
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center opacity-20">
+            <div className="flex-1 hidden lg:flex flex-col items-center justify-center opacity-20 p-6 text-center">
               <div className="w-24 h-24 rounded-none border-4 border-dashed border-white/20 flex items-center justify-center mb-6">
                 <Mail size={40} />
               </div>
@@ -1123,21 +1185,21 @@ Warm regards,
 
       {/* Compose Modal */}
       {isComposeOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 backdrop-blur-xl bg-black/60">
-          <GlassCard className="w-full max-w-2xl rounded-none border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02] shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/20 rounded-none text-blue-400">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 backdrop-blur-xl bg-black/60">
+          <GlassCard className="w-full max-w-2xl rounded-none sm:rounded-none border-white/10 shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 flex flex-col max-h-[100dvh] sm:max-h-[90vh]">
+            <div className="p-4 sm:p-8 border-b border-white/5 flex justify-between items-center gap-3 bg-white/[0.02] shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="p-2 bg-blue-500/20 rounded-none text-blue-400 shrink-0">
                   <Plus size={18} />
                 </div>
-                <h2 className="text-xl font-black text-white uppercase tracking-tight">New Transmission</h2>
+                <h2 className="text-base sm:text-xl font-black text-white uppercase tracking-tight truncate">New Transmission</h2>
               </div>
-              <button onClick={() => { setIsComposeOpen(false); setCustomAttachments([]); setUploadingFiles([]); setSendError(''); }} className="text-slate-500 hover:text-white transition-all font-bold text-sm uppercase tracking-widest">
+              <button onClick={() => { setIsComposeOpen(false); setCustomAttachments([]); setUploadingFiles([]); setSendError(''); }} className="text-slate-500 hover:text-white transition-all font-bold text-xs sm:text-sm uppercase tracking-widest shrink-0">
                 Cancel
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-8 min-h-0">
               {/* Switch between Editor and Preview */}
               <div className="flex justify-between items-center bg-white/[0.02] border border-white/5 p-2 rounded-none mb-6">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Mode</span>
@@ -1163,7 +1225,7 @@ Warm regards,
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Sender (IR Committee Member)</label>
                 <select
-                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 sm:px-6 py-3 sm:py-4 text-white outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer text-sm"
                   value={composeSender}
                   onChange={(e) => setComposeSender(e.target.value)}
                 >
@@ -1182,7 +1244,7 @@ Warm regards,
                   type="email" 
                   required
                   placeholder="delegate@example.com"
-                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 sm:px-6 py-3 sm:py-4 text-white outline-none focus:border-blue-500/50 transition-all text-sm"
                   value={composeTo}
                   onChange={(e) => setComposeTo(e.target.value)}
                 />
@@ -1230,7 +1292,7 @@ Warm regards,
                   type="text" 
                   required
                   placeholder="RE: Cloud Ideathon Registration"
-                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-4 text-white outline-none focus:border-blue-500/50 transition-all font-bold"
+                  className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 sm:px-6 py-3 sm:py-4 text-white outline-none focus:border-blue-500/50 transition-all font-bold text-sm"
                   value={composeSubject}
                   onChange={(e) => setComposeSubject(e.target.value)}
                 />
@@ -1239,7 +1301,7 @@ Warm regards,
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Message Content</label>
                 {showPreview ? (
-                  <div className="rounded-none border border-white/5 overflow-hidden bg-[#020617]" style={{ height: '420px' }}>
+                  <div className="rounded-none border border-white/5 overflow-hidden bg-[#020617] h-[280px] sm:h-[420px]">
                     <iframe
                       srcDoc={composeSender ? getLightTemplate(formatContentForPreview(composeContent), composeSender, typeof window !== 'undefined' ? window.location.origin : undefined) : getBaseTemplate(formatContentForPreview(composeContent), typeof window !== 'undefined' ? window.location.origin : undefined)}
                       sandbox="allow-same-origin"
@@ -1252,7 +1314,7 @@ Warm regards,
                     required
                     rows={8}
                     placeholder="Type your secure message here..."
-                    className="w-full bg-white/[0.03] border border-white/5 rounded-none px-6 py-6 text-white outline-none focus:border-blue-500/50 transition-all resize-none leading-relaxed"
+                    className="w-full bg-white/[0.03] border border-white/5 rounded-none px-4 sm:px-6 py-4 sm:py-6 text-white outline-none focus:border-blue-500/50 transition-all resize-none leading-relaxed text-sm min-h-[200px] sm:min-h-0"
                     value={composeContent}
                     onChange={(e) => setComposeContent(e.target.value)}
                   />
@@ -1345,11 +1407,11 @@ Warm regards,
                     {sendError}
                   </p>
                 )}
-                <div className="flex justify-end">
+                <div className="flex justify-stretch sm:justify-end">
                 <button 
                   type="submit" 
                   disabled={sending || uploadingFiles.length > 0}
-                  className="bg-white text-black px-10 py-4 rounded-none font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="w-full sm:w-auto bg-white text-black px-6 sm:px-10 py-3.5 sm:py-4 rounded-none font-black text-sm uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {sending ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
                   Execute Transmission
@@ -1370,13 +1432,13 @@ function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode, labe
   return (
     <button 
       onClick={onClick}
-      className={`flex items-center justify-between w-full p-4 rounded-none transition-all group ${active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-500 hover:bg-white/[0.02] hover:text-slate-300 border border-transparent'}`}
+      className={`flex items-center justify-between shrink-0 lg:shrink lg:w-full px-3 py-2.5 sm:px-4 sm:py-3 lg:p-4 rounded-none transition-all group whitespace-nowrap ${active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-500 hover:bg-white/[0.02] hover:text-slate-300 border border-transparent'}`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {icon}
-        <span className="text-sm font-bold">{label}</span>
+        <span className="text-xs sm:text-sm font-bold">{label}</span>
       </div>
-      {active && <div className="w-1.5 h-1.5 rounded-none bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />}
+      {active && <div className="hidden lg:block w-1.5 h-1.5 rounded-none bg-blue-500 shadow-[0_0_10px_rgba(37,99,235,0.8)]" />}
     </button>
   );
 }
