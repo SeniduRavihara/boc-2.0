@@ -279,7 +279,6 @@ export function PortalGalleryEntrance() {
       <div
         ref={stickyRef}
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center"
-        style={{ perspective: '1200px' }}
       >
         {/* Background */}
         <div
@@ -330,8 +329,7 @@ export function PortalGalleryEntrance() {
           <div className="shrink-0 flex items-center justify-center">
             <div
               ref={cardRef}
-              className="dynamic-gallery-card shrink-0 rounded-2xl bg-[#020617] border border-white/5 shadow-2xl relative overflow-hidden flex flex-col justify-start origin-center pointer-events-auto will-change-transform"
-              style={{ transformStyle: 'preserve-3d' }}
+              className="dynamic-gallery-card shrink-0 rounded-lg bg-[#020617] border border-white/5 shadow-2xl relative overflow-hidden flex flex-col justify-start origin-center pointer-events-auto will-change-transform"
             >
               {/* Badge overlay */}
               {/* <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-20 rounded-2xl preview-badge pointer-events-none">
@@ -348,10 +346,9 @@ export function PortalGalleryEntrance() {
 
               {/* Gallery grid — 3D items restored from original */}
               <div
-                className="grid-container dynamic-gallery-card grid grid-cols-12 gap-1.5 w-full shrink-0 p-1.5 rounded-2xl relative z-10 origin-top"
+                className="grid-container dynamic-gallery-card grid grid-cols-12 gap-1.5 w-full shrink-0 p-1.5 rounded-lg relative z-10 origin-top"
                 style={{
                   flexShrink: 0,
-                  transformStyle: 'preserve-3d',
                 }}
               >
                 {PORTAL_ITEMS.map((item) => (
@@ -360,9 +357,8 @@ export function PortalGalleryEntrance() {
                     data-depth={item.depth}
                     data-rx={item.rx}
                     data-ry={item.ry}
-                    className={`grid-item relative overflow-hidden bg-[#060f21] border border-white/5 cursor-default group/grid rounded-lg ${item.span}`}
+                    className={`grid-item relative overflow-hidden bg-[#060f21] border border-white/5 cursor-default group/grid rounded-sm ${item.span}`}
                     style={{
-                      transformStyle: 'preserve-3d',
                       transform: `translateZ(${item.depth}px) rotateX(${item.rx}deg) rotateY(${item.ry}deg)`,
                     }}
                   >
