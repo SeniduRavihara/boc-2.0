@@ -34,49 +34,49 @@ const PORTAL_ITEMS = [
     id: 'boc-neural',
     src: '/gallery/535402715_122240866520212355_8124034634747307157_n 1.webp',
     span: 'col-span-12 md:col-span-6 row-span-1',
-    depth: -40, rx: 8, ry: -6,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-nebula',
     src: '/gallery/535554370_122240866814212355_5298821791634180236_n 1.webp',
     span: 'col-span-12 md:col-span-6 row-span-1',
-    depth: -70, rx: -10, ry: 8,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-shard',
     src: '/gallery/536284330_122240866082212355_6148099243555502993_n 1.webp',
     span: 'col-span-12 md:col-span-4 row-span-1',
-    depth: -20, rx: 6, ry: -10,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-monolith',
     src: '/gallery/536502129_122240864120212355_2064198593439261121_n 1.webp',
     span: 'col-span-12 md:col-span-8 row-span-1',
-    depth: -50, rx: -6, ry: 12,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-pulse',
     src: '/gallery/537424474_122240865374212355_3166245579080254582_n 3.webp',
     span: 'col-span-12 md:col-span-6 row-span-1',
-    depth: -90, rx: 12, ry: -8,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-spectral',
     src: '/gallery/537483229_122240864276212355_3196250950373039991_n 2.webp',
     span: 'col-span-12 md:col-span-6 row-span-1',
-    depth: -30, rx: -8, ry: 6,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-vortex',
     src: '/gallery/538341720_122240863028212355_4189567101984455264_n 1.webp',
     span: 'col-span-12 md:col-span-4 row-span-1',
-    depth: -60, rx: 10, ry: -10,
+    depth: 0, rx: 0, ry: 0,
   },
   {
     id: 'boc-prism',
     src: '/gallery/fffff 2.webp',
     span: 'col-span-12 md:col-span-8 row-span-1',
-    depth: -40, rx: -12, ry: 12,
+    depth: 0, rx: 0, ry: 0,
   },
 ];
 
@@ -103,19 +103,14 @@ export function PortalGalleryEntrance() {
 
     if (isMobile) {
       gridItems.forEach((item, index) => {
-        // Dynamic alternating 3D accordion/float effect on mobile
-        const depth = -40 - (index % 3) * 25; // -40, -65, -90...
-        const rx = index % 2 === 0 ? 8 : -8;
-        const ry = index % 2 === 0 ? -12 : 12;
-
-        item.setAttribute('data-depth', depth.toString());
-        item.setAttribute('data-rx', rx.toString());
-        item.setAttribute('data-ry', ry.toString());
+        item.setAttribute('data-depth', '0');
+        item.setAttribute('data-rx', '0');
+        item.setAttribute('data-ry', '0');
 
         gsap.set(item, {
-          z: depth,
-          rotateX: rx,
-          rotateY: ry,
+          z: 0,
+          rotateX: 0,
+          rotateY: 0,
         });
       });
     }
