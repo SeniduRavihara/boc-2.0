@@ -307,10 +307,12 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
-    if (shatterProgress > 0 || preCapture) {
-      if (!builtRef.current) {
-        captureAndSwap();
-      } else if (shatterProgress > 0) {
+    if ((shatterProgress > 0 || preCapture) && !builtRef.current) {
+      captureAndSwap();
+    }
+
+    if (shatterProgress > 0) {
+      if (builtRef.current) {
         overlay.style.display = 'block';
         target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
