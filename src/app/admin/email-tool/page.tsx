@@ -1069,7 +1069,11 @@ Warm regards,
                       {selectedMessage.metadata.attachments.map((att: any, idx: number) => (
                         <a 
                           key={idx}
-                          href={att.url} 
+                          href={
+                            selectedMessage.direction === 'incoming'
+                              ? `/api/emails/${selectedMessage.resend_id}/attachments/${att.id}`
+                              : att.url
+                          }
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="p-4 rounded-none bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.03] transition-all flex items-center justify-between group"
