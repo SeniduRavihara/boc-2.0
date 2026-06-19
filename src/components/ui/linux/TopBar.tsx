@@ -26,20 +26,12 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   return (
     <div className="absolute top-0 left-0 right-0 h-9 md:h-7 bg-black/50 hover:bg-black/80 transition-colors backdrop-blur-xl flex items-center justify-between px-2 md:px-4 z-[110] text-white">
-      {/* Left: Classic Linux Menus */}
-      <div className="flex items-center gap-1 md:gap-3 text-[11px] md:text-[12px] font-semibold">
-        <div 
-          className={`cursor-pointer px-2 py-0.5 rounded transition-colors ${showAppDrawer ? 'bg-white/15 text-blue-400' : 'hover:bg-white/10 text-white/90'}`}
-          onClick={() => setShowAppDrawer(!showAppDrawer)}
-        >
-          Applications
-        </div>
-        <div className="cursor-pointer px-2 py-0.5 rounded hover:bg-white/10 text-white/90 transition-colors hidden sm:block">
-          Places
-        </div>
-        <div className="cursor-pointer px-2 py-0.5 rounded hover:bg-white/10 text-white/90 transition-colors hidden sm:block">
-          System
-        </div>
+      {/* Left: Activities */}
+      <div 
+        className={`flex items-center gap-2 text-[12px] md:text-[13px] font-medium cursor-pointer ${showAppDrawer ? 'bg-white/20' : 'hover:bg-white/10'} px-2 md:px-3 py-1 rounded-full transition-colors`}
+        onClick={() => setShowAppDrawer(!showAppDrawer)}
+      >
+        <span className="font-semibold">Activities</span>
       </div>
 
       {/* Centre: clock */}

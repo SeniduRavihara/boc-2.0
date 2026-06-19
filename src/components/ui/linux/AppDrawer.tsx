@@ -14,10 +14,19 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ show, onClose, onOpenApp }
   if (!show) return null;
 
   const appCategories = [
-    { id: 'viewer', name: 'About BOC 2.0', icon: "/linux-icons/apps/48/internet-web-browser.svg", isSvg: true },
-    { id: 'files', name: 'Files', icon: "/linux-icons/apps/48/system-file-manager.svg", isSvg: true },
-    { id: 'terminal', name: 'Terminal', icon: "/linux-icons/apps/48/utilities-terminal.svg", isSvg: true },
-    { id: 'trash', name: 'Trash', icon: 'trash', isSvg: false },
+    { id: 'files', name: 'Office', icon: "/linux-icons/apps/48/libreoffice-main.svg" },
+    { id: 'terminal', name: 'Programming', icon: "/linux-icons/apps/48/utilities-terminal.svg" },
+    { id: 'settings', name: 'Tools', icon: "/linux-icons/apps/48/system-settings.svg" },
+    { id: 'monitor', name: 'Media', icon: "/linux-icons/apps/48/multimedia.svg" },
+    { id: 'settings', name: 'System', icon: "/linux-icons/apps/48/applications-system.svg" },
+    { id: 'files', name: 'Utilities', icon: "/linux-icons/apps/48/utilities-file-archiver.svg" },
+    { id: 'files', name: 'Graphics', icon: "/linux-icons/apps/48/gimp.svg" },
+    { id: 'settings', name: 'Settings', icon: "/linux-icons/apps/48/system-settings.svg" },
+    { id: 'monitor', name: 'Clocks', icon: "/linux-icons/apps/48/clocks.svg" },
+    { id: 'calculator', name: 'Calculator', icon: "/linux-icons/apps/48/calculator.svg" },
+    { id: 'editor', name: 'Text Editor', icon: "/linux-icons/apps/48/text-editor.svg" },
+    { id: 'terminal', name: 'Terminal', icon: "/linux-icons/apps/48/utilities-terminal.svg" },
+    { id: 'viewer', name: 'About BOC 2.0', icon: "/linux-icons/apps/48/internet-web-browser.svg" },
   ];
 
   return (
@@ -40,16 +49,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({ show, onClose, onOpenApp }
         {appCategories.map((app, i) => (
           <div key={i} className="flex flex-col items-center gap-3 cursor-pointer group" onClick={() => onOpenApp(app.id as AppId)}>
             <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-white/5 hover:bg-white/15 flex items-center justify-center transition-all border border-white/5 shadow-xl group-hover:scale-105">
-              {app.isSvg ? (
-                <img src={app.icon} alt={app.name} className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-              ) : (
-                <svg viewBox="0 0 24 24" className="w-10 h-10 md:w-12 md:h-12 text-rose-500/95" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  <line x1="10" y1="11" x2="10" y2="17" />
-                  <line x1="14" y1="11" x2="14" y2="17" />
-                </svg>
-              )}
+              <img src={app.icon} alt={app.name} className="w-10 h-10 md:w-12 md:h-12 object-contain" />
             </div>
             <span className="text-white/80 text-xs md:text-sm font-medium drop-shadow-md text-center">{app.name}</span>
           </div>

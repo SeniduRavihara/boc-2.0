@@ -79,7 +79,7 @@ interface Frag {
 }
 
 function makeFragments(
-  src: HTMLCanvasElement,
+  src: HTMLImageElement,
   W: number,
   H: number,
   centerX: number,
@@ -183,6 +183,32 @@ function makeFragments(
   return frags;
 }
 
+const preventDefault = (e: Event) => {
+  e.preventDefault();
+};
+
+const lockScroll = () => {
+  if (typeof window !== 'undefined') {
+    const lenis = (window as any).appLenis || (window as any).lenis;
+    if (lenis && typeof lenis.stop === 'function') {
+      lenis.stop();
+    }
+    document.addEventListener('wheel', preventDefault, { passive: false });
+    document.addEventListener('touchmove', preventDefault, { passive: false });
+  }
+};
+
+const unlockScroll = () => {
+  if (typeof window !== 'undefined') {
+    const lenis = (window as any).appLenis || (window as any).lenis;
+    if (lenis && typeof lenis.start === 'function') {
+      lenis.start();
+    }
+    document.removeEventListener('wheel', preventDefault);
+    document.removeEventListener('touchmove', preventDefault);
+  }
+};
+
 export interface ShatterLinuxProps {
   shatterProgress: number; // 0 = intact, 1 = fully shattered
   preCapture?: boolean;
@@ -252,64 +278,90 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       if (W < viewportW * 0.9 || H < viewportH * 0.85) {
         return;
       }
+      lockScroll();
     }
 
     isCapturingRef.current = true;
 
-    try {
-      const { domToCanvas } = await import('modern-screenshot');
+    // Failsafe timeout to unlock scroll after 2.5 seconds no matter what
+    let failsafe: NodeJS.Timeout | null = null;
+    if (!isOffscreen) {
+      failsafe = setTimeout(() => {
+        if (isCapturingRef.current) {
+          console.warn('[ShatterLinux] Capture timeout, unlocking scroll');
+          isCapturingRef.current = false;
+          unlockScroll();
+        }
+      }, 2500);
+    }
 
-      // Capture screenshot directly as a Canvas element
-      const srcCanvas = await domToCanvas(target, {
+    try {
+      const { domToPng } = await import('modern-screenshot');
+
+      // Capture screenshot using modern-screenshot
+      const dataUrl = await domToPng(target, {
         width: W,
         height: H,
-        backgroundColor: '#050812',
+        backgroundColor: '#1a1a2e',
         style: {
           transform: 'none',
-          left: '0',
-          top: '0',
-          position: 'relative',
         }
       });
 
-      // Create geometry shards
-      const frags = makeFragments(srcCanvas, W, H, W * 0.5, H * 0.5);
-      fragsRef.current = frags;
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        if (failsafe) clearTimeout(failsafe);
+        const frags = makeFragments(img, W, H, W * 0.5, H * 0.5);
+        fragsRef.current = frags;
 
-      overlay.innerHTML = '';
-      overlay.style.cssText = `
-        position: absolute;
-        inset: 0;
-        perspective: 1200px;
-        transform-style: preserve-3d;
-        overflow: visible;
-        pointer-events: none;
-        z-index: 50;
-      `;
+        overlay.innerHTML = '';
+        overlay.style.cssText = `
+          position: absolute;
+          inset: 0;
+          perspective: 1200px;
+          transform-style: preserve-3d;
+          overflow: visible;
+          pointer-events: none;
+          z-index: 50;
+        `;
 
-      frags.forEach((f) => {
-        overlay.appendChild(f.el);
-      });
+        frags.forEach((f) => {
+          overlay.appendChild(f.el);
+        });
 
-      builtRef.current = true;
-      isCapturingRef.current = false;
+        builtRef.current = true;
+        isCapturingRef.current = false;
 
-      // Show/hide based on current progress
-      const onscreenTarget = linuxRef.current;
-      if (onscreenTarget) {
-        if (progressRef.current > 0) {
-          onscreenTarget.style.visibility = 'hidden';
-          overlay.style.display = 'block';
-          applyPhysics(progressRef.current);
-        } else {
-          onscreenTarget.style.visibility = 'visible';
-          overlay.style.display = 'none';
-          applyPhysics(0);
+        // Show/hide based on current progress
+        const onscreenTarget = linuxRef.current;
+        if (onscreenTarget) {
+          if (progressRef.current > 0) {
+            onscreenTarget.style.visibility = 'hidden';
+            overlay.style.display = 'block';
+            applyPhysics(progressRef.current);
+          } else {
+            onscreenTarget.style.visibility = 'visible';
+            overlay.style.display = 'none';
+            applyPhysics(0);
+          }
         }
-      }
+        
+        if (!isOffscreen) {
+          unlockScroll();
+        }
+      };
+
+      img.onerror = () => {
+        if (failsafe) clearTimeout(failsafe);
+        isCapturingRef.current = false;
+        if (!isOffscreen) unlockScroll();
+      };
     } catch (error) {
+      if (failsafe) clearTimeout(failsafe);
       console.error('[ShatterLinux] Capture failed:', error);
       isCapturingRef.current = false;
+      if (!isOffscreen) unlockScroll();
     }
   }, [applyPhysics]);
 
@@ -327,25 +379,28 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
-    if (shatterProgress > 0) {
+    if (shatterProgress > 0 || preCapture) {
       if (!builtRef.current) {
         captureAndSwap(false);
-      } else {
+      } else if (shatterProgress > 0) {
         overlay.style.display = 'block';
         target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => applyPhysics(shatterProgress));
       }
     } else {
-      cancelAnimationFrame(rafRef.current);
-      overlay.style.display = 'none';
-      target.style.visibility = 'visible';
-      applyPhysics(0);
-
-      if (preCapture && !builtRef.current) {
-        captureAndSwap(false);
+      if (builtRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        overlay.style.display = 'none';
+        target.style.visibility = 'visible';
+        applyPhysics(0);
       }
     }
+
+    return () => {
+      // Unlock on cleanup / unmount
+      unlockScroll();
+    };
   }, [shatterProgress, preCapture, captureAndSwap, applyPhysics]);
 
   // Listen to typing or clicking inside the Linux environment to re-capture when they stop.
@@ -391,21 +446,16 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
       {/* 3. Offscreen clone for pre-capture */}
       {mounted && typeof document !== 'undefined' && !builtRef.current && createPortal(
         <div 
+          ref={offscreenRef} 
+          className="fixed w-screen h-screen"
           style={{
-            position: 'fixed',
             left: '-9999px',
             top: '-9999px',
-            width: '100vw',
-            height: '100vh',
-            overflow: 'hidden',
             zIndex: -1000,
             pointerEvents: 'none',
           }}
         >
-          <div 
-            ref={offscreenRef} 
-            className="w-full h-full bg-[#050812]"
-          >
+          <div className="w-full h-full bg-[#1a1a2e]">
             <LinuxEnvironment />
           </div>
         </div>,

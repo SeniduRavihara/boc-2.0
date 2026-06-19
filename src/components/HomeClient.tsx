@@ -8,13 +8,13 @@ import Link from "next/link";
 import ScreenLoader from "@/components/ui/screen-loader";
 
 import Image from "next/image";
-import { Users, BookOpen, Download } from "lucide-react";
+import { Users } from "lucide-react";
 import MainFooter from "@/components/layout/MainFooter";
 import { AboutNew } from "./sections/AboutNew";
 import { ContactSection } from "./sections/ContactSection";
 import { CTASection } from "./sections/CTASection";
 import { FallingScene } from "./sections/FallingScene";
-import { PortalGalleryEntrance } from "./sections/PortalGalleryEntrance";
+import { GalleryNew } from "./sections/GalleryNew";
 import { Partners } from "./sections/Partners";
 import { PrizePool } from "./sections/PrizePool";
 import { Timeline } from "./sections/Timeline";
@@ -109,33 +109,23 @@ export function HomeClient() {
 
     // Load the first frame immediately for fast FCP/LCP
     const firstImg = new window.Image();
-    const handleFirstFrameLoad = () => {
-      if (firstFrameLoaded) return;
+    firstImg.src = `/Earth-splits/ezgif-frame-001.webp`;
+    firstImg.onload = () => {
       loadedImages[0] = firstImg;
       firstFrameLoaded = true;
       renderFrame(0);
       checkHideLoader();
     };
 
-    firstImg.onload = handleFirstFrameLoad;
-    firstImg.src = `/Earth-splits/ezgif-frame-001.webp`;
-    if (firstImg.complete) {
-      handleFirstFrameLoad();
-    }
-
     // Helper to load the rest of the frames
     const loadRemainingFrames = () => {
       for (let i = 2; i <= totalFrames; i++) {
         const img = new window.Image();
         const frameNum = String(i).padStart(3, "0");
-        const idx = i - 1;
-        img.onload = () => {
-          loadedImages[idx] = img;
-        };
         img.src = `/Earth-splits/ezgif-frame-${frameNum}.webp`;
-        if (img.complete) {
-          loadedImages[idx] = img;
-        }
+        img.onload = () => {
+          loadedImages[i - 1] = img;
+        };
       }
     };
 
@@ -271,28 +261,7 @@ export function HomeClient() {
           scrub: touch ? 0.8 : 1,
           invalidateOnRefresh: true,
           refreshPriority: 1,
-          snap: {
-            snapTo: (value) => {
-              const t = value * 10;
-              // Shatter region starts at t = 2.6 and ends at t = 6.6
-              // If the user stops in the early shatter stage (t between 2.6 and 3.0, i.e., <10% shatter progress),
-              // snap back to t = 2.6 (0.26 progress) to restore the intact Linux environment.
-              if (t > 2.6 && t < 3.0) {
-                return 0.26;
-              }
-              return value;
-            },
-            duration: { min: 0.1, max: 0.25 },
-            delay: 0.05,
-            ease: "power2.out",
-          },
         },
-      });
-
-      tl.eventCallback("onUpdate", () => {
-        if (tl.time() <= 2.6) {
-          setShatterProgress(0);
-        }
       });
 
       // ── PHASE 1 (0.0 -> 2.0) ──
@@ -654,9 +623,9 @@ export function HomeClient() {
             <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4 mb-8">
               Sri Lanka&apos;s premier inter-university cloud championship.
             </p>
-            <Link href="/register/session/4">
+            <Link href="/register/session/2">
               <button className="px-8 py-3.5 rounded-full bg-white text-black font-bold tracking-widest uppercase text-xs sm:text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-                Register for Session 4
+                Register for Session 2
               </button>
             </Link>
           </div>
@@ -682,7 +651,7 @@ export function HomeClient() {
           {/* F. Mission Text / CTA */}
           <div
             ref={missionTextRef}
-            className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none opacity-0"
+            className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex justify-center pointer-events-none opacity-0"
           >
             <div className="max-w-[1000px] mx-auto px-6 text-center">
               <h2 className="font-reglo text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] drop-shadow-2xl text-white">
@@ -704,6 +673,7 @@ export function HomeClient() {
                     Open Soon
                   </span>
                 </button>
+
                 {/* <a 
                   href="/Delegate_Booklet.pdf" 
                   target="_blank" 
@@ -743,7 +713,7 @@ export function HomeClient() {
       {/* <AboutNew /> */}
       {/* <PortalSection2 /> */}
       {/* <PortalSection3 /> */}
-      <PortalGalleryEntrance />
+      <GalleryNew />
       <Partners />
       <ContactSection />
       <CTASection />

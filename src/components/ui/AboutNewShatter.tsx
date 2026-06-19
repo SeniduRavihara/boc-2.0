@@ -78,7 +78,7 @@ interface Frag {
 }
 
 function makeFragments(
-  src: HTMLCanvasElement,
+  src: HTMLImageElement,
   W: number,
   H: number,
   centerX: number,
@@ -239,12 +239,12 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     }
 
     try {
-      const { domToCanvas } = await import('modern-screenshot');
+      const { domToPng } = await import('modern-screenshot');
       const W = target.offsetWidth;
       const H = target.offsetHeight;
 
-      // Capture screenshot directly as a Canvas element
-      const srcCanvas = await domToCanvas(target, {
+      // Capture screenshot using modern-screenshot
+      const dataUrl = await domToPng(target, {
         width: W,
         height: H,
         backgroundColor: '#050812',
@@ -253,66 +253,75 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
         }
       });
 
-      // Create geometry shards
-      const frags = makeFragments(srcCanvas, W, H, W * 0.5, H * 0.5);
-      fragsRef.current = frags;
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const frags = makeFragments(img, W, H, W * 0.5, H * 0.5);
+        fragsRef.current = frags;
 
-      overlay.innerHTML = '';
-      overlay.style.cssText = `
-        position: absolute;
-        inset: 0;
-        perspective: 1200px;
-        transform-style: preserve-3d;
-        overflow: visible;
-        pointer-events: none;
-        z-index: 50;
-      `;
+        overlay.innerHTML = '';
+        overlay.style.cssText = `
+          position: absolute;
+          inset: 0;
+          perspective: 1200px;
+          transform-style: preserve-3d;
+          overflow: visible;
+          pointer-events: none;
+          z-index: 50;
+        `;
 
-      frags.forEach((f) => {
-        overlay.appendChild(f.el);
-      });
+        frags.forEach((f) => {
+          overlay.appendChild(f.el);
+        });
 
-      builtRef.current = true;
-      isCapturingRef.current = false;
+        builtRef.current = true;
+        isCapturingRef.current = false;
 
-      // Show/hide based on current progress
-      if (progressRef.current > 0) {
-        target.style.visibility = 'hidden';
-        overlay.style.display = 'block';
-        applyPhysics(progressRef.current);
-      } else {
-        target.style.visibility = 'visible';
-        overlay.style.display = 'none';
-        applyPhysics(0);
-      }
+        // Show/hide based on current progress
+        if (progressRef.current > 0) {
+          target.style.visibility = 'hidden';
+          overlay.style.display = 'block';
+          applyPhysics(progressRef.current);
+        } else {
+          target.style.visibility = 'visible';
+          overlay.style.display = 'none';
+          applyPhysics(0);
+        }
+      };
     } catch (error) {
       console.error('[AboutNewShatter] Capture failed:', error);
       isCapturingRef.current = false;
     }
   }, [applyPhysics]);
 
+  // Pre-capture immediately on mount (while loader is visible)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      captureAndSwap();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [captureAndSwap]);
+
   useEffect(() => {
     const target = contentRef.current;
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
-    if (shatterProgress > 0) {
+    if (shatterProgress > 0 || preCapture) {
       if (!builtRef.current) {
         captureAndSwap();
-      } else {
+      } else if (shatterProgress > 0) {
         overlay.style.display = 'block';
         target.style.visibility = 'hidden';
         cancelAnimationFrame(rafRef.current);
         rafRef.current = requestAnimationFrame(() => applyPhysics(shatterProgress));
       }
     } else {
-      cancelAnimationFrame(rafRef.current);
-      overlay.style.display = 'none';
-      target.style.visibility = 'visible';
-      applyPhysics(0);
-
-      if (preCapture && !builtRef.current) {
-        captureAndSwap();
+      if (builtRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        overlay.style.display = 'none';
+        target.style.visibility = 'visible';
+        applyPhysics(0);
       }
     }
   }, [shatterProgress, preCapture, captureAndSwap, applyPhysics]);
