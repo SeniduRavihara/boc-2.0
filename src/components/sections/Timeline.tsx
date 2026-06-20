@@ -16,7 +16,8 @@ const MILESTONES = [
 const SESSIONS = [
   { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130, link: "/sessions", isGhost: false },
   { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220, link: "/register/session/2", isGhost: false },
-  { id: 'S3', title: "Session 3:\nGCP Fundamentals", date: "2026.06.01", left: "60%", mobileTop: 400, link: "/register/session/3", isGhost: false },
+  { id: 'S3', title: "Session 3:\nWhat really happens when you open Instagram?", date: "2026.05.05", left: "60%", mobileTop: 400, link: "/register/session/3", isGhost: false },
+  { id: 'S4', title: "Session 4:\nDiscover how modern platform engineering is reshaping software delivery from code to cloud at scale", date: "2026.05.12", left: "80%", mobileTop: 490, link: "/register/session/4", isGhost: false },
 ];
 
 export function Timeline() {
@@ -38,6 +39,7 @@ export function Timeline() {
   const s1x = useMotionValue(0); const s1y = useMotionValue(0);
   const s2x = useMotionValue(0); const s2y = useMotionValue(0);
   const s3x = useMotionValue(0); const s3y = useMotionValue(0);
+  const s4x = useMotionValue(0); const s4y = useMotionValue(0);
 
   // Motion Values for responsive widths
   const widthMV = useMotionValue(1000);
@@ -80,14 +82,15 @@ export function Timeline() {
   );
 
   const dBranchTrackPath = useTransform(
-    [widthMV, m1x, m1y, s1x, s1y, s2x, s2y, s3x, s3y],
+    [widthMV, m1x, m1y, s1x, s1y, s2x, s2y, s3x, s3y, s4x, s4y],
     (latest: any[]) => {
-      const [w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3] = latest;
+      const [w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3, sx4, sy4] = latest;
       return `M ${0.10 * w + x1} ${280 + y1} ` +
         `Q ${0.10 * w + x1} ${120 + sy1} ${0.20 * w + sx1} ${120 + sy1} ` +
         `L ${0.40 * w + sx2} ${120 + sy2} ` +
         `L ${0.60 * w + sx3} ${120 + sy3} ` +
-        `L ${0.70 * w} 120`;
+        `L ${0.80 * w + sx4} ${120 + sy4} ` +
+        `L ${0.90 * w} 120`;
     }
   );
 
@@ -107,14 +110,15 @@ export function Timeline() {
   );
 
   const mobBranchTrackPath = useTransform(
-    [mobileWidthMV, m1x, m1y, s1x, s1y, s2x, s2y, s3x, s3y],
+    [mobileWidthMV, m1x, m1y, s1x, s1y, s2x, s2y, s3x, s3y, s4x, s4y],
     (latest: any[]) => {
-      const [w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3] = latest;
+      const [w, x1, y1, sx1, sy1, sx2, sy2, sx3, sy3, sx4, sy4] = latest;
       return `M ${0.45 * w + x1} ${40 + y1} ` +
         `Q ${0.45 * w + 42} ${40 + y1} ${0.45 * w + 42 + sx1} ${130 + sy1} ` +
         `L ${0.45 * w + 42 + sx2} ${220 + sy2} ` +
         `L ${0.45 * w + 42 + sx3} ${400 + sy3} ` +
-        `L ${0.45 * w + 42} 480`;
+        `L ${0.45 * w + 42 + sx4} ${490 + sy4} ` +
+        `L ${0.45 * w + 42} 570`;
     }
   );
 
@@ -131,6 +135,7 @@ export function Timeline() {
     S1: { x: s1x, y: s1y },
     S2: { x: s2x, y: s2y },
     S3: { x: s3x, y: s3y },
+    S4: { x: s4x, y: s4y },
   };
 
   return (
