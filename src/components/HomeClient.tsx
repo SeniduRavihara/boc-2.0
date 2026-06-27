@@ -645,11 +645,13 @@ export function HomeClient() {
             <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4 mb-8">
               Sri Lanka&apos;s premier inter-university cloud championship.
             </p>
-            <Link href="/register/session/2">
-              <button className="px-8 py-3.5 rounded-full bg-white text-black font-bold tracking-widest uppercase text-xs sm:text-sm hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-                Register for Session 2
-              </button>
-            </Link>
+            <button
+              disabled
+              aria-disabled="true"
+              className="px-8 py-3.5 rounded-full bg-white/10 text-white/50 border border-white/20 font-bold tracking-widest uppercase text-xs sm:text-sm cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
+            >
+              Ideathon Registration Coming Soon
+            </button>
           </div>
 
           {/* E. Shatter window (Phase 1 scales up to full screen, Phase 2 shatters) */}
@@ -690,9 +692,9 @@ export function HomeClient() {
                   className="w-full sm:w-auto px-8 py-4 bg-blue-700/45 text-white/65 border border-white/40 font-bold tracking-widest uppercase text-xs rounded-full transition-all shadow-[0_0_20px_rgba(30,144,255,0.2)] flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
                 >
                   <Users size={14} />
-                  Team Registration
+                  Ideathon Registration
                   <span className="ml-1 rounded-full border border-white/40 bg-white/10 px-2 py-0.5 text-[10px] tracking-[0.2em] text-white/80">
-                    Open Soon
+                    Coming Soon
                   </span>
                 </button>
 

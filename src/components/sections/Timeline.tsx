@@ -7,17 +7,17 @@ import { GradientShinyTitle } from '@/components/ui/GradientShinyTitle';
 
 const MILESTONES = [
   { id: 'M1', title: "Workshop\nSeries Start", date: "2026.04.26", left: "10%", mobileTop: 40 },
-  { id: 'M2', title: "Ideathon Registrations\nOpen", date: "2026.05.24", left: "30%", mobileTop: 310 },
-  { id: 'M3', title: "Problem Statement\nRelease", date: "2026.05.24", left: "50%", mobileTop: 520 },
-  { id: 'M4', title: "Competition\nRounds (R1 Ends)", date: "2026.07.20", left: "70%", mobileTop: 720 },
-  { id: 'M5', title: "Grand\nFinale", date: "2026.08.02", left: "90%", mobileTop: 920 },
+  { id: 'M2', title: "Ideathon Registrations\nOpen", date: "TBA", left: "30%", mobileTop: 310 },
+  { id: 'M3', title: "Problem Statement\nRelease", date: "TBA", left: "50%", mobileTop: 520 },
+  { id: 'M4', title: "Competition\nRounds (R1 Ends)", date: "TBA", left: "70%", mobileTop: 720 },
+  { id: 'M5', title: "Grand\nFinale", date: "TBA", left: "90%", mobileTop: 920 },
 ];
 
 const SESSIONS = [
   { id: 'S1', title: "Session 1:\nGetting Into the Cloud with AWS", date: "2026.04.26", left: "20%", mobileTop: 130, link: "/sessions", isGhost: false },
-  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "2026.05.24", left: "40%", mobileTop: 220, link: "/register/session/2", isGhost: false },
-  { id: 'S3', title: "Session 3:\nWhat really happens when you open Instagram?", date: "2026.05.05", left: "60%", mobileTop: 400, link: "/register/session/3", isGhost: false },
-  { id: 'S4', title: "Session 4:\nDiscover how modern platform engineering is reshaping software delivery from code to cloud at scale", date: "2026.05.12", left: "80%", mobileTop: 490, link: "/register/session/4", isGhost: false },
+  { id: 'S2', title: "Session 2:\nFrom IDE to Production with Google Cloud", date: "TBA", left: "40%", mobileTop: 220, link: "/register/session/2", isGhost: false },
+  { id: 'S3', title: "Session 3:\nWhat really happens when you open Instagram?", date: "TBA", left: "60%", mobileTop: 400, link: "/register/session/3", isGhost: false },
+  { id: 'S4', title: "Session 4:\nDiscover how modern platform engineering is reshaping software delivery from code to cloud at scale", date: "TBA", left: "80%", mobileTop: 490, link: "/register/session/4", isGhost: false },
 ];
 
 export function Timeline() {
