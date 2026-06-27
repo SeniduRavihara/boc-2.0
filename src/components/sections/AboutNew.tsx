@@ -48,7 +48,6 @@ function StatCard({
 
 /* ─── main section ──────────────────────────────────────────────────────────── */
 import { OrbitingCircles } from "@/components/ui/orbiting-circles";
-import Image from "next/image";
 
 export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = {}) {
   const headingRef = useRef(null);
@@ -162,7 +161,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
           >
             {/* Center Core */}
             <div className="relative z-10 flex items-center justify-center pointer-events-none drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-              <Image
+              <img
                 src="/email-and-header/boc.webp"
                 alt="BOC Logo"
                 width={isWindowMode ? 80 : 120}
@@ -179,7 +178,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
               radius={isWindowMode ? 65 : 100}
               iconSize={isWindowMode ? 32 : 50}
             >
-              <Image
+              <img
                 src="/service-icons/aws 1.webp"
                 alt="AWS"
                 width={20}
@@ -187,7 +186,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
-              <Image
+              <img
                 src="/service-icons/icons8-azure-96 3.webp"
                 alt="Azure"
                 width={20}
@@ -195,7 +194,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
-              <Image
+              <img
                 src="/service-icons/icons8-google-cloud-144 2.webp"
                 alt="GCP"
                 width={22}
@@ -213,7 +212,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
               reverse
               iconSize={isWindowMode ? 38 : 60}
             >
-              <Image
+              <img
                 src="/service-icons/icons8-docker-144 2.webp"
                 alt="Docker"
                 width={24}
@@ -221,7 +220,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
-              <Image
+              <img
                 src="/service-icons/kubanaties.webp"
                 alt="Kubernetes"
                 width={24}
@@ -229,7 +228,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
-              <Image
+              <img
                 src="/service-icons/icons8-terraform-144 2.webp"
                 alt="Terraform"
                 width={24}
@@ -237,7 +236,7 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
                 className="object-contain"
                 style={{ width: "auto", height: "auto" }}
               />
-              <Image
+              <img
                 src="/service-icons/github_logo.webp"
                 alt="GitHub"
                 width={24}

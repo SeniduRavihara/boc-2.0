@@ -234,25 +234,15 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     });
   }, []);
 
-  const captureAndSwap = useCallback(async (isOffscreen = false) => {
-    if (isCapturingRef.current || (builtRef.current && isOffscreen)) return;
+  const captureAndSwap = useCallback(async () => {
+    if (isCapturingRef.current || builtRef.current) return;
 
-    const target = isOffscreen ? offscreenRef.current : contentRef.current;
+    const target = offscreenRef.current;
     const overlay = overlayRef.current;
     if (!target || !overlay) return;
 
     const W = target.offsetWidth;
     const H = target.offsetHeight;
-
-    if (!isOffscreen) {
-      const viewportW = window.innerWidth;
-      const viewportH = window.innerHeight;
-
-      // Verify target has reached full screen size (at least 90% of viewport width and 85% of viewport height)
-      if (W < viewportW * 0.9 || H < viewportH * 0.85) {
-        return;
-      }
-    }
 
     isCapturingRef.current = true;
 
@@ -319,8 +309,8 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
   // Pre-capture off-screen clone immediately on mount
   useEffect(() => {
     const delayTimer = setTimeout(() => {
-      captureAndSwap(true);
-    }, 1000);
+      captureAndSwap();
+    }, 100);
 
     return () => clearTimeout(delayTimer);
   }, [captureAndSwap]);
@@ -331,7 +321,7 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     if (!target || !overlay) return;
 
     if ((shatterProgress > 0 || preCapture) && !builtRef.current) {
-      captureAndSwap(false);
+      captureAndSwap();
     }
 
     if (shatterProgress > 0) {
