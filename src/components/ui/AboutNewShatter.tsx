@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AboutNew } from '../sections/AboutNew';
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ function delaunay(pts: number[][]): number[] {
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Fragment model mirroring the premium Delaunay physics
-────────────────────────────────────────────────────────────────────────────── */
+   ────────────────────────────────────────────────────────────────────────────── */
 interface Frag {
   el: HTMLCanvasElement;
   rx: number;
@@ -190,12 +191,18 @@ export interface AboutNewShatterProps {
 export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgress, preCapture = false }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const offscreenRef = useRef<HTMLDivElement>(null);
 
+  const [mounted, setMounted] = useState(false);
   const fragsRef = useRef<Frag[]>([]);
   const isCapturingRef = useRef(false);
   const builtRef = useRef(false);
   const progressRef = useRef(0);
   const rafRef = useRef(0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Store progress in ref for async callback
   useEffect(() => {
@@ -227,21 +234,30 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     });
   }, []);
 
-  const captureAndSwap = useCallback(async () => {
-    if (isCapturingRef.current || builtRef.current) return;
-    isCapturingRef.current = true;
+  const captureAndSwap = useCallback(async (isOffscreen = false) => {
+    if (isCapturingRef.current || (builtRef.current && isOffscreen)) return;
 
-    const target = contentRef.current;
+    const target = isOffscreen ? offscreenRef.current : contentRef.current;
     const overlay = overlayRef.current;
-    if (!target || !overlay) {
-      isCapturingRef.current = false;
-      return;
+    if (!target || !overlay) return;
+
+    const W = target.offsetWidth;
+    const H = target.offsetHeight;
+
+    if (!isOffscreen) {
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+
+      // Verify target has reached full screen size (at least 90% of viewport width and 85% of viewport height)
+      if (W < viewportW * 0.9 || H < viewportH * 0.85) {
+        return;
+      }
     }
+
+    isCapturingRef.current = true;
 
     try {
       const { domToPng } = await import('modern-screenshot');
-      const W = target.offsetWidth;
-      const H = target.offsetHeight;
 
       // Capture screenshot using modern-screenshot
       const dataUrl = await domToPng(target, {
@@ -278,14 +294,17 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
         isCapturingRef.current = false;
 
         // Show/hide based on current progress
-        if (progressRef.current > 0) {
-          target.style.visibility = 'hidden';
-          overlay.style.display = 'block';
-          applyPhysics(progressRef.current);
-        } else {
-          target.style.visibility = 'visible';
-          overlay.style.display = 'none';
-          applyPhysics(0);
+        const onscreenTarget = contentRef.current;
+        if (onscreenTarget) {
+          if (progressRef.current > 0) {
+            onscreenTarget.style.visibility = 'hidden';
+            overlay.style.display = 'block';
+            applyPhysics(progressRef.current);
+          } else {
+            onscreenTarget.style.visibility = 'visible';
+            overlay.style.display = 'none';
+            applyPhysics(0);
+          }
         }
       };
     } catch (error) {
@@ -294,12 +313,13 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     }
   }, [applyPhysics]);
 
-  // Pre-capture immediately on mount (while loader is visible)
+  // Pre-capture off-screen clone immediately on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      captureAndSwap();
-    }, 500);
-    return () => clearTimeout(timer);
+    const delayTimer = setTimeout(() => {
+      captureAndSwap(true);
+    }, 1000);
+
+    return () => clearTimeout(delayTimer);
   }, [captureAndSwap]);
 
   useEffect(() => {
@@ -308,7 +328,7 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
     if (!target || !overlay) return;
 
     if ((shatterProgress > 0 || preCapture) && !builtRef.current) {
-      captureAndSwap();
+      captureAndSwap(false);
     }
 
     if (shatterProgress > 0) {
@@ -337,6 +357,25 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
 
       {/* 2. Fragment Container Overlay */}
       <div ref={overlayRef} />
+
+      {/* 3. Offscreen clone for pre-capture */}
+      {mounted && typeof document !== 'undefined' && !builtRef.current && createPortal(
+        <div 
+          ref={offscreenRef} 
+          className="fixed w-screen h-screen"
+          style={{
+            left: '-9999px',
+            top: '-9999px',
+            zIndex: -1000,
+            pointerEvents: 'none',
+          }}
+        >
+          <div className="w-full h-full bg-[#050812] overflow-y-auto overflow-x-hidden no-scrollbar">
+            <AboutNew isWindowMode={true} />
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
