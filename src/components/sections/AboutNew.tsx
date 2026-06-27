@@ -53,13 +53,14 @@ import Image from "next/image";
 export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = {}) {
   const headingRef = useRef(null);
   const headingView = useInView(headingRef, { once: true });
+  const active = isWindowMode || headingView;
 
   return (
     <section
       id="about-us"
       className={`w-full bg-[#050812] relative overflow-x-hidden flex items-center ${
         isWindowMode 
-          ? "py-8 md:py-12 min-h-0" 
+          ? "py-8 md:py-12 min-h-full" 
           : "py-24 md:py-32 lg:min-h-screen lg:py-0 lg:items-center"
       }`}
     >
@@ -95,8 +96,8 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
           {/* ── Left Column: Text ── */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left relative z-20">
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={headingView ? { opacity: 1, y: 0 } : {}}
+              initial={isWindowMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              animate={active ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5 }}
               className="font-mono text-xs uppercase tracking-[0.35em] text-blue-500 mb-5"
             >
@@ -104,8 +105,8 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
             </motion.p>
  
             <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              animate={headingView ? { opacity: 1, y: 0 } : {}}
+              initial={isWindowMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              animate={active ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.1 }}
               className={`font-reglo font-black tracking-tighter leading-[1.1] mb-4 min-w-0 ${
                 isWindowMode ? "text-3xl md:text-5xl" : "text-5xl sm:text-6xl md:text-7xl"
@@ -115,13 +116,13 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
                 text="About "
                 className="block"
                 speed={2.2}
-                delay={0.6}
+                delay={isWindowMode ? 0 : 0.6}
               />
               <GradientShinyTitle
                 text="Beauty of Cloud"
                 className="block"
                 speed={2.2}
-                delay={0.9}
+                delay={isWindowMode ? 0 : 0.9}
               />
             </motion.h2>
 
@@ -129,15 +130,15 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
               initial={{ width: 0 }}
               whileInView={{ width: "80px" }}
               viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              transition={{ delay: isWindowMode ? 0 : 0.3, duration: 0.8 }}
               className={`h-1 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.6)] ${
                 isWindowMode ? "mb-4" : "mb-8"
               }`}
             />
  
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={headingView ? { opacity: 1, y: 0 } : {}}
+              initial={isWindowMode ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              animate={active ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.25 }}
               className={`font-uncut text-slate-400 leading-relaxed min-w-0 max-w-2xl lg:max-w-none ${
                 isWindowMode ? "text-sm md:text-base" : "text-lg sm:text-xl"
@@ -152,9 +153,9 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
 
           {/* ── Right Column: Orbiting Visuals ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={headingView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 1, delay: 0.4, type: "spring" }}
+            initial={isWindowMode ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+            animate={active ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 1, delay: isWindowMode ? 0 : 0.4, type: "spring" }}
             className={`relative flex w-full flex-col items-center justify-center overflow-hidden ${
               isWindowMode ? "h-[320px]" : "h-[500px]"
             }`}

@@ -264,6 +264,9 @@ export const AboutNewShatter: React.FC<AboutNewShatterProps> = ({ shatterProgres
         width: W,
         height: H,
         backgroundColor: '#050812',
+        font: {
+          cssText: '',
+        },
         style: {
           transform: 'none',
         }

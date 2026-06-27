@@ -303,6 +303,9 @@ export const ShatterLinux: React.FC<ShatterLinuxProps> = ({ shatterProgress, pre
         width: W,
         height: H,
         backgroundColor: '#1a1a2e',
+        font: {
+          cssText: '',
+        },
         style: {
           transform: 'none',
         }
