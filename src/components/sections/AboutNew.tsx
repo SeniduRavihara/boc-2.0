@@ -164,10 +164,11 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
               <img
                 src="/email-and-header/boc.webp"
                 alt="BOC Logo"
-                width={isWindowMode ? 80 : 120}
-                height={isWindowMode ? 80 : 120}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ 
+                  width: isWindowMode ? "80px" : "120px", 
+                  height: isWindowMode ? "80px" : "120px" 
+                }}
               />
             </div>
 
@@ -181,26 +182,20 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
               <img
                 src="/service-icons/aws 1.webp"
                 alt="AWS"
-                width={20}
-                height={20}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "20px", height: "20px" }}
               />
               <img
                 src="/service-icons/icons8-azure-96 3.webp"
                 alt="Azure"
-                width={20}
-                height={20}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "20px", height: "20px" }}
               />
               <img
                 src="/service-icons/icons8-google-cloud-144 2.webp"
                 alt="GCP"
-                width={22}
-                height={22}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "22px", height: "22px" }}
               />
             </OrbitingCircles>
 
@@ -215,34 +210,26 @@ export function AboutNew({ isWindowMode = false }: { isWindowMode?: boolean } = 
               <img
                 src="/service-icons/icons8-docker-144 2.webp"
                 alt="Docker"
-                width={24}
-                height={24}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "24px", height: "24px" }}
               />
               <img
                 src="/service-icons/kubanaties.webp"
                 alt="Kubernetes"
-                width={24}
-                height={24}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "24px", height: "24px" }}
               />
               <img
                 src="/service-icons/icons8-terraform-144 2.webp"
                 alt="Terraform"
-                width={24}
-                height={24}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "24px", height: "24px" }}
               />
               <img
                 src="/service-icons/github_logo.webp"
                 alt="GitHub"
-                width={24}
-                height={24}
                 className="object-contain"
-                style={{ width: "auto", height: "auto" }}
+                style={{ width: "24px", height: "24px" }}
               />
             </OrbitingCircles>
           </motion.div>
