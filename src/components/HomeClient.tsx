@@ -33,6 +33,7 @@ export function HomeClient() {
   const [preCapture, setPreCapture] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [scrollContainerHeight, setScrollContainerHeight] = useState("1000vh");
+  const [registrationCountdown, setRegistrationCountdown] = useState("00d 00h 00m 00s");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -55,6 +56,35 @@ export function HomeClient() {
   useEffect(() => {
     ScrollTrigger.refresh();
   }, [scrollContainerHeight]);
+
+  useEffect(() => {
+    const targetYear = new Date().getFullYear();
+    const targetTime = new Date(`${targetYear}-07-02T19:00:00+05:30`);
+
+    const updateCountdown = () => {
+      const remaining = targetTime.getTime() - Date.now();
+
+      if (remaining <= 0) {
+        setRegistrationCountdown("Open now");
+        return;
+      }
+
+      const totalSeconds = Math.floor(remaining / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setRegistrationCountdown(
+        `${String(days).padStart(2, "0")}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`,
+      );
+    };
+
+    updateCountdown();
+    const interval = window.setInterval(updateCountdown, 1000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   const mainRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef<HTMLDivElement>(null);
@@ -645,13 +675,18 @@ export function HomeClient() {
             <p className="max-w-xl font-mono text-xs min-[380px]:text-sm uppercase tracking-widest text-white/50 md:text-lg px-4 mb-8">
               Sri Lanka&apos;s premier inter-university cloud championship.
             </p>
-            <button
-              disabled
-              aria-disabled="true"
-              className="px-8 py-3.5 rounded-full bg-white/10 text-white/50 border border-white/20 font-bold tracking-widest uppercase text-xs sm:text-sm cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
-            >
-              Ideathon Registration Coming Soon
-            </button>
+            <div className="flex flex-col items-center gap-3">
+              <button
+                disabled
+                aria-disabled="true"
+                className="px-8 py-3.5 rounded-full bg-white/10 text-white/50 border border-white/20 font-bold tracking-widest uppercase text-xs sm:text-sm cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
+              >
+                Registration opens in
+              </button>
+              <div className="rounded-full border border-blue-400/30 bg-black/30 px-4 py-2 font-mono text-sm sm:text-base tracking-[0.35em] text-blue-200 shadow-[0_0_24px_rgba(59,130,246,0.15)]">
+                {registrationCountdown}
+              </div>
+            </div>
           </div>
 
           {/* E. Shatter window (Phase 1 scales up to full screen, Phase 2 shatters) */}
