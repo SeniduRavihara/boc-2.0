@@ -1,25 +1,21 @@
 "use client";
 
+import ScreenLoader from "@/components/ui/screen-loader";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import ScreenLoader from "@/components/ui/screen-loader";
 
-import Image from "next/image";
-import { Users } from "lucide-react";
 import MainFooter from "@/components/layout/MainFooter";
-import { AboutNew } from "./sections/AboutNew";
+import { Users } from "lucide-react";
+import Image from "next/image";
 import { ContactSection } from "./sections/ContactSection";
 import { CTASection } from "./sections/CTASection";
-import { FallingScene } from "./sections/FallingScene";
-import { PortalGalleryEntrance } from "./sections/PortalGalleryEntrance";
 import { Partners } from "./sections/Partners";
-import { PrizePool } from "./sections/PrizePool";
+import { PortalGalleryEntrance } from "./sections/PortalGalleryEntrance";
 import { Timeline } from "./sections/Timeline";
-import { ShatterLinux } from "./ui/ShatterLinux";
 import { AboutNewShatter } from "./ui/AboutNewShatter";
+import { ShatterLinux } from "./ui/ShatterLinux";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,7 +29,8 @@ export function HomeClient() {
   const [preCapture, setPreCapture] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [scrollContainerHeight, setScrollContainerHeight] = useState("1000vh");
-  const [registrationCountdown, setRegistrationCountdown] = useState("00d 00h 00m 00s");
+  const [registrationCountdown, setRegistrationCountdown] =
+    useState("00d 00h 00m 00s");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -42,7 +39,10 @@ export function HomeClient() {
       if (isMob) {
         const height = window.innerHeight;
         // Dynamically compute vh based on target 4500px scroll depth
-        const calculatedVh = Math.min(Math.max(Math.round(450000 / height), 450), 750);
+        const calculatedVh = Math.min(
+          Math.max(Math.round(450000 / height), 450),
+          750
+        );
         setScrollContainerHeight(`${calculatedVh}vh`);
       } else {
         setScrollContainerHeight("1000vh");
@@ -76,7 +76,13 @@ export function HomeClient() {
       const seconds = totalSeconds % 60;
 
       setRegistrationCountdown(
-        `${String(days).padStart(2, "0")}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`,
+        `${String(days).padStart(2, "0")}d ${String(hours).padStart(
+          2,
+          "0"
+        )}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(
+          2,
+          "0"
+        )}s`
       );
     };
 
@@ -181,7 +187,7 @@ export function HomeClient() {
       const totalFrames = 120;
       const frameIndex = Math.min(
         Math.floor(progress * totalFrames),
-        totalFrames - 1,
+        totalFrames - 1
       );
 
       // Find the closest loaded frame to prevent flickering while loading
@@ -402,11 +408,7 @@ export function HomeClient() {
       );
 
       // 7. Earth sequence fades out as falling scene becomes visible
-      tl.to(
-        earthContainerRef.current,
-        { opacity: 0, duration: 0.6 },
-        2.6
-      );
+      tl.to(earthContainerRef.current, { opacity: 0, duration: 0.6 }, 2.6);
 
       // 8. Falling container fades in (clouds, streaks, person)
       tl.to(
@@ -522,11 +524,13 @@ export function HomeClient() {
         {
           duration: 0.1,
           onStart: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
+            if (scrollLabelRef.current)
+              scrollLabelRef.current.innerText = "KEEP SCROLLING";
           },
           onReverseComplete: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
-          }
+            if (scrollLabelRef.current)
+              scrollLabelRef.current.innerText = "KEEP SCROLLING";
+          },
         },
         0.5
       );
@@ -536,11 +540,13 @@ export function HomeClient() {
         {
           duration: 0.1,
           onStart: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
+            if (scrollLabelRef.current)
+              scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
           },
           onReverseComplete: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
-          }
+            if (scrollLabelRef.current)
+              scrollLabelRef.current.innerText = "KEEP SCROLLING";
+          },
         },
         2.1
       );
@@ -550,11 +556,13 @@ export function HomeClient() {
         {
           duration: 0.1,
           onStart: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "KEEP SCROLLING";
+            if (scrollLabelRef.current)
+              scrollLabelRef.current.innerText = "KEEP SCROLLING";
           },
           onReverseComplete: () => {
-            if (scrollLabelRef.current) scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
-          }
+            if (scrollLabelRef.current)
+              scrollLabelRef.current.innerText = "SCROLL TO SHATTER";
+          },
         },
         2.7
       );
@@ -594,7 +602,10 @@ export function HomeClient() {
       >
         <div className="sticky top-0 h-[100dvh] w-full overflow-hidden touch-pan-y">
           {/* A. Background 1: Earth Canvas */}
-          <div ref={earthContainerRef} className="absolute inset-0 z-0 overflow-hidden">
+          <div
+            ref={earthContainerRef}
+            className="absolute inset-0 z-0 overflow-hidden"
+          >
             <canvas
               ref={canvasRef}
               className="h-full w-full object-cover opacity-50"
@@ -603,7 +614,10 @@ export function HomeClient() {
           </div>
 
           {/* B. Background 2: Falling Clouds (starts hidden, fades in at shatter) */}
-          <div ref={fallingContainerRef} className="absolute inset-0 z-5 pointer-events-none opacity-0">
+          <div
+            ref={fallingContainerRef}
+            className="absolute inset-0 z-5 pointer-events-none opacity-0"
+          >
             {/* Cloud background */}
             <div ref={fallingBgRef} className="absolute inset-x-0 top-0 w-full">
               <Image
@@ -612,7 +626,7 @@ export function HomeClient() {
                 width={1080}
                 height={1920}
                 className="hidden md:block w-full h-auto object-cover"
-                style={{ minHeight: '220vh' }}
+                style={{ minHeight: "220vh" }}
               />
               <Image
                 src="/falling_background_mobile.webp"
@@ -620,12 +634,15 @@ export function HomeClient() {
                 width={720}
                 height={1280}
                 className="block md:hidden w-full h-auto object-cover"
-                style={{ minHeight: '220vh' }}
+                style={{ minHeight: "220vh" }}
               />
             </div>
 
             {/* Darkness overlay */}
-            <div ref={darknessRef} className="absolute inset-0 bg-black/40 opacity-0" />
+            <div
+              ref={darknessRef}
+              className="absolute inset-0 bg-black/40 opacity-0"
+            />
 
             {/* Streaks */}
             <div ref={streaksRef} className="absolute inset-0 opacity-0">
@@ -639,8 +656,14 @@ export function HomeClient() {
           </div>
 
           {/* C. Falling Person (starts hidden, fades in at shatter) */}
-          <div ref={personContainerRef} className="absolute inset-0 z-10 flex items-center justify-center overflow-visible pointer-events-none opacity-0">
-            <div ref={personRef} className="relative w-[85vw] md:w-[50vw] max-w-[650px] aspect-square">
+          <div
+            ref={personContainerRef}
+            className="absolute inset-0 z-10 flex items-center justify-center overflow-visible pointer-events-none opacity-0"
+          >
+            <div
+              ref={personRef}
+              className="relative w-[85vw] md:w-[50vw] max-w-[650px] aspect-square"
+            >
               <Image
                 src="/falling_person1.webp"
                 alt="Falling person"
@@ -658,7 +681,9 @@ export function HomeClient() {
           >
             <h1 className="font-reglo mb-6 font-black leading-[0.85]">
               <span className="block text-[4rem] leading-[0.85] tracking-tighter min-[380px]:text-[4.5rem] sm:text-[5.5rem] md:hidden">
-                <span className="text-white block sm:inline">Beauty of Cloud</span>
+                <span className="text-white block sm:inline">
+                  Beauty of Cloud
+                </span>
                 <span className="hidden sm:inline"> </span>
                 <span className="text-blue-500 drop-shadow-[0_0_40px_rgba(59,130,246,0.6)]">
                   2.0
@@ -681,7 +706,7 @@ export function HomeClient() {
                 aria-disabled="true"
                 className="px-8 py-3.5 rounded-full bg-white/10 text-white/50 border border-white/20 font-bold tracking-widest uppercase text-xs sm:text-sm cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
               >
-                Registration opens in
+                Registration soon
               </button>
               <div className="rounded-full border border-blue-400/30 bg-black/30 px-4 py-2 font-mono text-sm sm:text-base tracking-[0.35em] text-blue-200 shadow-[0_0_24px_rgba(59,130,246,0.15)]">
                 {registrationCountdown}
@@ -714,10 +739,13 @@ export function HomeClient() {
           >
             <div className="max-w-[1000px] mx-auto px-6 text-center">
               <h2 className="font-reglo text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[1.1] drop-shadow-2xl text-white">
-                To build Sri Lanka&apos;s next generation of cloud-native engineers by bridging academic learning and industry infrastructure.
+                To build Sri Lanka&apos;s next generation of cloud-native
+                engineers by bridging academic learning and industry
+                infrastructure.
               </h2>
               <p className="mt-6 text-slate-300 font-mono text-xs uppercase tracking-[0.4em] drop-shadow-lg mb-10">
-                Founded under IEEE Student Branch - University of Sri Jayewardenepura
+                Founded under IEEE Student Branch - University of Sri
+                Jayewardenepura
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button
@@ -789,8 +817,15 @@ export function HomeClient() {
           <div className="w-1 h-2 bg-blue-400 rounded-full absolute top-1.5 left-1/2 -translate-x-1/2 animate-bounce" />
         </div>
         <div className="flex flex-col text-left">
-          <span className="text-[8px] text-white/40 uppercase leading-none mb-1">GUIDE</span>
-          <span ref={scrollLabelRef} className="font-bold text-blue-400 leading-none">KEEP SCROLLING</span>
+          <span className="text-[8px] text-white/40 uppercase leading-none mb-1">
+            GUIDE
+          </span>
+          <span
+            ref={scrollLabelRef}
+            className="font-bold text-blue-400 leading-none"
+          >
+            KEEP SCROLLING
+          </span>
         </div>
       </div>
     </main>

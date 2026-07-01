@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useRef } from "react";
-import { motion, useMotionValue, useAnimationFrame, useScroll, useVelocity, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { BackgroundBeams } from "@/components/ui/BackgroundBeams";
-import { GradientShinyTitle } from "@/components/ui/GradientShinyTitle";
-import Link from "next/link";
-import Magnet from "@/components/ui/Magnet";
 import Grainient from "@/components/ui/Grainient";
+import Magnet from "@/components/ui/Magnet";
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useScroll,
+  useSpring,
+  useVelocity,
+} from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import React, { useRef } from "react";
 
 export function CTASection() {
   const constraintsRef = useRef<HTMLElement>(null);
@@ -18,10 +21,10 @@ export function CTASection() {
 
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
-  
+
   // Persistent angle state that holds the tilt even after scrolling stops
   const targetAngle = useMotionValue(0);
-  
+
   // Angle effect removed as requested
   /*
   useMotionValueEvent(scrollVelocity, "change", (latest) => {
@@ -63,8 +66,8 @@ export function CTASection() {
     const angleRad = tiltAngle.get() * (Math.PI / 180);
 
     // Apply gravity (tilted)
-    vx.current += 0.8 * Math.sin(angleRad) * dt; 
-    vy.current += 0.8 * Math.cos(angleRad) * dt; 
+    vx.current += 0.8 * Math.sin(angleRad) * dt;
+    vy.current += 0.8 * Math.cos(angleRad) * dt;
 
     // Apply air friction to spin
     omega.current *= Math.pow(0.99, dt);
@@ -84,20 +87,29 @@ export function CTASection() {
     }
 
     // Calculate bounds based on offset (ignores transform translates)
-    const minX = -ballRef.current.offsetLeft; 
-    const maxX = constraintsRef.current.clientWidth - ballRef.current.offsetLeft - ballRef.current.clientWidth;
+    const minX = -ballRef.current.offsetLeft;
+    const maxX =
+      constraintsRef.current.clientWidth -
+      ballRef.current.offsetLeft -
+      ballRef.current.clientWidth;
     const minY = -ballRef.current.offsetTop;
-    
+
     // Dynamic floor based on tilt angle
     // Visual floor is removed, so we bounce exactly at the bottom border
-    const floorVisualOffset = -10; 
-    const baseMaxY = constraintsRef.current.clientHeight - ballRef.current.offsetTop - ballRef.current.clientHeight - floorVisualOffset;
-    
+    const floorVisualOffset = -10;
+    const baseMaxY =
+      constraintsRef.current.clientHeight -
+      ballRef.current.offsetTop -
+      ballRef.current.clientHeight -
+      floorVisualOffset;
+
     const containerCenterX = constraintsRef.current.clientWidth / 2;
-    const ballAbsX = ballRef.current.offsetLeft + nextX + ballRef.current.clientWidth / 2;
-    
+    const ballAbsX =
+      ballRef.current.offsetLeft + nextX + ballRef.current.clientWidth / 2;
+
     // The tilted block rotates around its center, so the slope applies from the center.
-    const dynamicMaxY = baseMaxY + (ballAbsX - containerCenterX) * Math.tan(angleRad);
+    const dynamicMaxY =
+      baseMaxY + (ballAbsX - containerCenterX) * Math.tan(angleRad);
 
     // X axis collision
     if (nextX <= minX) {
@@ -119,12 +131,16 @@ export function CTASection() {
       nextY = dynamicMaxY;
       vy.current *= -0.6; // Bounce floor
       vx.current *= Math.pow(0.95, dt); // Floor friction
-      
+
       // Rolling on the floor links linear velocity to angular velocity
       omega.current = vx.current * 2;
-      
+
       // Settle if velocity is very small and tilt is low
-      if (Math.abs(vy.current) < 1.5 && Math.abs(vx.current) < 1 && Math.abs(angleRad) < 0.01) {
+      if (
+        Math.abs(vy.current) < 1.5 &&
+        Math.abs(vx.current) < 1 &&
+        Math.abs(angleRad) < 0.01
+      ) {
         vy.current = 0;
         vx.current = 0;
         nextY = dynamicMaxY;
@@ -137,8 +153,10 @@ export function CTASection() {
   });
 
   return (
-    <section ref={constraintsRef} className="relative w-full overflow-hidden bg-[#050812] border-t border-white/5">
-      
+    <section
+      ref={constraintsRef}
+      className="relative w-full overflow-hidden bg-[#050812] border-t border-white/5"
+    >
       {/* Visual Tilted Footer Extension */}
       {/* <motion.div 
         className="absolute bottom-[-80px] left-[-10%] w-[120%] h-[150px] bg-[#001a3d] border-t border-white/10 origin-center z-10"
@@ -146,7 +164,7 @@ export function CTASection() {
       /> */}
 
       {/* Trigger for the physics drop */}
-      <motion.div 
+      <motion.div
         onViewportEnter={() => setHasStarted(true)}
         className="absolute inset-0 pointer-events-none z-20"
       />
@@ -177,7 +195,8 @@ export function CTASection() {
           centerY={0}
           zoom={0.9}
         />
-        <div className="absolute inset-0 bg-black/40" /> {/* Subtle overlay to ensure text contrast */}
+        <div className="absolute inset-0 bg-black/40" />{" "}
+        {/* Subtle overlay to ensure text contrast */}
       </div>
 
       {/* Interactive Physics Ball */}
@@ -216,9 +235,9 @@ export function CTASection() {
         whileDrag={{ scale: 1.1, cursor: "grabbing" }}
         className="absolute z-50 cursor-grab touch-none select-none w-24 h-24 md:w-32 md:h-32 left-[calc(50%-48px)] md:left-[calc(50%-64px)] top-0"
       >
-        <Image 
-          src="/Group.webp" 
-          alt="Interactive Object" 
+        <Image
+          src="/Group.webp"
+          alt="Interactive Object"
           fill
           sizes="(max-width: 768px) 128px, 128px"
           className="object-contain drop-shadow-[0_0_20px_rgba(59,130,246,0.3)] pointer-events-none"
@@ -228,8 +247,13 @@ export function CTASection() {
 
       <div className="relative w-full min-h-[500px] flex items-center justify-center py-24 px-6 overflow-hidden group">
         {/* Background Decorative Grid */}
-        <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
+        <div
+          className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+            backgroundSize: "32px 32px",
+          }}
         />
 
         <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
@@ -240,8 +264,11 @@ export function CTASection() {
             viewport={{ once: true }}
           >
             <h2 className="font-reglo text-4xl md:text-7xl font-black tracking-tighter mb-6 leading-[0.9] text-white">
-              Ready to Shape<br />
-              <span className="text-blue-500 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">the Future?</span>
+              Ready to Shape
+              <br />
+              <span className="text-blue-500 drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+                the Future?
+              </span>
             </h2>
 
             <p className="max-w-xl mx-auto text-white/40 text-sm md:text-base font-medium mb-10 tracking-[0.1em] uppercase">
@@ -249,17 +276,15 @@ export function CTASection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/register/session/3">
-                <Magnet padding={150} magnetStrength={12}>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-12 py-4 rounded-full bg-white text-black text-xl font-bold transition-all hover:bg-blue-50 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]"
-                  >
-                    Register Now
-                  </motion.button>
-                </Magnet>
-              </Link>
+              <Magnet padding={150} magnetStrength={12}>
+                <motion.button
+                  disabled
+                  aria-disabled="true"
+                  className="px-12 py-4 rounded-full bg-white/90 text-black/40 text-xl font-bold cursor-not-allowed opacity-75"
+                >
+                  Registration Soon
+                </motion.button>
+              </Magnet>
             </div>
           </motion.div>
         </div>
