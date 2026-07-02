@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import React, { useEffect, useRef, useState } from "react";
 
 import MainFooter from "@/components/layout/MainFooter";
-import { Users } from "lucide-react";
+import { Download, Users } from "lucide-react";
 import Image from "next/image";
 import { ContactSection } from "./sections/ContactSection";
 import { CTASection } from "./sections/CTASection";
@@ -29,8 +29,6 @@ export function HomeClient() {
   const [preCapture, setPreCapture] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [scrollContainerHeight, setScrollContainerHeight] = useState("1000vh");
-  const [registrationCountdown, setRegistrationCountdown] =
-    useState("00d 00h 00m 00s");
 
   useEffect(() => {
     const checkMobile = () => {
@@ -56,41 +54,6 @@ export function HomeClient() {
   useEffect(() => {
     ScrollTrigger.refresh();
   }, [scrollContainerHeight]);
-
-  useEffect(() => {
-    const targetYear = new Date().getFullYear();
-    const targetTime = new Date(`${targetYear}-07-02T19:00:00+05:30`);
-
-    const updateCountdown = () => {
-      const remaining = targetTime.getTime() - Date.now();
-
-      if (remaining <= 0) {
-        setRegistrationCountdown("Open now");
-        return;
-      }
-
-      const totalSeconds = Math.floor(remaining / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      setRegistrationCountdown(
-        `${String(days).padStart(2, "0")}d ${String(hours).padStart(
-          2,
-          "0"
-        )}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(
-          2,
-          "0"
-        )}s`
-      );
-    };
-
-    updateCountdown();
-    const interval = window.setInterval(updateCountdown, 1000);
-
-    return () => window.clearInterval(interval);
-  }, []);
 
   const mainRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef<HTMLDivElement>(null);
@@ -701,16 +664,12 @@ export function HomeClient() {
               Sri Lanka&apos;s premier inter-university cloud championship.
             </p>
             <div className="flex flex-col items-center gap-3">
-              <button
-                disabled
-                aria-disabled="true"
-                className="px-8 py-3.5 rounded-full bg-white/10 text-white/50 border border-white/20 font-bold tracking-widest uppercase text-xs sm:text-sm cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
+              <a
+                href="https://www.beautyofcloud.com/register/compitition"
+                className="px-8 py-3.5 rounded-full bg-blue-600 text-white border border-blue-400/50 font-bold tracking-widest uppercase text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-blue-500 transition-colors"
               >
-                Registration soon
-              </button>
-              <div className="rounded-full border border-blue-400/30 bg-black/30 px-4 py-2 font-mono text-sm sm:text-base tracking-[0.35em] text-blue-200 shadow-[0_0_24px_rgba(59,130,246,0.15)]">
-                {registrationCountdown}
-              </div>
+                Register Ideathon
+              </a>
             </div>
           </div>
 
@@ -748,27 +707,22 @@ export function HomeClient() {
                 Jayewardenepura
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button
-                  type="button"
-                  disabled
-                  aria-disabled="true"
-                  className="w-full sm:w-auto px-8 py-4 bg-blue-700/45 text-white/65 border border-white/40 font-bold tracking-widest uppercase text-xs rounded-full transition-all shadow-[0_0_20px_rgba(30,144,255,0.2)] flex items-center justify-center gap-2 cursor-not-allowed opacity-75"
+                <a
+                  href="https://www.beautyofcloud.com/register/compitition"
+                  className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white border border-blue-400 font-bold tracking-widest uppercase text-xs rounded-full transition-all shadow-[0_0_20px_rgba(30,144,255,0.5)] flex items-center justify-center gap-2 hover:bg-blue-500 hover:scale-105"
                 >
                   <Users size={14} />
-                  Ideathon Registration
-                  <span className="ml-1 rounded-full border border-white/40 bg-white/10 px-2 py-0.5 text-[10px] tracking-[0.2em] text-white/80">
-                    Coming Soon
-                  </span>
-                </button>
+                  Register Ideathon
+                </a>
 
-                {/* <a 
-                  href="/Delegate_Booklet.pdf" 
+                <a 
+                  href="/booklet/boc2-delegate-booklet.pdf" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white font-bold tracking-widest uppercase text-xs rounded-full hover:scale-105 transition-all flex items-center justify-center gap-2 backdrop-blur-md"
                 >
                   <Download size={14} /> Download Delegate Booklet
-                </a> */}
+                </a>
               </div>
             </div>
           </div>

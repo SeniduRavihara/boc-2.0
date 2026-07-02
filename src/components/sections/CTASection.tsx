@@ -277,13 +277,14 @@ export function CTASection() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Magnet padding={150} magnetStrength={12}>
-                <motion.button
-                  disabled
-                  aria-disabled="true"
-                  className="px-12 py-4 rounded-full bg-white/90 text-black/40 text-xl font-bold cursor-not-allowed opacity-75"
+                <motion.a
+                  href="https://www.beautyofcloud.com/register/compitition"
+                  className="inline-block px-12 py-4 rounded-full bg-white text-black text-xl font-bold hover:bg-gray-100 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Registration Soon
-                </motion.button>
+                  Register Ideathon
+                </motion.a>
               </Magnet>
             </div>
           </motion.div>

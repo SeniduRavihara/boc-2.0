@@ -5,29 +5,32 @@ import { useState, ChangeEvent, FormEvent, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { CheckCircle2, AlertCircle, Loader2, Plus, Trash2, Users, School, Sparkles, Award } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, Plus, Trash2, Users, School, Sparkles, Award, Copy, Check } from 'lucide-react';
+
+const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/D2ww3xn34Vu3QgZipBal9D";
 
 export default function CompetitionForm() {
     const [status, setStatus] = useState<"success" | "error" | "loading" | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const clearRedirectTimeout = () => {
-        if (redirectTimeoutRef.current) {
-            clearTimeout(redirectTimeoutRef.current);
-            redirectTimeoutRef.current = null;
-        }
-    };
+    const [linkCopied, setLinkCopied] = useState(false);
+    const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        return () => clearRedirectTimeout();
+        return () => {
+            if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+        };
     }, []);
 
-    useEffect(() => {
-        if (status !== 'success') {
-            clearRedirectTimeout();
+    const handleCopyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(WHATSAPP_GROUP_LINK);
+            setLinkCopied(true);
+            if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+            copiedTimeoutRef.current = setTimeout(() => setLinkCopied(false), 2500);
+        } catch (err) {
+            console.error("Failed to copy link:", err);
         }
-    }, [status]);
+    };
 
     // Top-level team details
     const [teamName, setTeamName] = useState("");
@@ -40,7 +43,7 @@ export default function CompetitionForm() {
         phone: ""
     });
 
-    // Members list (0 to 3 additional members)
+    // Members list (1 to 3 additional members -> total team size 2 to 4)
     const [members, setMembers] = useState<{ name: string; email: string }[]>([]);
 
     // Terms verification checkbox
@@ -74,6 +77,19 @@ export default function CompetitionForm() {
         // 1. Client-side sanity checks
         if (!teamName.trim() || !university.trim() || !leader.name.trim() || !leader.email.trim() || !leader.phone.trim()) {
             setErrorMessage("Please fill in all required team leader and team metadata fields.");
+            setStatus("error");
+            return;
+        }
+
+        // Team size must be 2-4 (leader + 1-3 members)
+        if (members.length < 1) {
+            setErrorMessage("Teams must have at least 2 members. Please add at least one team member before submitting.");
+            setStatus("error");
+            return;
+        }
+
+        if (members.length > 3) {
+            setErrorMessage("Teams cannot exceed 4 members total (1 leader + 3 members).");
             setStatus("error");
             return;
         }
@@ -147,12 +163,6 @@ export default function CompetitionForm() {
             // Save to localStorage for referencing
             localStorage.setItem('registered_competition_team', JSON.stringify(finalTeam));
 
-            // Optional redirect
-            clearRedirectTimeout();
-            redirectTimeoutRef.current = setTimeout(() => {
-                window.location.href = "https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"; // Redirect to whatsapp or dashboard
-            }, 4500);
-
         } catch (error: any) {
             console.error("Error registering team:", error);
             setStatus("error");
@@ -204,20 +214,46 @@ export default function CompetitionForm() {
                                         <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight mb-2">Team Registered!</h3>
                                         <p className="text-slate-400 text-xs md:text-sm font-medium mb-6 md:mb-8 leading-relaxed">
                                             Congratulations! Your team <span className="text-purple-400 font-bold">"{teamName}"</span> has successfully entered the Cloud Challenge Ideathon.
-                                            Redirecting you to the official WhatsApp channel...
+                                            As team leader, join the WhatsApp group below, then copy the link and share it with the rest of your team so they can join too.
                                         </p>
+
+                                        {/* Link display */}
+                                        <div className="w-full mb-4 bg-white/[0.03] border border-white/10 rounded-xl md:rounded-2xl px-3 py-2.5 md:px-4 md:py-3">
+                                            <span className="block text-left text-[10px] md:text-xs text-slate-400 truncate font-mono">
+                                                {WHATSAPP_GROUP_LINK}
+                                            </span>
+                                        </div>
+
+                                        {/* Copy + Join button pair */}
                                         <div className="flex flex-col gap-3 w-full">
-                                            <a
-                                                href="https://chat.whatsapp.com/C1DhlO3N5UjJg6BjgafBYr?mode=gi_t"
-                                                className="w-full py-4 md:py-5 px-6 bg-emerald-500 text-white font-black uppercase tracking-[0.15em] text-[10px] rounded-xl md:rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-                                            >
-                                                Join WhatsApp Group
-                                            </a>
+                                            <div className="grid grid-cols-2 gap-3 w-full">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCopyLink}
+                                                    className="w-full py-4 md:py-5 px-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-[0.1em] text-[10px] rounded-xl md:rounded-2xl hover:bg-white/10 transition-colors flex justify-center items-center gap-2"
+                                                >
+                                                    {linkCopied ? (
+                                                        <>
+                                                            <Check size={14} className="text-emerald-400" /> Copied
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Copy size={14} /> Copy Link
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <a
+                                                    href={WHATSAPP_GROUP_LINK}
+                                                    className="w-full py-4 md:py-5 px-4 bg-emerald-500 text-white font-black uppercase tracking-[0.1em] text-[10px] rounded-xl md:rounded-2xl hover:bg-emerald-600 transition-colors flex justify-center items-center gap-2 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                                                >
+                                                    Join as Leader
+                                                </a>
+                                            </div>
+                                            <p className="text-[9px] md:text-[10px] text-slate-500 italic">
+                                                Only the team leader should join the group directly — forward the copied link to your teammates instead of having them join individually.
+                                            </p>
                                             <button
-                                                onClick={() => {
-                                                    clearRedirectTimeout();
-                                                    setStatus(null);
-                                                }}
+                                                onClick={() => setStatus(null)}
                                                 className="w-full py-3 bg-white/5 text-white/50 font-black uppercase tracking-widest text-[10px] rounded-xl md:rounded-2xl hover:bg-white/10 hover:text-white transition-colors"
                                             >
                                                 Return to Form
@@ -297,7 +333,7 @@ export default function CompetitionForm() {
                                 Join the <span className="text-purple-500">Ideathon</span>
                             </h1>
                             <p className="text-slate-400 leading-relaxed max-w-xl text-sm md:text-md">
-                                Form your dream team of 1 to 4 members to brainstorm, design and pitch breakthrough cloud computing architectures.
+                                Form your dream team of 2 to 4 members to brainstorm, design and pitch breakthrough cloud computing architectures.
                             </p>
                         </div>
                         <div className="px-4 py-2 md:px-6 md:py-3 bg-purple-500/20 border border-purple-400/40 rounded-lg backdrop-blur-md transition-all hover:scale-105">
@@ -315,7 +351,7 @@ export default function CompetitionForm() {
                             </div>
                             <div>
                                 <h4 className="font-bold text-white uppercase text-[10px] md:text-xs tracking-wider mb-0.5 md:mb-1">Team Limits</h4>
-                                <p className="text-slate-400 text-[11px] md:text-xs">Teams must consist of exactly 1 to 4 members.</p>
+                                <p className="text-slate-400 text-[11px] md:text-xs">Teams must consist of exactly 2 to 4 members.</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-3">
@@ -431,7 +467,7 @@ export default function CompetitionForm() {
                         <div className="flex items-center justify-between border-l-2 border-purple-500 pl-3 md:pl-4">
                             <div className="flex items-center gap-2.5">
                                 <span className="text-[10px] md:text-xs font-mono font-black text-purple-500">03</span>
-                                <h3 className="text-sm md:text-md font-black uppercase tracking-[0.2em] text-white">Additional Members</h3>
+                                <h3 className="text-sm md:text-md font-black uppercase tracking-[0.2em] text-white">Additional Members <span className="text-purple-400 normal-case font-bold tracking-normal">(at least 1 required)</span></h3>
                             </div>
 
                             <button
@@ -448,11 +484,11 @@ export default function CompetitionForm() {
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="bg-white/[0.01] border border-white/[0.03] border-dashed rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 text-center"
+                                className="bg-red-500/[0.03] border border-red-500/20 border-dashed rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-10 text-center"
                             >
-                                <div className="text-slate-600 mb-1 md:mb-2 flex justify-center"><Users size={24} /></div>
-                                <h4 className="text-slate-400 font-bold uppercase text-[10px] md:text-xs tracking-wider">Solo Mode Enabled</h4>
-                                <p className="text-slate-600 text-[11px] md:text-xs mt-1">You are currently registering as a 1-person team. Click "Add Member" to construct a multi-member team.</p>
+                                <div className="text-red-400/70 mb-1 md:mb-2 flex justify-center"><Users size={24} /></div>
+                                <h4 className="text-red-300 font-bold uppercase text-[10px] md:text-xs tracking-wider">At Least 1 Member Required</h4>
+                                <p className="text-slate-500 text-[11px] md:text-xs mt-1">Teams must have 2 to 4 members total. Click "Add Member" below to add at least one teammate before submitting.</p>
                             </motion.div>
                         ) : (
                             <div className="space-y-4 md:space-y-6">
